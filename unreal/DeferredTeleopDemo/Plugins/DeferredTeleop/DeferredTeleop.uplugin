@@ -1,0 +1,21 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "0.0.0",
+  "FriendlyName": "Deferred Teleoperation",
+  "Description": "Experimental runtime primitives for delay-tolerant, VR-mediated shared autonomy.",
+  "Category": "Robotics",
+  "CreatedBy": "YannickPr",
+  "CreatedByURL": "https://github.com/YannickPr/Deferred-Teleoperation",
+  "DocsURL": "https://github.com/YannickPr/Deferred-Teleoperation",
+  "CanContainContent": true,
+  "IsBetaVersion": true,
+  "Installed": false,
+  "Modules": [
+    {
+      "Name": "DeferredTeleopRuntime",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ]
+}

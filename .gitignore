@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+dist/
+build/
+
+# IDE and OS
+.vscode/
+.idea/
+.vs/
+.DS_Store
+Thumbs.db
+*.sln
+*.VC.db
+*.VC.opendb
+
+# Unreal generated files
+**/Binaries/
+**/DerivedDataCache/
+**/Intermediate/
+**/Saved/
+**/.vs/
+*.opensdf
+*.sdf
+*.suo
+*.xcodeproj
+*.xcworkspace
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+config/local/
+*.local.yaml
+*.local.json
+
+# Captures, datasets, models and large generated evidence
+captures/
+datasets/
+models/
+artifacts/
