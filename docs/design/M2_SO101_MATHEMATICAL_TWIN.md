@@ -1,15 +1,22 @@
 # M2 design — SO-101 mathematical twin and VR kinematic authoring
 
-Status: **implementation in progress**  
-Parent epic: [#12](https://github.com/YannickPr/Deferred-Teleoperation/issues/12)  
-Target release: `v0.2.0`  
+Status: **implementation in progress**
+Parent epic: [#12](https://github.com/YannickPr/Deferred-Teleoperation/issues/12)
+Target release: `v0.2.0`
 Last reviewed: 2026-09-04
+
+Related validation boundary: [delayed-intent validation design](DELAYED_INTENT_VALIDATION.md).
 
 ## 1. Purpose
 
 M2 replaces the M1 dummy geometry with a tested mathematical SO-101 twin. It lets an operator author an end-effector goal in desktop or VR, solve a bounded kinematic problem and inspect a time-sampled preview.
 
 M2 is deliberately not a physics or hardware milestone.
+
+The goal and preview are local authoring artifacts. They do not admit work, issue an actuator
+command or prove an external effect. A later explicit protocol step must carry the goal into an
+`OperationIntent`, where Field can apply the bounded delayed-intent rules and Robot can make a
+local execution decision. The M2 target remains `v0.2.0` and requires no physical SO-101.
 
 ```text
 named articulated state
@@ -50,6 +57,8 @@ M2 does not implement:
 - dense environment reconstruction;
 - a generic runtime URDF importer;
 - an exact arbitrary six-degree-of-freedom IK claim.
+- deciding whether a delayed target still identifies the intended object;
+- admitting, executing, cancelling or confirming an external effect.
 
 A result produced in M2 is a `KinematicPreview`, never a certified or collision-safe `MotionPlan`.
 
@@ -511,13 +520,47 @@ Wire order has no semantic meaning. Runtime code validates names against the mod
 
 The gripper must not be smuggled into the same field using a normalized 0-100 value. Either omit it from the first arm-state fixture or define a distinct typed actuator-state domain.
 
-Mission view data carries three articulated states with independent provenance:
+Mission view data carries three articulated states with available provenance; complete
+multi-operation lineage is a later M1.7 concern:
 
 ```text
 confirmed_robot_state
 arrival_robot_state
 target_robot_state
 ```
+
+### 13.1 Available references for the three state layers
+
+The three layers are categories of knowledge, not interchangeable snapshots. M2 prepares and
+displays the references available in the current articulated `dtt/0` state; it does not require
+the complete lineage schema planned for M1.7. When references are available, a delayed operation's
+branch may carry this compact record:
+
+```text
+CausalLineage
+- operation_id
+- intent_revision
+- source_observation_id
+- source_world_revision
+- forecast_id                  # when available; absence is displayed explicitly
+- model_reference
+- calibration_reference        # explicit unavailable value is valid in M2
+- parent_state_reference
+```
+
+`CONFIRMED` points to received Robot evidence, `ARRIVAL` points to the observation and forecast
+used for its conditional projection, and `TARGET` points to the local goal and its source
+observation. A target goal without a source observation remains a local draft and is shown with
+that reference missing; it cannot be mislabeled as confirmed or arrival state. Missing or
+incompatible references are rendered as unknown or incompatible, never filled from the latest
+item belonging to another operation.
+
+M2 performs these limited association checks and displays available/missing references. It does
+not implement the full multi-operation lineage gate, Field admission, Robot execution or the
+effect oracle. The implemented M1.7a correction handles bounded Mission selection; M1.7 later closes
+the full lineage behavior. The M2 `v0.2.0` mathematical gate does not depend on that future
+schema. The multi-operation and external-effect cases are defined in the [delayed-intent
+validation design](DELAYED_INTENT_VALIDATION.md).
 
 ## 14. IK task model
 
@@ -598,9 +641,19 @@ EndEffectorGoal
 - desired_approach_axis
 - reference_frame
 - authored_at
+- source_observation_id       # when available; missing is shown explicitly
+- model_reference             # required for the kinematic calculation
+- causal_lineage              # available references, not a complete M1.7 schema
 ```
 
 The target object's Unreal transform crosses the Unreal/canonical boundary once. The solver never consumes an Unreal world transform directly.
+
+`EndEffectorGoal` remains a local draft until an explicit authoring action creates an
+`OperationIntent`. That conversion must preserve the source observation, target identity and
+constraints required by the delayed-intent contract; a successful IK solve is not an admission.
+The interface must keep draft, submitted, admitted, adapted, held and completed states visually
+distinct. A candidate trajectory may differ from the trajectory later selected by Robot while
+still satisfying the admitted constraints.
 
 Required interaction behavior:
 
@@ -639,6 +692,13 @@ duration = max_i(abs(q_target_i - q_start_i) / preview_velocity_i)
 with configured minimum duration and a smooth interpolation parameter for visual continuity. Preview velocity limits are presentation/planning assumptions, not validated hardware limits.
 
 Every tool sample is recomputed through FK. Rendering may interpolate the committed samples, but the original samples remain inspectable.
+
+The preview records its `model_reference`, available source observation and generation status;
+missing references are shown explicitly. It is conditional on those inputs and may become stale
+before a delayed intent is admitted. No preview sample is an actuator command, an external-effect
+assertion or a collision/safety guarantee. The M2 release gate therefore checks mathematical
+reproducibility and operator-visible available provenance; full stale-world decisions and
+multi-operation lineage belong to the later [validation matrix](DELAYED_INTENT_VALIDATION.md).
 
 ## 17. Dependency graph
 
@@ -725,6 +785,18 @@ Mitigation: warm starts, update-rate cap, coalescing, bounded steps, rich status
 
 Mitigation: debug primitives are the mathematical release baseline; visual pack is parallel and removable.
 
+### Causal branches are mixed across operations
+
+Mitigation: M2 displays available operation, observation, forecast and model references and marks
+missing values; M1.7 later carries the complete intent-revision lineage and rejects incompatible
+bundles instead of selecting a convenient latest value. The deterministic two-operation replay is
+a later validation gate.
+
+### Preview is mistaken for an execution order
+
+Mitigation: keep local goal, submitted intent, Field admission and Robot outcome as separate
+states; label `KinematicPreview` as conditional and preserve its provenance.
+
 ### M1 protocol compatibility
 
 Mitigation: M2 math/model work remains independent. The articulated protocol extension builds on
@@ -748,6 +820,7 @@ Mitigation: consistently call the result `KinematicPreview`; document absent col
 - passing canonical/Unreal conversion tests;
 - explicit tool frame;
 - confirmed/arrival/target articulated states;
+- available state references and explicit missing-reference labels;
 - position-only and approach-axis IK with residual/status reporting;
 - time-sampled KinematicPreview;
 - desktop and VR visible evidence;
@@ -757,6 +830,9 @@ Mitigation: consistently call the result `KinematicPreview`; document absent col
 - documentation that accurately excludes physics, collision and safety guarantees.
 
 High-fidelity static meshes are desirable but do not override mathematical correctness. A debug-geometry build remains a supported fallback.
+This is an M2 gate only: it does not retroactively change the historical `v0.1.0` M1 release or
+claim completion of M1.7a, M1.7, M1.8, M3a or M3b. Full multi-operation lineage is a later M1.7
+gate. No physical robot or hardware-control path is required.
 
 ## 22. Open decisions intentionally deferred
 
