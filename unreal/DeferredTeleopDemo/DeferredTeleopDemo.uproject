@@ -1,0 +1,12 @@
+{
+  "FileVersion": 3,
+  "EngineAssociation": "5.8",
+  "Category": "Robotics",
+  "Description": "Host project for the experimental Deferred Teleoperation Unreal plugin.",
+  "Plugins": [
+    {
+      "Name": "DeferredTeleop",
+      "Enabled": true
+    }
+  ]
+}

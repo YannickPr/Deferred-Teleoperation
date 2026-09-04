@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/YannickPr/Deferred-Teleoperation/protocol/v0/schemas/message-envelope.schema.json",
+  "title": "Deferred Teleoperation experimental message envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol_version",
+    "message_id",
+    "message_type",
+    "source_id",
+    "destination_id",
+    "created_at",
+    "payload"
+  ],
+  "properties": {
+    "protocol_version": {
+      "const": "dtt/0"
+    },
+    "message_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "message_type": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "destination_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sequence_id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "correlation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "causation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object"
+    }
+  }
+}
