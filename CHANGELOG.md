@@ -17,16 +17,20 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 - pinned SO-101 structural source, canonical generated description and cross-platform drift gate.
 - canonical Unreal C++ transforms, schema-scoped robot-description parsing, generic tree FK,
   tool-frame propagation, Blueprint functions and Automation Test coverage. The roadmap tracks
-  the articulated-state protocol as M2.2 (#14), this FK implementation as M2.3 (#15), and the
-  numerical cross-language oracle as the planned M2.4 increment (#16). M2.3 is validated on
-  Linux and Win64 with Unreal Engine 5.8.2; the generated SO-101 check remains structural and
-  is not an M2.4 FK oracle.
+  the articulated-state protocol as M2.2 (#14) and this FK implementation as M2.3 (#15).
+- M2.4 cross-language SO-101 FK oracle (#16), with nine fixture cases, six independent Python
+  reference tests and three Unreal Automation tests added to the 11-test baseline. Generator
+  version 2 uses explicit left-to-right reductions so Python 3.11 and 3.12 produce identical
+  fixture bytes. Final native validation passes the eight-test Kinematics selector on Linux and
+  Win64; the earlier full 14-test reports remain contextual evidence in the [platform summary](docs/m2/evidence/fk-oracle-platform-validation.json).
 
 ### Status
 
 - M1.8 remains in progress after M1.8b: durable autonomy-budget accounting and stable effect
   identity across contract revisions are not implemented, and no physical hardware validation is
   claimed.
+- M2.4 is complete, including the cross-version reference check and native Linux/Win64 Kinematics
+  validation.
 
 ## 0.1.0 - 2026-09-04
 

@@ -31,6 +31,8 @@ jobs:
         run: python -m deferred_teleop.schema --check
       - name: Verify generated SO-101 description
         run: python -m deferred_teleop.robot_model.so101 --check
+      - name: Verify cross-language SO-101 FK fixtures
+        run: python -m deferred_teleop.robot_model.kinematics_reference --check
       - name: Verify M1 golden session and release evidence
         run: python -m deferred_teleop.release_gate verify --scope ci --skip-pytest
       - name: Test
