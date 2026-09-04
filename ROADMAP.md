@@ -144,7 +144,7 @@ No hardware-control path is introduced by this increment.
 
 ## M2 — Mathematical SO-101 twin in Unreal
 
-Status: **M2.2 protocol, M2.3 math core, M2.4 oracle and M2.5 kinematic actor complete; M2.7 constrained IK complete with Linux/Win64 evidence; preview and VR remain open**
+Status: **M2.2 protocol, M2.3 math core, M2.4 oracle and M2.5 kinematic actor complete; M2.7 constrained IK and M2.8a preview math core complete with Linux/Win64 evidence; desktop/VR authoring and #20/#21 integration remain open**
 Target release: **`v0.2.0`**
 
 - M2.2 articulated robot-state and model-reference protocol (#14), complete with strict Python and
@@ -161,10 +161,14 @@ Target release: **`v0.2.0`**
   groups and tool frames, PositionOnly and PositionPlusApproachAxis tasks, central finite-
   difference Jacobians, structural-limit projection and inspectable result diagnostics, with
   Linux/Win64 Unreal Engine 5.8.2 evidence;
-- Blueprint-accessible target authoring and debugging;
-- confirmed, arrival and target representations with causal provenance;
-- trajectory lines and temporal markers;
-- a `KinematicPreview` that remains a local candidate, not an execution command.
+- M2.8a bounded local time-sampled `KinematicPreview` math core (related to #20), with pure
+  Blueprint/C++ `BuildPreview`, explicit provenance values, partial-result opt-in, exact inactive
+  joint handling, per-joint preview timing limits, FK recomputation for every tool sample, exact
+  endpoints, and bounds of 128 samples and 30 seconds, with Linux/Win64 evidence;
+- planned desktop/VR target authoring and debugging;
+- planned confirmed, arrival and target representations with causal provenance;
+- planned trajectory lines and temporal markers;
+- a `KinematicPreview` consumer remains a local candidate, not an execution command;
 
 The M2.2 platform snapshot records the three targeted ArticulatedView tests as `Success` on
 LinuxEditor and WindowsEditor within a 22-test contextual report; build and headless-editor exit code 0.
@@ -196,6 +200,16 @@ and Win64 each record 35 contextual successes (13 IK plus 22 contextual tests), 
 failures or not-run tests in process, and build/editor exit code 0. See the [constrained IK guide](docs/m2/CONSTRAINED_IK.md)
 and the [M2.7 platform record](docs/m2/evidence/constrained-ik-platform-validation.json) for
 the platform details and source bindings.
+
+The bounded M2.8a preview core is covered by eight production tests under
+`DeferredTeleop.M2.KinematicPreview`. Linux and Win64 Unreal Engine 5.8.2 validation each record
+43/43 contextual successes (35 existing M2 tests plus the eight preview tests), with build and
+headless-editor exit code 0 and no warnings, failures, or not-run tests in process. The [preview guide](docs/m2/KINEMATIC_PREVIEW.md) documents the
+timed joint-space math, FK-per-sample tool poses, 128-sample/30-second bounds, preview velocity
+limits rather than dynamics, exact inactive-joint rejection, partial opt-in, and provenance
+boundary. The [platform record](docs/m2/evidence/kinematic-preview-platform-validation.json)
+binds the platform evidence; this math slice does not claim desktop/VR authoring, trajectory
+visualization, or closure of #20/#21.
 
 ## M3 — Autonomous delayed button press with bounded re-anchoring
 
@@ -273,9 +287,9 @@ replanning policies must retain explicit authorization, effect identity and caus
 
 `v0.1.0` remains the historical M1 release. The M1.7a, M1.7, M1.8, M3a and M3b design increments do not
 retroactively add capabilities or evidence to that tag. `v0.2.0` remains the M2 target; the M2.2,
-M2.3, M2.4 and bounded M2.5 slices are evidenced, and the M2.7 constrained-IK slice is complete
-with Linux/Win64 evidence; preview and VR gates stay open. The target does not require a
-physical SO-101 or claim hardware control.
+M2.3, M2.4 and bounded M2.5 slices are evidenced, M2.7 and M2.8a are complete with Linux/Win64
+evidence, and desktop/VR authoring with the #20/#21 integration gates remains open. The target does
+not require a physical SO-101 or claim hardware control.
 
 Every status claim in this roadmap distinguishes an implemented increment from planned or
 in-progress work. A design document, fixture or proposed oracle is not reported as an

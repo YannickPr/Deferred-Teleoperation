@@ -42,6 +42,12 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
   and a 13-test acceptance selector. Linux and Win64 each record 35 contextual successes (13 IK
   plus 22 contextual tests), with no warnings, failures or not-run tests in process and
   build/editor exit code 0. See the [M2.7 platform record](docs/m2/evidence/constrained-ik-platform-validation.json).
+- bounded M2.8a local `KinematicPreview` math core related to #20: pure C++/Blueprint
+  `BuildPreview`, deterministic time-sampled joint states, FK recomputation for every tool sample,
+  exact endpoints, explicit inactive-joint rejection, opt-in partial IK, declared provenance and
+  bounded preview timing. The eight-test selector passes inside 43-test contextual Linux and Win64
+  Unreal Engine 5.8.2 reports with build/editor exit code 0. See the [preview guide](docs/m2/KINEMATIC_PREVIEW.md)
+  and [platform record](docs/m2/evidence/kinematic-preview-platform-validation.json).
 
 ### Status
 
@@ -53,9 +59,9 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 - M2.2 is complete. Its raw articulated feed does not validate model geometry; an FK consumer must
   call the explicit description-backed validator. The post-rebase integrated validation passes
   141 Python tests; the historical M2.2 135/20 snapshot remains identified in its platform record.
-- M2.5 is complete for the bounded kinematic-actor slice. M2.7 constrained IK is complete with
-  Linux/Win64 evidence; `KinematicPreview` and VR authoring remain open, and no physical or
-  hardware-control path is claimed.
+- M2.5 is complete for the bounded kinematic-actor slice. M2.7 constrained IK and the M2.8a
+  preview math core are complete with Linux/Win64 evidence; desktop/VR authoring and the full
+  #20/#21 integration gates remain open, and no physical or hardware-control path is claimed.
 
 ## 0.1.0 - 2026-09-04
 

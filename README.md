@@ -6,6 +6,9 @@
 > slices are complete. The bounded M2.7 constrained-IK implementation is complete with Linux and
 > Win64 Unreal Engine 5.8.2 evidence: each run records 35 contextual successes, including all 13
 > IK tests, with build/editor exit code 0.
+> The bounded M2.8a local KinematicPreview math core is implemented; Linux and Win64 Unreal
+> validation each record 43/43 contextual successes, including all eight preview tests, with
+> build/editor exit code 0.
 > The `v0.1.0` release gate is satisfied with portable Python CI;
 > M2.2–M2.5 have separate Unreal Engine 5.8.2 evidence on Linux and Win64. No physical robot path
 > is enabled.
@@ -34,7 +37,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | Unreal Engine plugin | M1 Mission view, strict client and reconciliation scene; verified with UE 5.8.2 on Windows |
 | Delay-tolerant dummy | Runnable M1 Mission / Field / dummy-Robot development slice |
 | M1 release gate | Passed: golden replay, adversarial matrix, portable CI, and Windows UE 5.8.2 evidence |
-| SO-101 twin | M2.2 articulated-state protocol (#14), M2.3 canonical transforms/generic FK code (#15), M2.4 cross-language numerical oracle (#16), and the bounded M2.5 rigid-link actor are complete with Python 3.11/3.12 and Linux/Win64 UE 5.8.2 evidence; the M2.7 constrained-IK implementation is complete with 13 targeted tests and Linux/Win64 UE 5.8.2 evidence; preview and VR authoring remain pending |
+| SO-101 twin | M2.2 articulated-state protocol (#14), M2.3 canonical transforms/generic FK code (#15), M2.4 cross-language numerical oracle (#16), and the bounded M2.5 rigid-link actor are complete with Python 3.11/3.12 and Linux/Win64 UE 5.8.2 evidence; the M2.7 constrained-IK implementation and M2.8a local preview math core are complete with Linux/Win64 UE 5.8.2 evidence; desktop/VR authoring and #20/#21 integration remain open |
 | Autonomous delayed button press | Planned for M3 |
 | Hardware control | Disabled by default; not implemented publicly |
 
@@ -142,6 +145,19 @@ The M2.7 acceptance slice is complete with a 13-test `DeferredTeleop.M2.IK` sele
 Win64 each record 35 contextual successes (13 IK plus 22 contextual tests), no warnings/failures/
 not-run tests in process, and build/editor exit code 0. See the [constrained IK guide](docs/m2/CONSTRAINED_IK.md)
 and the [M2.7 platform record](docs/m2/evidence/constrained-ik-platform-validation.json).
+
+The bounded M2.8a `KinematicPreview` math core adds a pure `BuildPreview` namespace function and
+Blueprint boundary. It builds bounded time-sampled joint states from a validated start and
+converged or explicitly accepted partial IK result, recomputes FK for the requested tool at every
+sample, preserves exact endpoints, and caps previews at 128 samples and 30 seconds. Per-joint
+velocities are preview timing limits in radians per second; they are not dynamics or motion-control
+limits. Inactive IK joints must equal their start values exactly, and provenance values are carried
+without authenticating the declared description hash. The implementation has eight production
+`DeferredTeleop.M2.KinematicPreview` tests; Linux and Win64 validation each record 43/43
+contextual successes with build/editor exit code 0. See the [preview guide](docs/m2/KINEMATIC_PREVIEW.md)
+and the [platform record](docs/m2/evidence/kinematic-preview-platform-validation.json).
+This bounded math slice does not claim desktop/VR authoring, trajectory visualization, or closure
+of #20/#21.
 
 Verify the portable gate in CI-compatible mode:
 
