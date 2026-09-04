@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import Any, Protocol
@@ -63,6 +63,28 @@ DUMMY_PHASES = (
     "RETRACTING",
     "SUCCEEDED",
 )
+
+
+class MissionViewSelectionError(ValueError):
+    """The Mission inbox/outbox cannot identify one operation unambiguously."""
+
+
+@dataclass(frozen=True)
+class _MissionViewSelection:
+    intent: MessageEnvelope | None
+    snapshot: MessageEnvelope | None
+    forecast: MessageEnvelope | None
+    terminal: MessageEnvelope | None
+
+
+@dataclass(frozen=True)
+class _MissionViewProjection:
+    estimated_arrival_at: datetime | None
+    confirmed: ConfirmedStateView | None
+    arrival: ArrivalBeliefView | None
+    target: TargetBranchView | None
+    trajectory: tuple[TimedTrajectorySample, ...]
+    manifests: tuple[PredictionManifest, ...]
 
 
 class Clock(Protocol):
@@ -151,6 +173,309 @@ def evidence(
         model_version="dummy-constant-velocity-v1"
         if provenance in {ProvenanceKind.PREDICTED, ProvenanceKind.SIMULATED}
         else None,
+    )
+
+
+def _message_id_key(message: MessageEnvelope) -> str:
+    """Return the stable final tie-break key used by Mission projections."""
+
+    return str(message.message_id)
+
+
+def _select_mission_view(
+    inbox: Iterable[MessageEnvelope], outbox: Iterable[MessageEnvelope]
+) -> _MissionViewSelection:
+    """Select one operation and its correlation-scoped observations.
+
+    The helper is intentionally pure: it only inspects the supplied immutable
+    envelopes.  Storage order therefore cannot change which intent, snapshot,
+    forecast, or terminal event is projected.
+    """
+
+    inbox_messages = tuple(inbox)
+    outbox_messages = tuple(outbox)
+    intents = tuple(
+        message
+        for message in outbox_messages
+        if isinstance(message.payload, OperationIntent)
+    )
+
+    correlations_by_operation: dict[UUID, set[UUID]] = {}
+    operations_by_correlation: dict[UUID, set[UUID]] = {}
+    for message in intents:
+        operation_id = message.payload.operation_id
+        correlations_by_operation.setdefault(operation_id, set()).add(
+            message.correlation_id
+        )
+        operations_by_correlation.setdefault(message.correlation_id, set()).add(operation_id)
+
+    ambiguous_operations = {
+        operation_id: correlations
+        for operation_id, correlations in correlations_by_operation.items()
+        if len(correlations) > 1
+    }
+    if ambiguous_operations:
+        operation_id, correlations = min(
+            ambiguous_operations.items(), key=lambda item: str(item[0])
+        )
+        rendered = ", ".join(sorted(str(correlation) for correlation in correlations))
+        raise MissionViewSelectionError(
+            "ambiguous correlation_id for operation_id "
+            f"{operation_id}: {rendered}"
+        )
+
+    ambiguous_correlations = {
+        correlation_id: operation_ids
+        for correlation_id, operation_ids in operations_by_correlation.items()
+        if len(operation_ids) > 1
+    }
+    if ambiguous_correlations:
+        correlation_id, operation_ids = min(
+            ambiguous_correlations.items(), key=lambda item: str(item[0])
+        )
+        rendered = ", ".join(sorted(str(operation_id) for operation_id in operation_ids))
+        raise MissionViewSelectionError(
+            "ambiguous operation_id for correlation_id "
+            f"{correlation_id}: {rendered}"
+        )
+
+    intent = (
+        max(
+            intents,
+            key=lambda message: (message.created_at, _message_id_key(message)),
+        )
+        if intents
+        else None
+    )
+    if intent is None:
+        return _MissionViewSelection(None, None, None, None)
+
+    correlation_id = intent.correlation_id
+    snapshots = tuple(
+        message
+        for message in inbox_messages
+        if isinstance(message.payload, SiteSnapshot)
+        and message.correlation_id == correlation_id
+    )
+    forecasts = tuple(
+        message
+        for message in inbox_messages
+        if isinstance(message.payload, RobotForecast)
+        and message.correlation_id == correlation_id
+    )
+    terminal_events = tuple(
+        message
+        for message in inbox_messages
+        if isinstance(message.payload, ExecutionEvent)
+        and message.correlation_id == correlation_id
+        and message.payload.next_state in TERMINAL_STATES
+    )
+
+    snapshot = (
+        max(
+            snapshots,
+            key=lambda message: (
+                message.payload.evidence.world_revision,
+                message.payload.evidence.observed_at,
+                message.payload.evidence.produced_at,
+                _message_id_key(message),
+            ),
+        )
+        if snapshots
+        else None
+    )
+    forecast = (
+        max(
+            forecasts,
+            key=lambda message: (
+                message.payload.evidence.produced_at,
+                message.payload.predicted_for,
+                _message_id_key(message),
+            ),
+        )
+        if forecasts
+        else None
+    )
+
+    terminal: MessageEnvelope | None = None
+    if terminal_events:
+        terminal_states_by_contract: dict[tuple[UUID, int], set[ContractState]] = {}
+        for message in terminal_events:
+            key = (
+                message.payload.contract_id,
+                message.payload.contract_revision,
+            )
+            terminal_states_by_contract.setdefault(key, set()).add(
+                message.payload.next_state
+            )
+        if any(len(states) > 1 for states in terminal_states_by_contract.values()) or len(
+            {message.payload.next_state for message in terminal_events}
+        ) > 1:
+            return _MissionViewSelection(intent, snapshot, forecast, None)
+
+        latest_terminal_key = max(
+            (
+                message.payload.occurred_at,
+                message.payload.contract_revision,
+            )
+            for message in terminal_events
+        )
+        latest_terminals = tuple(
+            message
+            for message in terminal_events
+            if (
+                message.payload.occurred_at,
+                message.payload.contract_revision,
+            )
+            == latest_terminal_key
+        )
+        terminal_states = {message.payload.next_state for message in latest_terminals}
+        if len(terminal_states) == 1:
+            terminal = max(
+                latest_terminals,
+                key=lambda message: (
+                    message.payload.occurred_at,
+                    message.payload.contract_revision,
+                    _message_id_key(message),
+                ),
+            )
+
+    return _MissionViewSelection(intent, snapshot, forecast, terminal)
+
+
+def _select_snapshot_robot(
+    snapshot: SiteSnapshot, preferred_robot_id: str
+) -> RobotState | None:
+    """Choose a stable robot observation from the selected snapshot."""
+
+    if not snapshot.robot_states:
+        return None
+    candidates = tuple(
+        state for state in snapshot.robot_states if state.robot_id == preferred_robot_id
+    )
+    if not candidates:
+        return None
+    return max(
+        candidates,
+        key=lambda state: (
+            state.evidence.world_revision,
+            state.evidence.observed_at,
+            state.evidence.produced_at,
+            state.robot_id,
+        ),
+    )
+
+
+def _project_mission_view(
+    selection: _MissionViewSelection, configured_one_way_delay: float
+) -> _MissionViewProjection:
+    """Build shared typed projections for legacy and strict Mission views."""
+
+    intent = selection.intent
+    snapshot = selection.snapshot.payload if selection.snapshot is not None else None
+    forecast = selection.forecast.payload if selection.forecast is not None else None
+    estimated_arrival_at = (
+        intent.created_at + timedelta(seconds=configured_one_way_delay)
+        if intent is not None
+        else None
+    )
+
+    confirmed_robot = (
+        _select_snapshot_robot(snapshot, intent.payload.preferred_executor)
+        if snapshot is not None and intent is not None
+        else None
+    )
+    confirmed = (
+        ConfirmedStateView(
+            site_id=snapshot.site_id,
+            robot_id=confirmed_robot.robot_id,
+            pose=confirmed_robot.pose,
+            evidence=confirmed_robot.evidence,
+        )
+        if snapshot is not None and confirmed_robot is not None
+        else None
+    )
+
+    forecast_compatible = forecast is not None and intent is not None and (
+        forecast.robot_id == intent.payload.preferred_executor
+        and (
+            confirmed is None
+            or (
+                forecast.robot_id == confirmed.robot_id
+                and forecast.predicted_pose.frame == confirmed.pose.frame
+            )
+        )
+    )
+    arrival = (
+        ArrivalBeliefView(
+            robot_id=forecast.robot_id,
+            pose=forecast.predicted_pose,
+            predicted_for=forecast.predicted_for,
+            estimated_intent_arrival_at=estimated_arrival_at,
+            link_one_way_delay_seconds=configured_one_way_delay,
+            evidence=forecast.evidence,
+        )
+        if forecast is not None and forecast_compatible
+        else None
+    )
+
+    target: TargetBranchView | None = None
+    if intent is not None:
+        target_pose = dummy_pose(pressed=True)
+        if confirmed is None or target_pose.frame == confirmed.pose.frame:
+            target = TargetBranchView(
+                entity_id=intent.payload.selector.entity_id,
+                pose=target_pose,
+                evidence=evidence(
+                    "mission-operator-1",
+                    intent.created_at,
+                    ProvenanceKind.OPERATOR_ASSERTED,
+                    world_revision=snapshot.evidence.world_revision if snapshot else 1,
+                    fresh_for_seconds=60.0,
+                ),
+            )
+
+    trajectory: list[TimedTrajectorySample] = []
+    if confirmed is not None:
+        trajectory.append(
+            TimedTrajectorySample(
+                sample_time=confirmed.evidence.observed_at,
+                pose=confirmed.pose,
+                source=TrajectorySampleSource.CONFIRMED_STATE,
+                provenance=confirmed.evidence.provenance,
+            )
+        )
+    if arrival is not None:
+        trajectory.append(
+            TimedTrajectorySample(
+                sample_time=arrival.predicted_for,
+                pose=arrival.pose,
+                source=TrajectorySampleSource.ARRIVAL_BELIEF,
+                provenance=arrival.evidence.provenance,
+            )
+        )
+
+    manifests: tuple[PredictionManifest, ...] = ()
+    if selection.forecast is not None and arrival is not None:
+        manifests = (
+            PredictionManifest(
+                manifest_id=uuid5(
+                    NAMESPACE_URL, f"dtt-manifest:{selection.forecast.message_id}"
+                ),
+                site_id="dummy-site-1",
+                forecast_ids=(selection.forecast.message_id,),
+                generated_for_world_revision=forecast.evidence.world_revision,
+                evidence=forecast.evidence,
+            ),
+        )
+
+    return _MissionViewProjection(
+        estimated_arrival_at=estimated_arrival_at,
+        confirmed=confirmed,
+        arrival=arrival,
+        target=target,
+        trajectory=tuple(trajectory),
+        manifests=manifests,
     )
 
 
@@ -278,65 +603,52 @@ class MissionService(RuntimeService):
 
     def view(self) -> dict[str, Any]:
         inbox = self.store.inbox_messages()
-        outbox = self.store.outbox_messages()
-        intents = [message for message in outbox if isinstance(message.payload, OperationIntent)]
-        snapshots = [message for message in inbox if isinstance(message.payload, SiteSnapshot)]
-        forecasts = [message for message in inbox if isinstance(message.payload, RobotForecast)]
-        events = [message for message in inbox if isinstance(message.payload, ExecutionEvent)]
-        terminal = next(
-            (
-                message
-                for message in reversed(events)
-                if message.payload.next_state in TERMINAL_STATES
-            ),
-            None,
-        )
-        intent = intents[-1] if intents else None
-        forecast = forecasts[-1] if forecasts else None
-        estimated_arrival_at = (
-            intent.created_at + timedelta(seconds=self.configured_one_way_delay)
-            if intent
-            else None
-        )
-        manifest: PredictionManifest | None = None
-        if forecast is not None:
-            manifest = PredictionManifest(
-                manifest_id=uuid5(NAMESPACE_URL, f"dtt-manifest:{forecast.message_id}"),
-                site_id="dummy-site-1",
-                forecast_ids=(forecast.message_id,),
-                generated_for_world_revision=forecast.payload.evidence.world_revision,
-                evidence=forecast.payload.evidence,
-            )
+        selection = _select_mission_view(inbox, self.store.outbox_messages())
+        projection = _project_mission_view(selection, self.configured_one_way_delay)
+        intent = selection.intent
+        snapshot = selection.snapshot.payload if selection.snapshot is not None else None
+        forecast = selection.forecast.payload if selection.forecast is not None else None
+        manifest = projection.manifests[0] if projection.manifests else None
         return {
             "node_id": self.factory.node_id,
             "operation_id": str(intent.payload.operation_id) if intent else None,
             "correlation_id": str(intent.correlation_id) if intent else None,
-            "estimated_arrival_at": estimated_arrival_at.isoformat()
-            if estimated_arrival_at
+            "estimated_arrival_at": projection.estimated_arrival_at.isoformat()
+            if projection.estimated_arrival_at
             else None,
-            "confirmed_state": snapshots[-1].payload.model_dump(mode="json")
-            if snapshots
+            "confirmed_state": snapshot.model_dump(mode="json")
+            if snapshot is not None and projection.confirmed is not None
             else None,
             "arrival_belief": {
-                **forecast.payload.model_dump(mode="json"),
-                "estimated_intent_arrival_at": estimated_arrival_at.isoformat()
-                if estimated_arrival_at
+                **forecast.model_dump(mode="json"),
+                "estimated_intent_arrival_at": projection.estimated_arrival_at.isoformat()
+                if projection.estimated_arrival_at
                 else None,
                 "link_one_way_delay_seconds": self.configured_one_way_delay,
             }
-            if forecast
+            if forecast is not None and projection.arrival is not None
             else None,
             "prediction_manifest": manifest.model_dump(mode="json") if manifest else None,
-            "target_branch": {
-                "condition": "button effect succeeds",
-                "entity_id": intent.payload.selector.entity_id,
-                "requested_state": "PRESSED",
-                "provenance": ProvenanceKind.OPERATOR_ASSERTED.value,
-            }
-            if intent
-            else None,
-            "terminal_state": terminal.payload.next_state.value if terminal else None,
-            "terminal_contract_id": str(terminal.payload.contract_id) if terminal else None,
+            "target_branch": (
+                {
+                    "condition": projection.target.condition,
+                    "entity_id": projection.target.entity_id,
+                    "requested_state": projection.target.requested_state,
+                    "provenance": projection.target.evidence.provenance.value,
+                }
+                if projection.target is not None
+                else None
+            ),
+            "terminal_state": (
+                selection.terminal.payload.next_state.value
+                if selection.terminal is not None
+                else None
+            ),
+            "terminal_contract_id": (
+                str(selection.terminal.payload.contract_id)
+                if selection.terminal is not None
+                else None
+            ),
             "received_message_count": len(inbox),
         }
 
@@ -344,101 +656,9 @@ class MissionService(RuntimeService):
         """Build the strict, presentation-neutral snapshot consumed by Unreal."""
 
         inbox = self.store.inbox_messages()
-        outbox = self.store.outbox_messages()
-        intents = [message for message in outbox if isinstance(message.payload, OperationIntent)]
-        snapshots = [message for message in inbox if isinstance(message.payload, SiteSnapshot)]
-        forecasts = [message for message in inbox if isinstance(message.payload, RobotForecast)]
-        events = [message for message in inbox if isinstance(message.payload, ExecutionEvent)]
-        terminal = next(
-            (
-                message
-                for message in reversed(events)
-                if message.payload.next_state in TERMINAL_STATES
-            ),
-            None,
-        )
-        intent = intents[-1] if intents else None
-        snapshot = snapshots[-1].payload if snapshots else None
-        confirmed_robot = snapshot.robot_states[-1] if snapshot and snapshot.robot_states else None
-        forecast_envelope = forecasts[-1] if forecasts else None
-        forecast = forecast_envelope.payload if forecast_envelope else None
-        estimated_arrival_at = (
-            intent.created_at + timedelta(seconds=self.configured_one_way_delay)
-            if intent
-            else None
-        )
-
-        confirmed = (
-            ConfirmedStateView(
-                site_id=snapshot.site_id,
-                robot_id=confirmed_robot.robot_id,
-                pose=confirmed_robot.pose,
-                evidence=confirmed_robot.evidence,
-            )
-            if snapshot is not None and confirmed_robot is not None
-            else None
-        )
-        arrival = (
-            ArrivalBeliefView(
-                robot_id=forecast.robot_id,
-                pose=forecast.predicted_pose,
-                predicted_for=forecast.predicted_for,
-                estimated_intent_arrival_at=estimated_arrival_at,
-                link_one_way_delay_seconds=self.configured_one_way_delay,
-                evidence=forecast.evidence,
-            )
-            if forecast is not None
-            else None
-        )
-        target = (
-            TargetBranchView(
-                entity_id=intent.payload.selector.entity_id,
-                pose=dummy_pose(pressed=True),
-                evidence=evidence(
-                    "mission-operator-1",
-                    intent.created_at,
-                    ProvenanceKind.OPERATOR_ASSERTED,
-                    world_revision=snapshot.evidence.world_revision if snapshot else 1,
-                    fresh_for_seconds=60.0,
-                ),
-            )
-            if intent is not None
-            else None
-        )
-
-        trajectory: list[TimedTrajectorySample] = []
-        if confirmed is not None:
-            trajectory.append(
-                TimedTrajectorySample(
-                    sample_time=confirmed.evidence.observed_at,
-                    pose=confirmed.pose,
-                    source=TrajectorySampleSource.CONFIRMED_STATE,
-                    provenance=confirmed.evidence.provenance,
-                )
-            )
-        if arrival is not None:
-            trajectory.append(
-                TimedTrajectorySample(
-                    sample_time=arrival.predicted_for,
-                    pose=arrival.pose,
-                    source=TrajectorySampleSource.ARRIVAL_BELIEF,
-                    provenance=arrival.evidence.provenance,
-                )
-            )
-
-        manifests: tuple[PredictionManifest, ...] = ()
-        if forecast_envelope is not None:
-            manifests = (
-                PredictionManifest(
-                    manifest_id=uuid5(
-                        NAMESPACE_URL, f"dtt-manifest:{forecast_envelope.message_id}"
-                    ),
-                    site_id="dummy-site-1",
-                    forecast_ids=(forecast_envelope.message_id,),
-                    generated_for_world_revision=forecast.evidence.world_revision,
-                    evidence=forecast.evidence,
-                ),
-            )
+        selection = _select_mission_view(inbox, self.store.outbox_messages())
+        projection = _project_mission_view(selection, self.configured_one_way_delay)
+        intent = selection.intent
 
         self._view_sequence += 1
         return MissionViewState(
@@ -449,16 +669,24 @@ class MissionService(RuntimeService):
                 mission_to_field=self._link_connection_state,
                 changed_at=self._link_status_changed_at,
             ),
-            confirmed_state=confirmed,
-            arrival_belief=arrival,
-            target_branch=target,
-            trajectory_forecasts=tuple(trajectory),
-            prediction_manifests=manifests,
+            confirmed_state=projection.confirmed,
+            arrival_belief=projection.arrival,
+            target_branch=projection.target,
+            trajectory_forecasts=projection.trajectory,
+            prediction_manifests=projection.manifests,
             status=MissionViewStatus(
                 operation_id=intent.payload.operation_id if intent else None,
                 correlation_id=intent.correlation_id if intent else None,
-                terminal_state=terminal.payload.next_state if terminal else None,
-                terminal_contract_id=terminal.payload.contract_id if terminal else None,
+                terminal_state=(
+                    selection.terminal.payload.next_state
+                    if selection.terminal is not None
+                    else None
+                ),
+                terminal_contract_id=(
+                    selection.terminal.payload.contract_id
+                    if selection.terminal is not None
+                    else None
+                ),
                 received_message_count=len(inbox),
             ),
         )
