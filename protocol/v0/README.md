@@ -1,10 +1,31 @@
 # Experimental protocol namespace `dtt/0`
 
-The protocol is intentionally incomplete and unstable. M0 defines only enough shared structure to build conformance fixtures for the first vertical slice.
+The protocol is intentionally incomplete and unstable. M1 defines only the strict semantic spine
+needed by the delayed dummy vertical slice.
 
 ## Current contract
 
-`message-envelope.schema.json` describes transport-independent metadata around a typed payload. It does not define delivery, storage or physical-execution semantics by itself.
+`message-envelope.schema.json` is deterministically generated from strict Pydantic v2 wire DTOs.
+It describes transport-independent metadata around typed payloads, but does not define delivery,
+storage or physical-execution semantics by itself. Regenerate it with
+`python -m deferred_teleop.schema`; CI verifies it with `--check`.
+
+The constrained chain is:
+
+```text
+OperationIntent -> GroundedOperation -> OperationPlan (one TaskNode)
+-> TaskAssignment -> ExecutionContract -> ExecutionEvent
+```
+
+Operation states are `DRAFT -> SUBMITTED -> RECEIVED_BY_FIELD -> ADMITTED | HELD | REJECTED`.
+The M1 contract transition validator accepts only:
+
+```text
+RECEIVED -> ACCEPTED | HELD
+ACCEPTED -> DISPATCH_RECORDED | CANCELLED
+DISPATCH_RECORDED -> RUNNING
+RUNNING -> SUCCEEDED | FAILED | HELD | CANCELLED
+```
 
 Inter-site assumptions:
 

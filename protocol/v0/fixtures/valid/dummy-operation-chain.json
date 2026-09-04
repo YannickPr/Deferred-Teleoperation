@@ -1,0 +1,137 @@
+{
+  "messages": [
+    {
+      "protocol_version": "dtt/0",
+      "message_id": "00000000-0000-4000-8000-000000000001",
+      "message_type": "operation.intent",
+      "source_id": "mission-1",
+      "source_boot_id": "10000000-0000-4000-8000-000000000001",
+      "source_sequence": 1,
+      "destination_id": "field-1",
+      "correlation_id": "20000000-0000-4000-8000-000000000001",
+      "created_at": "2026-09-04T09:00:00Z",
+      "payload": {
+        "operation_id": "30000000-0000-4000-8000-000000000001",
+        "operation_type": "PRESS_BUTTON",
+        "selector": {"entity_id": "dummy-button-1"},
+        "preferred_executor": "dummy-robot-1",
+        "approval_policy": "AUTO_IF_WHITELISTED",
+        "state": "SUBMITTED"
+      }
+    },
+    {
+      "protocol_version": "dtt/0",
+      "message_id": "00000000-0000-4000-8000-000000000002",
+      "message_type": "operation.grounded",
+      "source_id": "field-1",
+      "source_boot_id": "10000000-0000-4000-8000-000000000002",
+      "source_sequence": 1,
+      "destination_id": "mission-1",
+      "correlation_id": "20000000-0000-4000-8000-000000000001",
+      "causation_id": "00000000-0000-4000-8000-000000000001",
+      "created_at": "2026-09-04T09:00:01Z",
+      "payload": {
+        "operation_id": "30000000-0000-4000-8000-000000000001",
+        "target_entity_id": "dummy-button-1",
+        "target_pose": {
+          "position": {"x": 0.4, "y": 0.1, "z": 0.2},
+          "orientation": {"x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0},
+          "frame": {
+            "frame_id": "field-world",
+            "convention": "RIGHT_HANDED_Z_UP",
+            "length_unit": "metre",
+            "angle_unit": "radian",
+            "calibration_version": "cal-1"
+          }
+        },
+        "state": "ADMITTED",
+        "evidence": {
+          "source_ids": ["field-fixture"],
+          "observed_at": "2026-09-04T08:59:59Z",
+          "produced_at": "2026-09-04T09:00:01Z",
+          "provenance": "MEASURED",
+          "world_revision": 1,
+          "fresh_until": "2026-09-04T09:01:00Z"
+        }
+      }
+    },
+    {
+      "protocol_version": "dtt/0",
+      "message_id": "00000000-0000-4000-8000-000000000003",
+      "message_type": "operation.plan",
+      "source_id": "field-1",
+      "source_boot_id": "10000000-0000-4000-8000-000000000002",
+      "source_sequence": 2,
+      "destination_id": "mission-1",
+      "correlation_id": "20000000-0000-4000-8000-000000000001",
+      "causation_id": "00000000-0000-4000-8000-000000000002",
+      "created_at": "2026-09-04T09:00:02Z",
+      "payload": {
+        "plan_id": "40000000-0000-4000-8000-000000000001",
+        "operation_id": "30000000-0000-4000-8000-000000000001",
+        "tasks": [{
+          "task_id": "50000000-0000-4000-8000-000000000001",
+          "skill": "PRESS_BUTTON",
+          "target_entity_id": "dummy-button-1"
+        }]
+      }
+    },
+    {
+      "protocol_version": "dtt/0",
+      "message_id": "00000000-0000-4000-8000-000000000004",
+      "message_type": "task.assignment",
+      "source_id": "field-1",
+      "source_boot_id": "10000000-0000-4000-8000-000000000002",
+      "source_sequence": 3,
+      "destination_id": "dummy-robot-1",
+      "correlation_id": "20000000-0000-4000-8000-000000000001",
+      "causation_id": "00000000-0000-4000-8000-000000000003",
+      "created_at": "2026-09-04T09:00:03Z",
+      "payload": {
+        "assignment_id": "60000000-0000-4000-8000-000000000001",
+        "plan_id": "40000000-0000-4000-8000-000000000001",
+        "task_id": "50000000-0000-4000-8000-000000000001",
+        "executor_id": "dummy-robot-1"
+      }
+    },
+    {
+      "protocol_version": "dtt/0",
+      "message_id": "00000000-0000-4000-8000-000000000005",
+      "message_type": "execution.contract",
+      "source_id": "field-1",
+      "source_boot_id": "10000000-0000-4000-8000-000000000002",
+      "source_sequence": 4,
+      "destination_id": "dummy-robot-1",
+      "correlation_id": "20000000-0000-4000-8000-000000000001",
+      "causation_id": "00000000-0000-4000-8000-000000000004",
+      "created_at": "2026-09-04T09:00:04Z",
+      "payload": {
+        "contract_id": "70000000-0000-4000-8000-000000000001",
+        "contract_revision": 1,
+        "operation_id": "30000000-0000-4000-8000-000000000001",
+        "assignment_id": "60000000-0000-4000-8000-000000000001",
+        "state": "RECEIVED"
+      }
+    },
+    {
+      "protocol_version": "dtt/0",
+      "message_id": "00000000-0000-4000-8000-000000000006",
+      "message_type": "execution.event",
+      "source_id": "dummy-robot-1",
+      "source_boot_id": "10000000-0000-4000-8000-000000000003",
+      "source_sequence": 1,
+      "destination_id": "field-1",
+      "correlation_id": "20000000-0000-4000-8000-000000000001",
+      "causation_id": "00000000-0000-4000-8000-000000000005",
+      "created_at": "2026-09-04T09:00:05Z",
+      "payload": {
+        "event_id": "80000000-0000-4000-8000-000000000001",
+        "contract_id": "70000000-0000-4000-8000-000000000001",
+        "contract_revision": 1,
+        "previous_state": "RECEIVED",
+        "next_state": "ACCEPTED",
+        "occurred_at": "2026-09-04T09:00:05Z"
+      }
+    }
+  ]
+}
