@@ -26,7 +26,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 |---|---|
 | Architecture and authority model | Defined, still experimental |
 | Public Python package | M0 foundation complete |
-| Unreal Engine plugin | M0 skeleton; locally verified with UE 5.8.2 on Windows |
+| Unreal Engine plugin | M1 Mission view, strict client and reconciliation scene; verified with UE 5.8.2 on Windows |
 | Delay-tolerant dummy | Runnable M1 Mission / Field / dummy-Robot development slice |
 | SO-101 twin | Planned for M2 |
 | Autonomous delayed button press | Planned for M3 |
@@ -96,10 +96,12 @@ dtt-demo delayed-dummy --profile short-visible-fault --restart-mission-after-adm
 
 See the [M1 delayed-dummy guide](docs/m1/DELAYED_DUMMY.md) for the expected evidence,
 manual four-terminal launch, online Mission queries, and offline causal-history inspection.
+The [M1 Unreal visualization proof](docs/m1/UNREAL_VISUALIZATION.md) documents the local
+Mission view, generated example scene, automated tests, and reproducible screenshot.
 The runtime authority and recovery boundaries are recorded in
 [ADR 0005](docs/adr/0005-m1-delayed-dummy-runtime.md).
 
-The Unreal host project and plugin skeleton live under `unreal/DeferredTeleopDemo`. See [the Unreal bootstrap notes](unreal/README.md). GitHub CI does not compile Unreal; the M0 skeleton was therefore verified locally with Unreal Engine 5.8.2 on Windows.
+The Unreal host project and plugin live under `unreal/DeferredTeleopDemo`. See [the Unreal notes](unreal/README.md). GitHub CI does not compile Unreal; M0 and the M1 visualization were therefore verified locally with Unreal Engine 5.8.2 on Windows.
 
 ## Design constraints
 

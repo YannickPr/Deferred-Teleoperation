@@ -186,7 +186,8 @@ async def _run_delayed_dummy(args: argparse.Namespace) -> None:
     mission_db = data_dir / "mission.db"
     field_db = data_dir / "field.db"
     robot_db = data_dir / "robot.db"
-    mission_link_port, field_link_port, robot_port, api_port = _unused_ports(4)
+    mission_link_port, field_link_port, robot_port, api_port, dynamic_view_port = _unused_ports(5)
+    view_ws_port = args.view_ws_port or dynamic_view_port
     retry = str(args.retry_interval)
     python = sys.executable
     processes: list[ManagedProcess] = []
@@ -250,6 +251,8 @@ async def _run_delayed_dummy(args: argparse.Namespace) -> None:
         f"ws://127.0.0.1:{mission_link_port}",
         "--api",
         f"127.0.0.1:{api_port}",
+        "--view-ws",
+        f"127.0.0.1:{view_ws_port}",
         "--one-way-delay",
         str(args.one_way_delay),
         "--retry-interval",
@@ -283,8 +286,12 @@ async def _run_delayed_dummy(args: argparse.Namespace) -> None:
                     "field": str(field_db),
                     "robot": str(robot_db),
                 },
+                "mission_view_ws": f"ws://127.0.0.1:{view_ws_port}",
             },
         )
+        if args.pre_submit_delay > 0:
+            _emit("demo.waiting_before_submit", {"seconds": args.pre_submit_delay})
+            await asyncio.sleep(args.pre_submit_delay)
         submitted = await _mission_request(
             api_port,
             {
@@ -337,6 +344,9 @@ async def _run_delayed_dummy(args: argparse.Namespace) -> None:
         )
         if effect_counter != 1 or view["terminal_state"] != "SUCCEEDED":
             raise RuntimeError("demo invariant failed: expected one successful dummy effect")
+        if args.hold_open_seconds > 0:
+            _emit("demo.holding_open", {"seconds": args.hold_open_seconds})
+            await asyncio.sleep(args.hold_open_seconds)
     finally:
         for child in reversed(processes):
             await child.stop()
@@ -357,6 +367,19 @@ def _build_parser() -> argparse.ArgumentParser:
     delayed.add_argument("--one-way-delay", type=float, default=0.15)
     delayed.add_argument("--retry-interval", type=float, default=0.05)
     delayed.add_argument("--timeout", type=float, default=15.0)
+    delayed.add_argument("--hold-open-seconds", type=float, default=0.0)
+    delayed.add_argument(
+        "--pre-submit-delay",
+        type=float,
+        default=0.0,
+        help="wait after process readiness so an observer can connect before submission",
+    )
+    delayed.add_argument(
+        "--view-ws-port",
+        type=int,
+        default=0,
+        help="stable Mission-view port for Unreal; 0 selects an unused port",
+    )
     delayed.add_argument("--quiet", action="store_true", help=argparse.SUPPRESS)
     delayed.set_defaults(run=_run_delayed_dummy)
     return parser
@@ -366,6 +389,10 @@ def main() -> None:
     args = _build_parser().parse_args()
     if min(args.phase_duration, args.one_way_delay, args.retry_interval, args.timeout) <= 0:
         raise SystemExit("durations and timeout must be positive")
+    if min(args.hold_open_seconds, args.pre_submit_delay) < 0:
+        raise SystemExit("hold-open and pre-submit delays cannot be negative")
+    if not 0 <= args.view_ws_port <= 65_535:
+        raise SystemExit("--view-ws-port must be between 0 and 65535")
     try:
         asyncio.run(args.run(args))
     except KeyboardInterrupt:

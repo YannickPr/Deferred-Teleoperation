@@ -38,10 +38,15 @@ The exact commands, environment and visible evidence are recorded on bootstrap p
 - deterministic six-phase dummy skill with an effect-once journal boundary;
 - confirmed, predicted-arrival and operator-target Mission projections with explicit provenance;
 - one-command nominal and fault/reconnect demonstrations plus causal-history inspection.
+- strict `dtt/0` Mission-view snapshots streamed on a local WebSocket endpoint;
+- reconnecting Blueprint-spawnable Unreal client that preserves the last valid view;
+- explicit metres/right-handed to centimetres/left-handed Unreal conversion with tests;
+- generated Blueprint example scene separating confirmed, arrival-belief and target states;
+- timed trajectory marker, provenance/freshness labels and deterministic PNG evidence capture.
 
 ## Planned, not implemented
 
-- Unreal VR visualization;
+- VR interaction and headset-specific presentation (the desktop Unreal visualization exists);
 - SO-101 geometry, kinematics or hardware integration;
 - Simulation Worker;
 - LeRobot integration;
