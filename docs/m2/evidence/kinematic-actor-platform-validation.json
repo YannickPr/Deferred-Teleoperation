@@ -23,7 +23,7 @@
     },
     "generator": {
       "path": "unreal/Scripts/generate_m2_kinematic_scene.py",
-      "sha256": "ad72d4f81ae3e8646c37604b03e36e7385a86561bd4aeca051c770d66314dd82"
+      "sha256": "3bc05eb07aeb71ad5f8d10f8d0475377222ef0c3d616f616c3fa2bc90b5069e6"
     },
     "model": {
       "path": "robots/so101/generated/so101.kinematics.json",
@@ -134,6 +134,17 @@
       "the tool marker is small at the recorded framing",
       "the PNG alone is not FK proof; named-pose correspondence is established by the five actor tests",
       "no measured telemetry, operational UI, or VR authoring"
-    ]
+    ],
+    "executed_generator_sha256": "ad72d4f81ae3e8646c37604b03e36e7385a86561bd4aeca051c770d66314dd82",
+    "generator_style_normalization": {
+      "captured_script_sha256": "ad72d4f81ae3e8646c37604b03e36e7385a86561bd4aeca051c770d66314dd82",
+      "current_script_sha256": "3bc05eb07aeb71ad5f8d10f8d0475377222ef0c3d616f616c3fa2bc90b5069e6",
+      "ast_equal_after_omitting_default_read_mode": true,
+      "changes": [
+        "Import-block whitespace",
+        "Wrapped long call",
+        "Omitted explicit default read mode from open()"
+      ]
+    }
   }
 }

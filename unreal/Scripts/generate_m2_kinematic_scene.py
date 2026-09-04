@@ -15,7 +15,6 @@ import os
 
 import unreal
 
-
 PLUGIN_ROOT = "/DeferredTeleop"
 MATERIAL_ROOT = f"{PLUGIN_ROOT}/M2"
 EXAMPLE_ROOT = f"{PLUGIN_ROOT}/M2"
@@ -149,7 +148,7 @@ def _load_description() -> object:
             "so101.kinematics.json",
         )
     )
-    with open(description_path, "r", encoding="utf-8") as stream:
+    with open(description_path, encoding="utf-8") as stream:
         json_text = stream.read()
 
     parsed = unreal.DeferredTeleopKinematicsLibrary.parse_robot_description_json(json_text)
@@ -354,7 +353,9 @@ def _create_level(
         # per-link names would otherwise obscure the axes and joints.
         actor.set_editor_property("show_debug_names", False)
         actor.set_actor_label(labels[index])
-        _call_with_error(actor.initialize_model, description, _make_root(0.0, canonical_y_offsets[index]))
+        _call_with_error(
+            actor.initialize_model, description, _make_root(0.0, canonical_y_offsets[index])
+        )
         _call_with_error(actor.apply_state, state)
         actor.set_debug_frames_visible(True)
 
