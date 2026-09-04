@@ -144,13 +144,15 @@ No hardware-control path is introduced by this increment.
 
 ## M2 — Mathematical SO-101 twin in Unreal
 
-Status: **M2.3 math core complete; M2.2 protocol, M2.4 oracle, Jacobian and IK remain open**
+Status: **M2.3 math core and M2.4 oracle complete; M2.2 protocol, Jacobian and IK remain open**
 Target release: **`v0.2.0`**
 
 - M2.2 articulated robot-state and model-reference protocol (#14);
 - M2.3 canonical transforms and generic fixed/revolute forward kinematics in C++ (#15),
   validated on Linux and Win64 with Unreal Engine 5.8.2;
-- M2.4 cross-language numerical oracle (#16);
+- M2.4 cross-language numerical oracle (#16), complete with nine SO-101 cases, six Python
+  reference tests and three Unreal Automation tests; its final version-2 validation passes the
+  eight-test `DeferredTeleop.M2.Kinematics` selector on Linux and Win64;
 - Jacobian and constrained damped-least-squares IK;
 - separate rigid link meshes, without a skeletal mesh;
 - Blueprint-accessible target authoring and debugging;
@@ -159,12 +161,16 @@ Target release: **`v0.2.0`**
 - a `KinematicPreview` that remains a local candidate, not an execution command.
 
 M2.3's recorded Linux and Win64 runs each pass 11 Automation tests (4 M1 and 7 M2) with build
-and headless-editor exit code 0. The generated SO-101 check validates model identity and structure;
-it is not the M2.4 numerical oracle and does not provide an FK golden result. M2 remains a
-mathematical and visualization milestone. `v0.2.0` requires no physical robot, hardware
+and headless-editor exit code 0. The M2.4 version-2 reference evaluator uses explicit
+left-to-right reductions so Python 3.11 and 3.12 produce identical bytes, and its final native
+validation passes the eight-test `DeferredTeleop.M2.Kinematics` selector on both targets. See the
+[M2.4 fixture contract](docs/m2/KINEMATICS_FIXTURES.md) and its
+[platform summary](docs/m2/evidence/fk-oracle-platform-validation.json), which retains the
+earlier full 14-test run as context, alongside the [M2 design](docs/design/M2_SO101_MATHEMATICAL_TWIN.md)
+and the [delayed-intent validation design](docs/design/DELAYED_INTENT_VALIDATION.md). M2 remains
+a mathematical and visualization milestone. `v0.2.0` requires no physical robot, hardware
 calibration or hardware-control path. M2 must preserve the distinction between an operator goal,
-a local kinematic preview, a Field admission and a Robot result. See the [M2 design](docs/design/M2_SO101_MATHEMATICAL_TWIN.md)
-and the [delayed-intent validation design](docs/design/DELAYED_INTENT_VALIDATION.md).
+a local kinematic preview, a Field admission and a Robot result.
 
 ## M3 — Autonomous delayed button press with bounded re-anchoring
 
@@ -242,12 +248,12 @@ replanning policies must retain explicit authorization, effect identity and caus
 
 `v0.1.0` remains the historical M1 release. The M1.7a, M1.7, M1.8, M3a and M3b design increments do not
 retroactively add capabilities or evidence to that tag. `v0.2.0` remains the M2 target and is
-closed by mathematical, cross-language and visualization evidence; it does not require a physical
+closed by mathematical, cross-language and visualization evidence. It does not require a physical
 SO-101 or claim hardware control.
 
-Every status claim in this roadmap is either marked complete with the evidence already recorded by
-the project or marked planned/in progress. A design document, fixture or proposed oracle is not
-reported as an implementation result.
+Every status claim in this roadmap distinguishes an implemented increment from planned or
+in-progress work. A design document, fixture or proposed oracle is not reported as an
+implementation result by itself.
 
 ## Later research tracks
 

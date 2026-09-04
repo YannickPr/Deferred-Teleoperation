@@ -30,7 +30,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | Unreal Engine plugin | M1 Mission view, strict client and reconciliation scene; verified with UE 5.8.2 on Windows |
 | Delay-tolerant dummy | Runnable M1 Mission / Field / dummy-Robot development slice |
 | M1 release gate | Passed: golden replay, adversarial matrix, portable CI, and Windows UE 5.8.2 evidence |
-| SO-101 twin | M2.3 canonical transforms/generic FK code (#15) complete with Linux and Win64 UE 5.8.2 evidence; M2.2 articulated-state protocol (#14), M2.4 numerical oracle (#16), Jacobian and IK remain pending |
+| SO-101 twin | M2.3 canonical transforms/generic FK code (#15) complete; M2.4 cross-language numerical oracle (#16) complete with Python 3.11/3.12 portability and native Linux/Win64 evidence; M2.2 articulated-state protocol (#14), Jacobian and IK remain pending |
 | Autonomous delayed button press | Planned for M3 |
 | Hardware control | Disabled by default; not implemented publicly |
 
@@ -108,10 +108,14 @@ The runtime authority and recovery boundaries are recorded in
 M2 starts from a pinned SO-101 structural source and a deterministic canonical description. M2.2
 covers the articulated robot-state and model-reference protocol (#14), while M2.3 provides the
 generic C++ fixed/revolute tree and canonical/Unreal boundary (#15). The [canonical Unreal
-kinematics guide](docs/m2/CANONICAL_KINEMATICS.md)
-documents the schema-scoped parser, its Blueprint boundary, and the remaining limits of this
-increment. M2.4 will provide the numerical cross-language oracle (#16); no SO-101 FK golden
-result is claimed before that work and its Unreal validation are evidenced.
+kinematics guide](docs/m2/CANONICAL_KINEMATICS.md) documents the schema-scoped parser, its
+Blueprint boundary, and the remaining limits of that increment. The [M2.4 fixture contract](docs/m2/KINEMATICS_FIXTURES.md)
+now provides the complete numerical cross-language oracle (#16): nine SO-101 cases, six
+independent Python reference tests, and three Unreal Automation tests. Version 2 fixes the
+reference operation order so Python 3.11 and 3.12 generate identical bytes. The final native
+validation passes the eight-test `DeferredTeleop.M2.Kinematics` selector on Linux and Win64; the
+[M2.4 platform summary](docs/m2/evidence/fk-oracle-platform-validation.json) links that result
+with the earlier full 14-test context and records the evidence boundary.
 
 Verify the portable gate in CI-compatible mode:
 
