@@ -25,7 +25,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 |---|---|
 | Architecture and authority model | Defined, still experimental |
 | Public Python package | M0 bootstrap |
-| Unreal Engine plugin | M0 skeleton; local UE 5.8 build not yet verified |
+| Unreal Engine plugin | M0 skeleton; locally verified with UE 5.8.2 on Windows |
 | Delay-tolerant dummy | Planned for M1 |
 | SO-101 twin | Planned for M2 |
 | Autonomous delayed button press | Planned for M3 |
@@ -68,7 +68,7 @@ pytest
 ruff check .
 ```
 
-The Unreal host project and plugin skeleton live under `unreal/DeferredTeleopDemo`. See [the Unreal bootstrap notes](unreal/README.md). The plugin has not been compiled by CI and must be verified locally against Unreal Engine 5.8 before M0 closes.
+The Unreal host project and plugin skeleton live under `unreal/DeferredTeleopDemo`. See [the Unreal bootstrap notes](unreal/README.md). GitHub CI does not compile Unreal; the M0 skeleton was therefore verified locally with Unreal Engine 5.8.2 on Windows.
 
 ## Design constraints
 

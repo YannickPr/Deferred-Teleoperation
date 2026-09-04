@@ -11,13 +11,20 @@ This file separates what exists from what is planned.
 - initial terminology, time/frame/provenance and threat-model documents;
 - Unreal Engine host project and one runtime-plugin module skeleton.
 
-## Requires local verification before M0 closes
+## M0 local Unreal verification
 
-- regenerate project files with Unreal Engine 5.8;
-- compile `DeferredTeleopRuntime` on the primary development platform;
-- open `DeferredTeleopDemo` and verify plugin discovery;
-- call `Get Deferred Teleop Protocol Version` from Blueprint or observe the module startup log;
-- record the exact engine version and result on the bootstrap pull request.
+Completed on 4 September 2026 on the primary Windows development platform with Unreal Engine
+5.8.2 (build 56702186):
+
+- associated the host project with UE 5.8 and accepted the editor's automatic regeneration and
+  rebuild;
+- compiled and linked `DeferredTeleopRuntime` for Development Editor / Win64;
+- opened `DeferredTeleopDemo` and verified plugin discovery and enablement;
+- observed `DeferredTeleopRuntime dtt/0 loaded` in the startup log;
+- called `Get Deferred Teleop Protocol Version` from Blueprint and observed `dtt/0`;
+- confirmed that no robot or hardware-control path was introduced.
+
+The exact commands, environment and visible evidence are recorded on bootstrap pull request #2.
 
 ## Planned, not implemented
 

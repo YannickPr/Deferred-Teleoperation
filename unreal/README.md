@@ -10,16 +10,18 @@ DeferredTeleopDemo/
 
 The plugin intentionally exposes only a Blueprint-pure protocol-version function and a startup log. It does not contain networking, kinematics, robot assets or hardware control.
 
-## Required local verification
+## Local verification
 
-These files have not been compiled by GitHub CI. Before M0 closes:
+These files are not compiled by GitHub CI. The M0 skeleton was verified on 4 September 2026
+with Unreal Engine 5.8.2 (build 56702186), Windows 11 25H2, Visual Studio 2022 toolchain
+14.44.35228 and Windows SDK 10.0.26100.0:
 
-1. install or select Unreal Engine 5.8;
-2. regenerate project files for `DeferredTeleopDemo.uproject`;
-3. build the editor target on the primary development platform;
-4. open the project and verify that `DeferredTeleop` is enabled;
-5. observe `DeferredTeleopRuntime dtt/0 loaded` in the log;
-6. call `Get Deferred Teleop Protocol Version` in a test Blueprint and confirm `dtt/0`;
-7. record the exact engine build, platform, commands and result in pull request #1.
+1. associated `DeferredTeleopDemo.uproject` with UE 5.8;
+2. accepted the editor's automatic regeneration and rebuild;
+3. built the Development Editor target for Win64;
+4. opened the project and verified that `DeferredTeleop` was enabled;
+5. observed `DeferredTeleopRuntime dtt/0 loaded` in the log;
+6. called `Get Deferred Teleop Protocol Version` in a test Blueprint and confirmed `dtt/0`.
 
-No Unreal build claim should be added to the README or CI badge before this manual verification succeeds.
+The full result and visible evidence are recorded on pull request #2. No hardware was used and
+no hardware-control path was enabled.
