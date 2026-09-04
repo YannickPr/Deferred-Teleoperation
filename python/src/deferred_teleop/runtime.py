@@ -8,6 +8,17 @@ from datetime import UTC, datetime, timedelta
 from typing import Any, Protocol
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
+from deferred_teleop.mission_view import (
+    ArrivalBeliefView,
+    ConfirmedStateView,
+    MissionConnectionState,
+    MissionConnectionStatus,
+    MissionViewState,
+    MissionViewStatus,
+    TargetBranchView,
+    TimedTrajectorySample,
+    TrajectorySampleSource,
+)
 from deferred_teleop.protocol import (
     ApprovalPolicy,
     ContractState,
@@ -196,6 +207,20 @@ class MissionService(RuntimeService):
     ) -> None:
         super().__init__(store, factory, emit=emit)
         self.configured_one_way_delay = configured_one_way_delay
+        self._link_connection_state = MissionConnectionState.DISCONNECTED
+        self._link_status_changed_at = self.clock.now()
+        self._view_sequence = 0
+
+    def set_link_connected(self, connected: bool) -> None:
+        next_state = (
+            MissionConnectionState.CONNECTED
+            if connected
+            else MissionConnectionState.DISCONNECTED
+        )
+        if next_state is self._link_connection_state:
+            return
+        self._link_connection_state = next_state
+        self._link_status_changed_at = self.clock.now()
 
     def submit_press_button(
         self,
@@ -315,6 +340,129 @@ class MissionService(RuntimeService):
             "received_message_count": len(inbox),
         }
 
+    def view_state(self) -> MissionViewState:
+        """Build the strict, presentation-neutral snapshot consumed by Unreal."""
+
+        inbox = self.store.inbox_messages()
+        outbox = self.store.outbox_messages()
+        intents = [message for message in outbox if isinstance(message.payload, OperationIntent)]
+        snapshots = [message for message in inbox if isinstance(message.payload, SiteSnapshot)]
+        forecasts = [message for message in inbox if isinstance(message.payload, RobotForecast)]
+        events = [message for message in inbox if isinstance(message.payload, ExecutionEvent)]
+        terminal = next(
+            (
+                message
+                for message in reversed(events)
+                if message.payload.next_state in TERMINAL_STATES
+            ),
+            None,
+        )
+        intent = intents[-1] if intents else None
+        snapshot = snapshots[-1].payload if snapshots else None
+        confirmed_robot = snapshot.robot_states[-1] if snapshot and snapshot.robot_states else None
+        forecast_envelope = forecasts[-1] if forecasts else None
+        forecast = forecast_envelope.payload if forecast_envelope else None
+        estimated_arrival_at = (
+            intent.created_at + timedelta(seconds=self.configured_one_way_delay)
+            if intent
+            else None
+        )
+
+        confirmed = (
+            ConfirmedStateView(
+                site_id=snapshot.site_id,
+                robot_id=confirmed_robot.robot_id,
+                pose=confirmed_robot.pose,
+                evidence=confirmed_robot.evidence,
+            )
+            if snapshot is not None and confirmed_robot is not None
+            else None
+        )
+        arrival = (
+            ArrivalBeliefView(
+                robot_id=forecast.robot_id,
+                pose=forecast.predicted_pose,
+                predicted_for=forecast.predicted_for,
+                estimated_intent_arrival_at=estimated_arrival_at,
+                link_one_way_delay_seconds=self.configured_one_way_delay,
+                evidence=forecast.evidence,
+            )
+            if forecast is not None
+            else None
+        )
+        target = (
+            TargetBranchView(
+                entity_id=intent.payload.selector.entity_id,
+                pose=dummy_pose(pressed=True),
+                evidence=evidence(
+                    "mission-operator-1",
+                    intent.created_at,
+                    ProvenanceKind.OPERATOR_ASSERTED,
+                    world_revision=snapshot.evidence.world_revision if snapshot else 1,
+                    fresh_for_seconds=60.0,
+                ),
+            )
+            if intent is not None
+            else None
+        )
+
+        trajectory: list[TimedTrajectorySample] = []
+        if confirmed is not None:
+            trajectory.append(
+                TimedTrajectorySample(
+                    sample_time=confirmed.evidence.observed_at,
+                    pose=confirmed.pose,
+                    source=TrajectorySampleSource.CONFIRMED_STATE,
+                    provenance=confirmed.evidence.provenance,
+                )
+            )
+        if arrival is not None:
+            trajectory.append(
+                TimedTrajectorySample(
+                    sample_time=arrival.predicted_for,
+                    pose=arrival.pose,
+                    source=TrajectorySampleSource.ARRIVAL_BELIEF,
+                    provenance=arrival.evidence.provenance,
+                )
+            )
+
+        manifests: tuple[PredictionManifest, ...] = ()
+        if forecast_envelope is not None:
+            manifests = (
+                PredictionManifest(
+                    manifest_id=uuid5(
+                        NAMESPACE_URL, f"dtt-manifest:{forecast_envelope.message_id}"
+                    ),
+                    site_id="dummy-site-1",
+                    forecast_ids=(forecast_envelope.message_id,),
+                    generated_for_world_revision=forecast.evidence.world_revision,
+                    evidence=forecast.evidence,
+                ),
+            )
+
+        self._view_sequence += 1
+        return MissionViewState(
+            source_id=self.factory.node_id,
+            source_sequence=self._view_sequence,
+            produced_at=self.clock.now(),
+            connection=MissionConnectionStatus(
+                mission_to_field=self._link_connection_state,
+                changed_at=self._link_status_changed_at,
+            ),
+            confirmed_state=confirmed,
+            arrival_belief=arrival,
+            target_branch=target,
+            trajectory_forecasts=tuple(trajectory),
+            prediction_manifests=manifests,
+            status=MissionViewStatus(
+                operation_id=intent.payload.operation_id if intent else None,
+                correlation_id=intent.correlation_id if intent else None,
+                terminal_state=terminal.payload.next_state if terminal else None,
+                terminal_contract_id=terminal.payload.contract_id if terminal else None,
+                received_message_count=len(inbox),
+            ),
+        )
+
 
 class FieldService(RuntimeService):
     def __init__(
@@ -379,7 +527,18 @@ class FieldService(RuntimeService):
             SiteSnapshot(
                 site_id="dummy-site-1",
                 entities=("dummy-button-1",),
-                robot_states=(),
+                robot_states=(
+                    RobotState(
+                        robot_id=self.robot_id,
+                        pose=dummy_pose(),
+                        evidence=evidence(
+                            "field-fixture-1",
+                            now,
+                            ProvenanceKind.MEASURED,
+                            world_revision=1,
+                        ),
+                    ),
+                ),
                 evidence=evidence(
                     "field-fixture-1", now, ProvenanceKind.MEASURED, world_revision=1
                 ),

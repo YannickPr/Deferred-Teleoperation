@@ -14,5 +14,13 @@ public class DeferredTeleopRuntime : ModuleRules
                 "Engine",
             }
         );
+
+        PrivateDependencyModuleNames.AddRange(
+            new[]
+            {
+                "Json",
+                "WebSockets",
+            }
+        );
     }
 }

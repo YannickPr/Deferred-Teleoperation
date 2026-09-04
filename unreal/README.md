@@ -1,6 +1,6 @@
 # Unreal Engine bootstrap
 
-The M0 host project is `unreal/DeferredTeleopDemo` and contains one project plugin with one compiled runtime module:
+The host project is `unreal/DeferredTeleopDemo` and contains one project plugin with one compiled runtime module:
 
 ```text
 DeferredTeleopDemo/
@@ -8,7 +8,10 @@ DeferredTeleopDemo/
     └── Source/DeferredTeleopRuntime/
 ```
 
-The plugin intentionally exposes only a Blueprint-pure protocol-version function and a startup log. It does not contain networking, kinematics, robot assets or hardware control.
+The plugin exposes the M0 protocol-version function plus the M1 read-only Mission client and
+visualization actor. Its network boundary is limited to the local Mission view endpoint
+(`ws://127.0.0.1:8772` by default). It contains no Field or Robot connection, kinematics,
+robot assets, or hardware control.
 
 ## Local verification
 
@@ -25,3 +28,17 @@ with Unreal Engine 5.8.2 (build 56702186), Windows 11 25H2, Visual Studio 2022 t
 
 The full result and visible evidence are recorded on pull request #2. No hardware was used and
 no hardware-control path was enabled.
+
+## M1 visualization
+
+Repository-owned assets under `Plugins/DeferredTeleop/Content` provide:
+
+- `BP_M1DeferredStates`, a Blueprint child of the visualization actor;
+- `M1_DeferredStates`, a minimal desktop example level;
+- opaque confirmed, translucent arrival/target, and trajectory materials.
+
+Regenerate them idempotently with `unreal/Scripts/generate_m1_visualization_assets.py`. The
+strict client rejects malformed/version-incompatible frames, retains its last valid state across
+disconnects, and exposes state, connection, and rejection events to Blueprint. See the
+[reproducible M1 proof](../docs/m1/UNREAL_VISUALIZATION.md) for exact generate, build, test,
+run, and capture commands.
