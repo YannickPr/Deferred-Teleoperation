@@ -39,6 +39,8 @@ reference Unreal platform for `v0.1.0`. This release does not claim Unreal suppo
 
 ## M2 — Mathematical SO-101 twin in Unreal
 
+Status: **implementation in progress; M2.1 structural description complete**
+
 - textual robot description;
 - forward kinematics, Jacobian and constrained damped-least-squares IK in C++;
 - separate rigid link meshes, without a skeletal mesh;

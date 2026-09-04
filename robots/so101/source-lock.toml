@@ -1,0 +1,29 @@
+schema_version = "dtt.source-lock/0"
+model_id = "so101_new_calib"
+
+[source]
+repository = "https://github.com/TheRobotStudio/SO-ARM100"
+commit = "385e8d7c68e24945df6c60d9bd68837a4b7411ae"
+path = "Simulation/SO101/so101_new_calib.urdf"
+git_blob_sha1 = "9552a231d8b23bed68ec15779eba620c5d875ec4"
+licence = "Apache-2.0"
+retrieved_at = "2026-09-04"
+
+[vendor]
+path = "robots/so101/upstream/so101_new_calib.urdf"
+modified = false
+
+[model]
+root_link = "base_link"
+tool_frames = ["gripper_frame_link"]
+arm_joint_group = [
+  "shoulder_pan",
+  "shoulder_lift",
+  "elbow_flex",
+  "wrist_flex",
+  "wrist_roll",
+]
+gripper_joint_group = ["gripper"]
+
+[notes]
+gripper_mapping = "The upstream README states that LeRobot's normalized 0-100 gripper convention is not represented by this URDF. Hardware normalization is intentionally deferred."

@@ -1,17 +1,46 @@
 # Third-party notices
 
-No third-party robot meshes, textures, datasets, trained weights or copied source files are included in M0.
+The Apache-2.0 licence at the repository root applies to original Deferred Teleoperation code
+unless a file or directory explicitly states otherwise. It does not relicense third-party
+material.
 
-Before adding third-party material, a pull request must record:
+## TheRobotStudio SO-ARM100 / SO-101 structural description
+
+This repository vendors one unmodified source file for deterministic development and tests:
+
+```text
+Project:     SO-ARM100
+Source:      https://github.com/TheRobotStudio/SO-ARM100
+Commit:      385e8d7c68e24945df6c60d9bd68837a4b7411ae
+File:        Simulation/SO101/so101_new_calib.urdf
+Git blob:    9552a231d8b23bed68ec15779eba620c5d875ec4
+Local path:  robots/so101/upstream/so101_new_calib.urdf
+Licence:     Apache License 2.0
+Modified:    no
+```
+
+The source file states that it was generated with `onshape-to-robot` from the linked Onshape CAD
+model. Deferred Teleoperation preserves that source comment in the vendored file.
+
+Any generated canonical description is a source-derived representation and must retain this
+provenance. Official mesh files are **not** included by this notice; each exact mesh and any
+converted Unreal asset must be reviewed and recorded before it is added.
+
+## Policy for future third-party material
+
+Before adding a robot mesh, texture, dataset, trained weight or copied source file, a pull request
+must record:
 
 - source and immutable version or commit;
 - copyright holder when known;
 - licence and redistribution conditions;
 - local modifications;
 - required notices;
-- whether the material may be bundled, downloaded separately, or used only as a development dependency.
+- whether the material may be bundled, downloaded separately, or used only as a development
+  dependency.
 
-The Apache-2.0 licence applies to original repository code unless a file or directory explicitly states otherwise. It does not relicense third-party material.
+The Apache-2.0 licence applies to original repository code unless a file or directory explicitly
+states otherwise. It does not relicense third-party material.
 
 ## Direct Python runtime dependencies
 
@@ -24,4 +53,5 @@ repository:
 | websockets | `>=15,<17` | 16.1.1 | <https://github.com/python-websockets/websockets> | BSD-3-Clause |
 
 Their distributions carry the applicable copyright and licence texts. No robot assets,
-datasets, model weights or copied third-party source files are introduced by M1.3.
+datasets or model weights were introduced by M1. The pinned SO-101 URDF described above is the
+first robot source vendored for M2.

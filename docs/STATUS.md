@@ -50,10 +50,17 @@ The exact commands, environment and visible evidence are recorded on bootstrap p
 - Unreal Engine 5.8.2 validation on Windows, the reference Unreal platform for `v0.1.0`;
 - portable Python validation on Linux through GitHub CI.
 
+## Implemented in M2
+
+- pinned, unmodified SO-101 structural URDF with immutable source identity and licence metadata;
+- deterministic canonical right-handed metre/radian robot description;
+- explicit arm and gripper joint groups plus the `gripper_frame_link` tool frame;
+- offline source-hash, structure and generated-description drift checks on Linux and Windows.
+
 ## Planned, not implemented
 
 - VR interaction and headset-specific presentation (the desktop Unreal visualization exists);
-- SO-101 geometry, kinematics or hardware integration;
+- SO-101 forward kinematics, articulated Unreal visualization, IK and hardware integration;
 - Simulation Worker;
 - LeRobot integration;
 - learned policies or LLM planning.

@@ -1,0 +1,587 @@
+{
+  "schema_version": "dtt.robot-description/0",
+  "model_id": "so101_new_calib",
+  "model_revision": "git:385e8d7c68e24945df6c60d9bd68837a4b7411ae:9552a231d8b23bed68ec15779eba620c5d875ec4",
+  "source": {
+    "repository": "https://github.com/TheRobotStudio/SO-ARM100",
+    "commit": "385e8d7c68e24945df6c60d9bd68837a4b7411ae",
+    "path": "Simulation/SO101/so101_new_calib.urdf",
+    "git_blob_sha1": "9552a231d8b23bed68ec15779eba620c5d875ec4",
+    "licence": "Apache-2.0",
+    "vendor_modified": false
+  },
+  "coordinate_convention": {
+    "handedness": "RIGHT_HANDED",
+    "up_axis": "Z",
+    "length_unit": "metre",
+    "angle_unit": "radian",
+    "rotation_representation": "quaternion_xyzw",
+    "transform_notation": "parent_T_child"
+  },
+  "root_link": "base_link",
+  "links": [
+    {
+      "name": "base_link",
+      "visuals": [
+        {
+          "visual_id": "base_link.visual.0",
+          "source_mesh": "assets/base_motor_holder_so101_v1.stl",
+          "material": "3d_printed",
+          "link_to_visual": {
+            "translation_m": [
+              -0.00636471,
+              -9.94414e-05,
+              -0.0024
+            ],
+            "rotation_xyzw": [
+              0.49999999999662736,
+              0.5000018366025513,
+              0.49999999999662736,
+              0.4999981633974479
+            ]
+          }
+        },
+        {
+          "visual_id": "base_link.visual.1",
+          "source_mesh": "assets/base_so101_v2.stl",
+          "material": "3d_printed",
+          "link_to_visual": {
+            "translation_m": [
+              -0.00636471,
+              -8.97657e-09,
+              -0.0024
+            ],
+            "rotation_xyzw": [
+              0.4999999999966269,
+              0.5000018366025517,
+              0.4999999999966269,
+              0.49999816339744835
+            ]
+          }
+        },
+        {
+          "visual_id": "base_link.visual.2",
+          "source_mesh": "assets/sts3215_03a_v1.stl",
+          "material": "sts3215",
+          "link_to_visual": {
+            "translation_m": [
+              0.0263353,
+              -8.97657e-09,
+              0.0437
+            ],
+            "rotation_xyzw": [
+              -4.10574e-16,
+              3.922564999999744e-18,
+              6.245e-16,
+              1.0
+            ]
+          }
+        },
+        {
+          "visual_id": "base_link.visual.3",
+          "source_mesh": "assets/waveshare_mounting_plate_so101_v2.stl",
+          "material": "3d_printed",
+          "link_to_visual": {
+            "translation_m": [
+              -0.0309827,
+              -0.000199441,
+              0.0474
+            ],
+            "rotation_xyzw": [
+              0.4999999999966303,
+              0.5000018366025483,
+              0.4999999999966303,
+              0.49999816339744496
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "shoulder_link",
+      "visuals": [
+        {
+          "visual_id": "shoulder_link.visual.0",
+          "source_mesh": "assets/sts3215_03a_v1.stl",
+          "material": "sts3215",
+          "link_to_visual": {
+            "translation_m": [
+              -0.0303992,
+              0.000422241,
+              -0.0417
+            ],
+            "rotation_xyzw": [
+              0.4999999999966269,
+              0.4999999999966269,
+              -0.5000018366025517,
+              0.49999816339744835
+            ]
+          }
+        },
+        {
+          "visual_id": "shoulder_link.visual.1",
+          "source_mesh": "assets/motor_holder_so101_base_v1.stl",
+          "material": "3d_printed",
+          "link_to_visual": {
+            "translation_m": [
+              -0.0675992,
+              -0.000177759,
+              0.0158499
+            ],
+            "rotation_xyzw": [
+              0.4999999999966269,
+              -0.4999999999966269,
+              0.5000018366025517,
+              0.49999816339744835
+            ]
+          }
+        },
+        {
+          "visual_id": "shoulder_link.visual.2",
+          "source_mesh": "assets/rotation_pitch_so101_v1.stl",
+          "material": "3d_printed",
+          "link_to_visual": {
+            "translation_m": [
+              0.0122008,
+              2.22413e-05,
+              0.0464
+            ],
+            "rotation_xyzw": [
+              -0.7071080798594737,
+              8.316302935088776e-34,
+              8.316333482631262e-34,
+              0.7071054825112364
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "upper_arm_link",
+      "visuals": [
+        {
+          "visual_id": "upper_arm_link.visual.0",
+          "source_mesh": "assets/sts3215_03a_v1.stl",
+          "material": "sts3215",
+          "link_to_visual": {
+            "translation_m": [
+              -0.11257,
+              -0.0155,
+              0.0187
+            ],
+            "rotation_xyzw": [
+              -0.707105482510614,
+              0.7071080798588513,
+              -9.381873919434471e-07,
+              9.381839454221639e-07
+            ]
+          }
+        },
+        {
+          "visual_id": "upper_arm_link.visual.1",
+          "source_mesh": "assets/upper_arm_so101_v1.stl",
+          "material": "3d_printed",
+          "link_to_visual": {
+            "translation_m": [
+              -0.065085,
+              0.012,
+              0.0182
+            ],
+            "rotation_xyzw": [
+              0.9999999999991198,
+              -6.545549999994239e-31,
+              -8.684602335947626e-37,
+              1.3267948966775328e-06
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "lower_arm_link",
+      "visuals": [
+        {
+          "visual_id": "lower_arm_link.visual.0",
+          "source_mesh": "assets/under_arm_so101_v1.stl",
+          "material": "3d_printed",
+          "link_to_visual": {
+            "translation_m": [
+              -0.0648499,
+              -0.032,
+              0.0182
+            ],
+            "rotation_xyzw": [
+              0.9999999999991198,
+              3.336009999997064e-31,
+              4.426201043265217e-37,
+              1.3267948966775328e-06
+            ]
+          }
+        },
+        {
+          "visual_id": "lower_arm_link.visual.1",
+          "source_mesh": "assets/motor_holder_so101_wrist_v1.stl",
+          "material": "3d_printed",
+          "link_to_visual": {
+            "translation_m": [
+              -0.0648499,
+              -0.032,
+              0.018
+            ],
+            "rotation_xyzw": [
+              -0.9999999999991198,
+              -1.6939920173905883e-21,
+              -1.2767549999988762e-15,
+              1.3267948966775328e-06
+            ]
+          }
+        },
+        {
+          "visual_id": "lower_arm_link.visual.2",
+          "source_mesh": "assets/sts3215_03a_v1.stl",
+          "material": "sts3215",
+          "link_to_visual": {
+            "translation_m": [
+              -0.1224,
+              0.0052,
+              0.0187
+            ],
+            "rotation_xyzw": [
+              -1.326794896676365e-06,
+              0.9999999999982396,
+              -1.326794896676365e-06,
+              1.760384697849545e-12
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "wrist_link",
+      "visuals": [
+        {
+          "visual_id": "wrist_link.visual.0",
+          "source_mesh": "assets/sts3215_03a_no_horn_v1.stl",
+          "material": "sts3215",
+          "link_to_visual": {
+            "translation_m": [
+              8.32667e-17,
+              -0.0424,
+              0.0306
+            ],
+            "rotation_xyzw": [
+              0.4999999999966269,
+              0.4999999999966269,
+              -0.5000018366025517,
+              0.49999816339744835
+            ]
+          }
+        },
+        {
+          "visual_id": "wrist_link.visual.1",
+          "source_mesh": "assets/wrist_roll_pitch_so101_v2.stl",
+          "material": "3d_printed",
+          "link_to_visual": {
+            "translation_m": [
+              0.0,
+              -0.028,
+              0.0181
+            ],
+            "rotation_xyzw": [
+              -0.4999999999966269,
+              -0.4999999999966269,
+              -0.5000018366025517,
+              0.49999816339744835
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "gripper_link",
+      "visuals": [
+        {
+          "visual_id": "gripper_link.visual.0",
+          "source_mesh": "assets/sts3215_03a_v1.stl",
+          "material": "sts3215",
+          "link_to_visual": {
+            "translation_m": [
+              0.0077,
+              0.0001,
+              -0.0234
+            ],
+            "rotation_xyzw": [
+              -0.7071080798594737,
+              4.05226990663838e-17,
+              -7.723398194918995e-17,
+              0.7071054825112364
+            ]
+          }
+        },
+        {
+          "visual_id": "gripper_link.visual.1",
+          "source_mesh": "assets/wrist_roll_follower_so101_v1.stl",
+          "material": "3d_printed",
+          "link_to_visual": {
+            "translation_m": [
+              8.32667e-17,
+              -0.000218214,
+              0.000949706
+            ],
+            "rotation_xyzw": [
+              -0.9999999999991198,
+              -3.6825988434222926e-23,
+              -2.775559999997557e-17,
+              1.3267948966775328e-06
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "moving_jaw_so101_v1_link",
+      "visuals": [
+        {
+          "visual_id": "moving_jaw_so101_v1_link.visual.0",
+          "source_mesh": "assets/moving_jaw_so101_v1.stl",
+          "material": "3d_printed",
+          "link_to_visual": {
+            "translation_m": [
+              -5.55112e-17,
+              -5.55112e-17,
+              0.0189
+            ],
+            "rotation_xyzw": [
+              4.765725e-17,
+              3.469445e-18,
+              6.203849998346558e-25,
+              1.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "gripper_frame_link",
+      "visuals": []
+    }
+  ],
+  "joints": [
+    {
+      "name": "shoulder_pan",
+      "type": "revolute",
+      "parent_link": "base_link",
+      "child_link": "shoulder_link",
+      "parent_to_joint": {
+        "translation_m": [
+          0.0388353,
+          -8.97657e-09,
+          0.0624
+        ],
+        "rotation_xyzw": [
+          1.326794896676365e-06,
+          -0.9999999999982396,
+          -1.326794896676365e-06,
+          1.760363785199545e-12
+        ]
+      },
+      "axis_joint_frame": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position_limits_rad": {
+        "lower": -1.91986,
+        "upper": 1.91986
+      }
+    },
+    {
+      "name": "shoulder_lift",
+      "type": "revolute",
+      "parent_link": "shoulder_link",
+      "child_link": "upper_arm_link",
+      "parent_to_joint": {
+        "translation_m": [
+          -0.0303992,
+          -0.0182778,
+          -0.0542
+        ],
+        "rotation_xyzw": [
+          -0.4999999999966269,
+          -0.4999999999966269,
+          -0.5000018366025517,
+          0.49999816339744835
+        ]
+      },
+      "axis_joint_frame": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position_limits_rad": {
+        "lower": -1.74533,
+        "upper": 1.74533
+      }
+    },
+    {
+      "name": "elbow_flex",
+      "type": "revolute",
+      "parent_link": "upper_arm_link",
+      "child_link": "lower_arm_link",
+      "parent_to_joint": {
+        "translation_m": [
+          -0.11257,
+          -0.028,
+          1.73763e-16
+        ],
+        "rotation_xyzw": [
+          -4.376672558070817e-16,
+          1.805564378817565e-16,
+          0.7071080798594737,
+          0.7071054825112364
+        ]
+      },
+      "axis_joint_frame": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position_limits_rad": {
+        "lower": -1.69,
+        "upper": 1.69
+      }
+    },
+    {
+      "name": "wrist_flex",
+      "type": "revolute",
+      "parent_link": "lower_arm_link",
+      "child_link": "wrist_link",
+      "parent_to_joint": {
+        "translation_m": [
+          -0.1349,
+          0.0052,
+          3.62355e-17
+        ],
+        "rotation_xyzw": [
+          1.729553559529247e-15,
+          -1.1162412341786662e-15,
+          -0.7071080798594737,
+          0.7071054825112364
+        ]
+      },
+      "axis_joint_frame": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position_limits_rad": {
+        "lower": -1.65806,
+        "upper": 1.65806
+      }
+    },
+    {
+      "name": "wrist_roll",
+      "type": "revolute",
+      "parent_link": "wrist_link",
+      "child_link": "gripper_link",
+      "parent_to_joint": {
+        "translation_m": [
+          5.55112e-17,
+          -0.0611,
+          0.0181
+        ],
+        "rotation_xyzw": [
+          -0.017208133464804664,
+          0.7068986593349474,
+          0.7068960170901372,
+          0.01721007249293119
+        ]
+      },
+      "axis_joint_frame": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position_limits_rad": {
+        "lower": -2.74385,
+        "upper": 2.84121
+      }
+    },
+    {
+      "name": "gripper",
+      "type": "revolute",
+      "parent_link": "gripper_link",
+      "child_link": "moving_jaw_so101_v1_link",
+      "parent_to_joint": {
+        "translation_m": [
+          0.0202,
+          0.0188,
+          -0.0234
+        ],
+        "rotation_xyzw": [
+          0.7071080798594734,
+          -1.85362050401124e-08,
+          1.85362721265877e-08,
+          0.7071054825112362
+        ]
+      },
+      "axis_joint_frame": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position_limits_rad": {
+        "lower": -0.174533,
+        "upper": 1.74533
+      }
+    },
+    {
+      "name": "gripper_frame_joint",
+      "type": "fixed",
+      "parent_link": "gripper_link",
+      "child_link": "gripper_frame_link",
+      "parent_to_joint": {
+        "translation_m": [
+          -0.0079,
+          -0.000218121,
+          -0.0981274
+        ],
+        "rotation_xyzw": [
+          0.0,
+          0.9999999999991198,
+          0.0,
+          1.3267948966775328e-06
+        ]
+      },
+      "axis_joint_frame": null,
+      "position_limits_rad": null
+    }
+  ],
+  "joint_groups": [
+    {
+      "name": "arm",
+      "joints": [
+        "shoulder_pan",
+        "shoulder_lift",
+        "elbow_flex",
+        "wrist_flex",
+        "wrist_roll"
+      ]
+    },
+    {
+      "name": "gripper",
+      "joints": [
+        "gripper"
+      ]
+    }
+  ],
+  "tool_frames": [
+    {
+      "name": "gripper_frame_link",
+      "link": "gripper_frame_link"
+    }
+  ],
+  "known_limitations": [
+    "The upstream README states that LeRobot's normalized 0-100 gripper convention is not represented by this URDF. Hardware normalization is intentionally deferred."
+  ]
+}
