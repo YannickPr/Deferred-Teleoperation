@@ -15,6 +15,12 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
   symmetric 1200-second and asymmetric 900-second outbound / 1200-second return delays, including
   duplicate-contract recovery and receiving-site expiry boundaries;
 - pinned SO-101 structural source, canonical generated description and cross-platform drift gate.
+- canonical Unreal C++ transforms, schema-scoped robot-description parsing, generic tree FK,
+  tool-frame propagation, Blueprint functions and Automation Test coverage. The roadmap tracks
+  the articulated-state protocol as M2.2 (#14), this FK implementation as M2.3 (#15), and the
+  numerical cross-language oracle as the planned M2.4 increment (#16). M2.3 is validated on
+  Linux and Win64 with Unreal Engine 5.8.2; the generated SO-101 check remains structural and
+  is not an M2.4 FK oracle.
 
 ### Status
 

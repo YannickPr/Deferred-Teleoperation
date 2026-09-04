@@ -12,7 +12,7 @@ progress. The [roadmap](../ROADMAP.md) defines the corresponding evidence gates.
 | M1.7a | **Implemented; PR #30** | Bounded correlation selection and compatible Mission-view layer filtering |
 | M1.7 | **Planned after M1.7a** | Full causal coherence for concurrent operations and reordered Mission-view data |
 | M1.8 | **In progress; M1.8b combined proof implemented** | External device runs through delayed Mission/Field domain; durable budget and cross-revision identity remain open |
-| M2 | **In progress; target `v0.2.0`** | M2.1 structural model is complete; FK, articulated Unreal state, IK and authoring remain |
+| M2 | **In progress; target `v0.2.0`** | M2.1 structural model and M2.3 FK math core are complete with Linux/Win64 UE evidence; M2.2 protocol, M2.4 oracle, Jacobian, IK and authoring remain |
 | M3 | **Planned; M3a + M3b required** | Simulation oracle gate plus calibrated physical-fixture gate |
 | M4/M5 | **Planned** | Broader robot-agnostic assignment, context acquisition and replanning |
 
@@ -80,10 +80,15 @@ independent external effect, or concurrent-operation causal coherence.
 - deterministic canonical right-handed metre/radian robot description;
 - explicit arm and gripper joint groups plus the `gripper_frame_link` tool frame;
 - offline source-hash, structure and generated-description drift checks on Linux and Windows.
+- M2.3 canonical transforms, generic fixed/revolute tree FK and named tool-frame output (#15);
+- M2.3 Unreal boundary conversion and schema-scoped parser for the generated description;
+- Linux and Win64 Unreal Engine 5.8.2 build and Automation evidence: 11 successful tests on
+  each target (4 M1 and 7 M2), with build and headless-editor exit code 0.
 
-The remaining M2 work is described in the [M2 design](design/M2_SO101_MATHEMATICAL_TWIN.md).
-Its target is `v0.2.0`; it remains a mathematical and visualization milestone and does not
-require a physical robot.
+The generated SO-101 test checks model identity and structure only; it is not the M2.4 numerical
+cross-language oracle and supplies no FK golden result. Remaining M2 work is described in the
+[M2 design](design/M2_SO101_MATHEMATICAL_TWIN.md). Its target is `v0.2.0`; it remains a
+mathematical and visualization milestone and does not require a physical robot.
 
 ## Implemented in M1.7a
 
@@ -133,7 +138,9 @@ The remaining full M1.8 gate requires:
 
 ### Remaining M2 work
 
-- forward kinematics and Jacobian in C++;
+- M2.2 articulated robot-state and model-reference protocol (#14);
+- M2.4 cross-language numerical oracle (#16);
+- Jacobian in C++;
 - constrained damped-least-squares IK with explicit status and residuals;
 - articulated Unreal link visualization and cross-language golden evidence;
 - desktop/VR target authoring and time-sampled `KinematicPreview`;
@@ -191,5 +198,5 @@ M3b's physical-fixture evidence is not present.
 
 No public hardware-control path exists. Nothing in the current repository should command a
 physical robot. The M1 release gate operates entirely on the public dummy path. Unreal Engine
-5.8.2 is verified on the reference Windows platform; `v0.1.0` does not claim Unreal support on
-Linux.
+5.8.2 is verified on the reference Windows platform for `v0.1.0` and on Linux/Win64 for the
+M2.3 math-core evidence; `v0.1.0` does not claim Unreal support on Linux.
