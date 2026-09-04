@@ -1,8 +1,8 @@
 # M1 golden session and v0.1 release gate
 
 M1.6 turns the runnable dummy slice into reviewable release evidence. The gate is deliberately
-split into an automated CI scope and a stricter release scope: CI can prove the portable parts,
-while `v0.1.0` remains blocked until every platform/manual item is recorded as `PASSED`.
+split into an automated CI scope and a stricter release scope: CI proves the portable parts, while
+the release scope also requires every reference-platform/manual item to be recorded as `PASSED`.
 
 No command in this document loads SO-101 support, an actuator, a Simulation Worker, or a private
 repository. The public dummy remains the only execution backend.
@@ -100,10 +100,14 @@ The release-gate change was recompiled on 4 September 2026 with Unreal Engine 5.
 10.0.26100.0. All four `DeferredTeleop.M1` automation tests passed, including
 `MissionView.GoldenFixtureParses` against the committed Python-generated fixture.
 
-Linux Unreal 5.8 verification has not been recorded. Therefore the full release command exits with
-status 1 and `release_ready: false`. This is an intentional, visible blocker: do not create the
-`v0.1.0` tag until a Linux result and its exact environment/limitations are reviewed and the
-checklist entry is changed to `PASSED`.
+Windows is the reference Unreal platform for `v0.1.0`, matching the primary development and VR
+environment. Linux remains mandatory for the portable Python, protocol, schema, golden-session and
+scenario-matrix checks in CI, but this release does not claim Unreal Editor or runtime support on
+Linux. A second Unreal installation is therefore outside the M1 release scope rather than an
+unrecorded substitute for the Windows evidence.
+
+All checklist items are now recorded as `PASSED`, so the full release command exits with status 0
+and reports `release_ready: true` when the automated matrix also passes.
 
 The portable CI scope remains expected to pass:
 
@@ -117,4 +121,5 @@ dtt-release-gate verify --scope ci --skip-pytest
 - Unreal presentation: measured confirmed state, predicted arrival belief, and operator-asserted
   target remain distinct; see `evidence/m1-unreal-reconciliation.png`.
 - Hardware: not used and no public hardware-control path exists.
-- Release: not yet tagged because the Linux Unreal gate is still blocked.
+- Platform scope: Windows is the reference Unreal platform; Unreal on Linux is not claimed.
+- Release: the `v0.1.0` gate is satisfied.

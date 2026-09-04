@@ -26,7 +26,7 @@ Completed on 4 September 2026 on the primary Windows development platform with U
 
 The exact commands, environment and visible evidence are recorded on bootstrap pull request #2.
 
-## Implemented toward M1
+## Implemented in M1
 
 - strict Python wire models and JSON schemas for the constrained `dtt/0` dummy path;
 - durable SQLite inbox, outbox, execution journal and crash recovery primitives;
@@ -47,6 +47,8 @@ The exact commands, environment and visible evidence are recorded on bootstrap p
 - fourteen-profile adversarial matrix mapped to executable tests and durable evidence;
 - machine-readable `v0.1.0` release checklist and CI-compatible gate;
 - changelog and citation metadata prepared for the first tagged release.
+- Unreal Engine 5.8.2 validation on Windows, the reference Unreal platform for `v0.1.0`;
+- portable Python validation on Linux through GitHub CI.
 
 ## Planned, not implemented
 
@@ -55,10 +57,9 @@ The exact commands, environment and visible evidence are recorded on bootstrap p
 - Simulation Worker;
 - LeRobot integration;
 - learned policies or LLM planning.
-- Linux Unreal Engine 5.8 verification required before the `v0.1.0` tag.
 
 ## Safety status
 
 No public hardware-control path exists. Nothing in the current repository should command a physical robot.
-The M1 release gate operates entirely on the public dummy path and explicitly reports the missing
-Linux Unreal proof instead of weakening or silently skipping that requirement.
+The M1 release gate operates entirely on the public dummy path. Unreal Engine 5.8.2 is verified on
+the reference Windows platform; `v0.1.0` does not claim Unreal support on Linux.

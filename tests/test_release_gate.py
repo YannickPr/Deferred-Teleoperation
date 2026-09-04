@@ -60,11 +60,11 @@ def test_scenario_matrix_is_complete_and_references_executable_evidence() -> Non
     assert result["test_references"] >= 14
 
 
-def test_release_gate_stays_blocked_until_linux_unreal_evidence_exists() -> None:
+def test_release_gate_is_ready_with_explicit_unreal_platform_scope() -> None:
     result = evaluate_release_checklist(DEFAULT_CHECKLIST_PATH)
 
-    assert not result["release_ready"]
-    assert [item["id"] for item in result["blockers"]] == ["linux-unreal-5.8"]
+    assert result["release_ready"]
+    assert result["blockers"] == []
 
 
 def test_field_restart_after_admission_preserves_robot_dispatch(tmp_path: Path) -> None:

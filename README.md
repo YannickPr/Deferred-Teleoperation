@@ -2,9 +2,9 @@
 
 **A research prototype for delay-tolerant, VR-mediated shared autonomy with remote robots.**
 
-> **Status:** M0 public foundation complete. The M1 delay-tolerant dummy and its portable release
-> evidence are implemented; `v0.1.0` remains blocked on Linux Unreal verification. No physical
-> robot path is enabled.
+> **Status:** M0 and the M1 delay-tolerant dummy are complete. The `v0.1.0` release gate is
+> satisfied with portable Python CI and Unreal Engine 5.8.2 verification on the reference Windows
+> platform. No physical robot path is enabled.
 
 Deferred Teleoperation explores how an operator can express a spatial and linguistic intent from a delayed representation of a remote environment, while an autonomous field site grounds, assigns, executes, adapts, or holds that intent without depending on a real-time round trip.
 
@@ -29,7 +29,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | Public Python package | M0 foundation complete |
 | Unreal Engine plugin | M1 Mission view, strict client and reconciliation scene; verified with UE 5.8.2 on Windows |
 | Delay-tolerant dummy | Runnable M1 Mission / Field / dummy-Robot development slice |
-| M1 release gate | Golden replay and adversarial matrix implemented; Linux Unreal proof pending |
+| M1 release gate | Passed: golden replay, adversarial matrix, portable CI, and Windows UE 5.8.2 evidence |
 | SO-101 twin | Planned for M2 |
 | Autonomous delayed button press | Planned for M3 |
 | Hardware control | Disabled by default; not implemented publicly |
@@ -101,7 +101,7 @@ manual four-terminal launch, online Mission queries, and offline causal-history 
 The [M1 Unreal visualization proof](docs/m1/UNREAL_VISUALIZATION.md) documents the local
 Mission view, generated example scene, automated tests, and reproducible screenshot.
 The [M1 release gate](docs/m1/RELEASE_GATE.md) binds a deterministic golden session to the
-adversarial test matrix and records why `v0.1.0` is not yet taggable.
+adversarial test matrix and records the evidence required for `v0.1.0`.
 The runtime authority and recovery boundaries are recorded in
 [ADR 0005](docs/adr/0005-m1-delayed-dummy-runtime.md).
 
@@ -111,10 +111,10 @@ Verify the portable gate in CI-compatible mode:
 dtt-release-gate verify --scope ci --skip-pytest
 ```
 
-Run the full matrix and release decision with `dtt-release-gate verify --scope release`. The latter
-is expected to remain non-zero until every manual/platform requirement is recorded as passed.
+Run the full matrix and release decision with `dtt-release-gate verify --scope release`. Every
+required automated and reference-platform item must pass.
 
-The Unreal host project and plugin live under `unreal/DeferredTeleopDemo`. See [the Unreal notes](unreal/README.md). GitHub CI does not compile Unreal; M0 and the M1 visualization were therefore verified locally with Unreal Engine 5.8.2 on Windows.
+The Unreal host project and plugin live under `unreal/DeferredTeleopDemo`. See [the Unreal notes](unreal/README.md). GitHub CI does not compile Unreal; M0 and the M1 visualization were therefore verified locally with Unreal Engine 5.8.2 on Windows, the reference Unreal platform for this release. Unreal on Linux is not claimed as supported by `v0.1.0`.
 
 ## Design constraints
 

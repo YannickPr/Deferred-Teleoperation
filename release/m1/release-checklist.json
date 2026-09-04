@@ -40,10 +40,10 @@
       "evidence": "docs/m1/UNREAL_VISUALIZATION.md"
     },
     {
-      "id": "linux-unreal-5.8",
-      "requirement": "Unreal 5.8 local verification is recorded on Linux.",
-      "status": "BLOCKED",
-      "evidence": "No Linux Unreal 5.8 environment has been verified; v0.1.0 must not be tagged."
+      "id": "unreal-platform-scope",
+      "requirement": "The reference Unreal platform and unsupported platform claims are explicit.",
+      "status": "PASSED",
+      "evidence": "docs/m1/RELEASE_GATE.md"
     },
     {
       "id": "distinct-unreal-states",

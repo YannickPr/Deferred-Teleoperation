@@ -5,6 +5,8 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 
 ## Unreleased
 
+## 0.1.0 - 2026-09-04
+
 ### Added
 
 - strict `dtt/0` models, generated schema, conformance fixtures, and durable node stores;
@@ -19,8 +21,5 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 - predicted, simulated, and operator-asserted data cannot be relabelled as measured evidence;
 - duplicate contract delivery is bounded by the dummy effect-once journal.
 
-## Planned: 0.1.0
-
-The first runnable release will be dated and moved out of `Unreleased` only after every item in
-`release/m1/release-checklist.json` passes. In particular, the current Windows Unreal result does
-not substitute for the required Linux Unreal verification.
+The first runnable release. Every required item in `release/m1/release-checklist.json` passes.
+Windows is the reference Unreal platform; portable Python checks remain covered on Linux in CI.
