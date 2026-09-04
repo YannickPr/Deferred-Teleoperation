@@ -12,7 +12,7 @@ progress. The [roadmap](../ROADMAP.md) defines the corresponding evidence gates.
 | M1.7a | **Implemented; PR #30** | Bounded correlation selection and compatible Mission-view layer filtering |
 | M1.7 | **Planned after M1.7a** | Full causal coherence for concurrent operations and reordered Mission-view data |
 | M1.8 | **In progress; M1.8b combined proof implemented** | External device runs through delayed Mission/Field domain; durable budget and cross-revision identity remain open |
-| M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.3 FK math core and M2.4 oracle are complete; M2.2 protocol, Jacobian, IK and authoring remain |
+| M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.2 articulated-state protocol, M2.3 FK math core and M2.4 oracle are complete with Linux/Win64 UE evidence; Jacobian, IK and authoring remain |
 | M3 | **Planned; M3a + M3b required** | Simulation oracle gate plus calibrated physical-fixture gate |
 | M4/M5 | **Planned** | Broader robot-agnostic assignment, context acquisition and replanning |
 
@@ -82,8 +82,15 @@ independent external effect, or concurrent-operation causal coherence.
 - offline source-hash, structure and generated-description drift checks on Linux and Windows.
 - M2.3 canonical transforms, generic fixed/revolute tree FK and named tool-frame output (#15);
 - M2.3 Unreal boundary conversion and schema-scoped parser for the generated description;
-- Linux and Win64 Unreal Engine 5.8.2 build and Automation evidence: 11 successful tests on
-  each target (4 M1 and 7 M2), with build and headless-editor exit code 0.
+- M2.2 strict articulated robot-state/model-reference DTOs and parser, Field relay, opt-in Mission
+  view, and an explicit description-backed validator that returns visible diagnostics;
+- the M2.2 platform snapshot lists the three targeted ArticulatedView tests as `Success` on
+  LinuxEditor and WindowsEditor within a 22-test contextual report; build and headless-editor
+  exit code 0. The [compact platform record](m2/evidence/articulated-state-platform-validation.json)
+  contains the exact names/states, raw report hashes, 19 source/fixture hashes, and six unchanged
+  M1 golden files;
+- Linux and Win64 Unreal Engine 5.8.2 M2.3 baseline evidence: 11 successful tests on each target
+  (4 M1 and 7 M2), with build and headless-editor exit code 0;
 - M2.4 cross-language SO-101 FK oracle (#16): nine fixture cases, six independent Python
   reference tests and three Unreal Automation tests added to the 11-test baseline;
 - generator version 2's explicit left-to-right reductions, with byte-identical Python 3.11/3.12
@@ -93,9 +100,13 @@ independent external effect, or concurrent-operation causal coherence.
 The [M2.4 fixture contract](m2/KINEMATICS_FIXTURES.md) documents the numerical oracle and the
 mandatory Python `--check` gate. The [M2.4 platform summary](m2/evidence/fk-oracle-platform-validation.json)
 records the machine-readable eight-test native results and retains the earlier full 14-test run as
-context. Remaining M2 work is described in the
-[M2 design](design/M2_SO101_MATHEMATICAL_TWIN.md). Its target is `v0.2.0`; it remains a
-mathematical and visualization milestone and does not require a physical robot.
+context. The generated SO-101 check covers model identity and structure, while the M2.4 fixture
+contract supplies the numerical FK oracle. Wire parsing and the live Mission view preserve the
+articulated model reference without validating SO-101 geometry; an FK consumer must call the
+explicit description-backed validator. The post-rebase integrated Python validation passes 141
+tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
+historical 135/20 context. Remaining M2 work is described in the [M2 design](design/M2_SO101_MATHEMATICAL_TWIN.md). Its target is `v0.2.0`; it remains a mathematical
+and visualization milestone and does not require a physical robot.
 
 ## Implemented in M1.7a
 
@@ -145,7 +156,6 @@ The remaining full M1.8 gate requires:
 
 ### Remaining M2 work
 
-- M2.2 articulated robot-state and model-reference protocol (#14);
 - Jacobian in C++;
 - constrained damped-least-squares IK with explicit status and residuals;
 - articulated Unreal link visualization and cross-language golden evidence;
@@ -190,9 +200,10 @@ M3 remains incomplete until both M3a and M3b pass. Neither gate is currently imp
 
 This documentation update introduces no additional runtime implementation or hardware path. M1.7a has the
 separate implementation and validation cited above; the bounded M1.8b proof is implemented while
-the full M1.8 gate remains open. A milestone is complete
-only after its deterministic replay, machine-readable artifacts and visible result satisfy the
-gate in the [roadmap](../ROADMAP.md).
+the full M1.8 gate remains open. M2.2 and M2.4 have their implementation and machine-readable
+Linux/Win64 platform records; Jacobian, IK and the remaining M2 visualization work are open. A
+milestone is complete only after its deterministic replay, machine-readable artifacts and visible
+result satisfy the gate in the [roadmap](../ROADMAP.md).
 
 This documentation change does not close M1.7 or M3. M3a remains a future simulation gate, and
 M3b's physical-fixture evidence is not present.
@@ -204,5 +215,6 @@ M3b's physical-fixture evidence is not present.
 
 No public hardware-control path exists. Nothing in the current repository should command a
 physical robot. The M1 release gate operates entirely on the public dummy path. Unreal Engine
-5.8.2 is verified on the reference Windows platform for `v0.1.0` and on Linux/Win64 for the
-M2.3 math-core and M2.4 oracle evidence; `v0.1.0` does not claim Unreal support on Linux.
+5.8.2 is verified on the reference Windows platform for `v0.1.0` and on Linux/Win64 for the M2.2
+protocol, M2.3 math-core and M2.4 oracle evidence; `v0.1.0` does not claim Unreal support on
+Linux.

@@ -1,0 +1,22 @@
+{
+  "protocol_version": "dtt/0",
+  "message_type": "mission.articulated_view_state",
+  "source_id": "mission-1",
+  "source_sequence": 1,
+  "produced_at": "2026-09-04T12:00:00Z",
+  "connection": {
+    "mission_to_field": "DISCONNECTED",
+    "changed_at": "2026-09-04T12:00:00Z",
+    "detail": "delayed-link"
+  },
+  "status": {
+    "operation_id": null,
+    "correlation_id": null,
+    "terminal_state": null,
+    "terminal_contract_id": null,
+    "received_message_count": 0
+  },
+  "confirmed_robot_state": null,
+  "arrival_robot_state": null,
+  "target_robot_state": null
+}

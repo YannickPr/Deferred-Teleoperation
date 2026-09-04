@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from datetime import datetime
 from enum import StrEnum
 from typing import Annotated, Literal
@@ -10,6 +11,7 @@ from uuid import UUID
 from pydantic import Field, model_validator
 
 from deferred_teleop.protocol import (
+    ArticulatedRobotState,
     ContractState,
     EvidenceMetadata,
     Pose,
@@ -105,3 +107,64 @@ class MissionViewState(WireModel):
     trajectory_forecasts: tuple[TimedTrajectorySample, ...]
     prediction_manifests: tuple[PredictionManifest, ...]
     status: MissionViewStatus
+
+
+class ArticulatedArrivalRobotState(WireModel):
+    """Predicted articulated state and the timing assumptions behind it."""
+
+    robot_state: ArticulatedRobotState
+    predicted_for: datetime
+    estimated_intent_arrival_at: datetime | None
+    link_one_way_delay_seconds: Annotated[float, Field(ge=0.0, le=86_400.0)]
+
+    @model_validator(mode="after")
+    def validate_prediction(self) -> ArticulatedArrivalRobotState:
+        if self.robot_state.evidence.provenance is not ProvenanceKind.PREDICTED:
+            raise ValueError("arrival articulated state evidence must be PREDICTED")
+        if self.predicted_for <= self.robot_state.evidence.produced_at:
+            raise ValueError("predicted_for must be after produced_at")
+        if not math.isfinite(self.link_one_way_delay_seconds):
+            raise ValueError("link_one_way_delay_seconds must be finite")
+        return self
+
+
+class ArticulatedMissionViewState(WireModel):
+    """Strict M2 Mission frame; its three articulated layers are independent nullable keys."""
+
+    protocol_version: Literal["dtt/0"] = "dtt/0"
+    message_type: Literal["mission.articulated_view_state"] = "mission.articulated_view_state"
+    source_id: Annotated[str, Field(min_length=1)]
+    source_sequence: Annotated[int, Field(ge=1)]
+    produced_at: datetime
+    connection: MissionConnectionStatus
+    status: MissionViewStatus
+    confirmed_robot_state: ArticulatedRobotState | None
+    arrival_robot_state: ArticulatedArrivalRobotState | None
+    target_robot_state: ArticulatedRobotState | None
+
+    @model_validator(mode="after")
+    def validate_layer_provenance(self) -> ArticulatedMissionViewState:
+        if not self.source_id.strip():
+            raise ValueError("source_id must not be blank")
+        confirmed_provenance = (
+            self.confirmed_robot_state.evidence.provenance
+            if self.confirmed_robot_state is not None
+            else None
+        )
+        if confirmed_provenance not in {
+            ProvenanceKind.MEASURED,
+            ProvenanceKind.FUSED,
+        }:
+            if self.confirmed_robot_state is not None:
+                raise ValueError("confirmed articulated state evidence must be MEASURED or FUSED")
+        target_provenance = (
+            self.target_robot_state.evidence.provenance
+            if self.target_robot_state is not None
+            else None
+        )
+        if (
+            target_provenance is not None
+            and target_provenance is not ProvenanceKind.OPERATOR_ASSERTED
+        ):
+            raise ValueError("target articulated state evidence must be OPERATOR_ASSERTED")
+        return self

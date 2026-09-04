@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from deferred_teleop.protocol import MessageEnvelope
+from deferred_teleop.protocol import PAYLOAD_TYPES, MessageEnvelope
 
 ROOT = Path(__file__).resolve().parents[3]
 SCHEMA_PATH = ROOT / "protocol" / "v0" / "schemas" / "message-envelope.schema.json"
@@ -14,6 +14,20 @@ SCHEMA_PATH = ROOT / "protocol" / "v0" / "schemas" / "message-envelope.schema.js
 
 def rendered_schema() -> str:
     schema = MessageEnvelope.model_json_schema(mode="validation")
+    schema["allOf"] = [
+        {
+            "if": {
+                "properties": {"message_type": {"const": message_type}},
+                "required": ["message_type"],
+            },
+            "then": {
+                "properties": {
+                    "payload": {"$ref": f"#/$defs/{payload_type.__name__}"}
+                }
+            },
+        }
+        for message_type, payload_type in PAYLOAD_TYPES.items()
+    ]
     schema["$id"] = (
         "https://github.com/YannickPr/Deferred-Teleoperation/"
         "protocol/v0/schemas/message-envelope.schema.json"

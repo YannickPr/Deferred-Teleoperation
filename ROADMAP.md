@@ -144,10 +144,12 @@ No hardware-control path is introduced by this increment.
 
 ## M2 — Mathematical SO-101 twin in Unreal
 
-Status: **M2.3 math core and M2.4 oracle complete; M2.2 protocol, Jacobian and IK remain open**
+Status: **M2.2 protocol, M2.3 math core and M2.4 oracle complete; Jacobian and IK remain open**
 Target release: **`v0.2.0`**
 
-- M2.2 articulated robot-state and model-reference protocol (#14);
+- M2.2 articulated robot-state and model-reference protocol (#14), complete with strict Python and
+  Unreal DTO/parser coverage, Field relay, the opt-in Mission view, and the explicit
+  description-backed validator boundary;
 - M2.3 canonical transforms and generic fixed/revolute forward kinematics in C++ (#15),
   validated on Linux and Win64 with Unreal Engine 5.8.2;
 - M2.4 cross-language numerical oracle (#16), complete with nine SO-101 cases, six Python
@@ -160,17 +162,23 @@ Target release: **`v0.2.0`**
 - trajectory lines and temporal markers;
 - a `KinematicPreview` that remains a local candidate, not an execution command.
 
-M2.3's recorded Linux and Win64 runs each pass 11 Automation tests (4 M1 and 7 M2) with build
-and headless-editor exit code 0. The M2.4 version-2 reference evaluator uses explicit
-left-to-right reductions so Python 3.11 and 3.12 produce identical bytes, and its final native
-validation passes the eight-test `DeferredTeleop.M2.Kinematics` selector on both targets. See the
-[M2.4 fixture contract](docs/m2/KINEMATICS_FIXTURES.md) and its
-[platform summary](docs/m2/evidence/fk-oracle-platform-validation.json), which retains the
-earlier full 14-test run as context, alongside the [M2 design](docs/design/M2_SO101_MATHEMATICAL_TWIN.md)
-and the [delayed-intent validation design](docs/design/DELAYED_INTENT_VALIDATION.md). M2 remains
-a mathematical and visualization milestone. `v0.2.0` requires no physical robot, hardware
-calibration or hardware-control path. M2 must preserve the distinction between an operator goal,
-a local kinematic preview, a Field admission and a Robot result.
+The M2.2 platform snapshot records the three targeted ArticulatedView tests as `Success` on
+LinuxEditor and WindowsEditor within a 22-test contextual report; build and headless-editor exit code 0.
+The compact [M2.2 platform record](docs/m2/evidence/articulated-state-platform-validation.json)
+names each test and state and binds the 19 source/fixture hashes to both platform overlays. M2.3's
+math core remains covered by its 11-test Linux/Win64 baseline. M2.4 is complete for the numerical
+cross-language oracle: its version-2 reference evaluator uses explicit left-to-right reductions so
+Python 3.11 and 3.12 produce identical bytes, and its final native validation passes the eight-test
+`DeferredTeleop.M2.Kinematics` selector on both targets. The [M2.4 fixture contract](docs/m2/KINEMATICS_FIXTURES.md)
+defines nine SO-101 cases, six independent Python reference tests, and three Unreal Automation
+tests; the integrated oracle snapshot reports 121 Python tests. The post-rebase integrated Python
+validation passes 141 tests; the M2.2 record retains its historical 135/20 context. Its [platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
+retains the earlier full 14-test run as context. The raw articulated feed preserves a model
+reference but does not validate geometry; an FK consumer must call the explicit description-backed
+validator. M2 remains a mathematical and visualization milestone. `v0.2.0` requires no physical
+robot, hardware calibration or hardware-control path. M2 must preserve the distinction between an
+operator goal, a local kinematic preview, a Field admission and a Robot result. See the [M2 design](docs/design/M2_SO101_MATHEMATICAL_TWIN.md)
+and the [delayed-intent validation design](docs/design/DELAYED_INTENT_VALIDATION.md).
 
 ## M3 — Autonomous delayed button press with bounded re-anchoring
 

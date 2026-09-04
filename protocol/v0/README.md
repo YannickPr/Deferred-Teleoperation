@@ -17,6 +17,37 @@ OperationIntent -> GroundedOperation -> OperationPlan (one TaskNode)
 -> TaskAssignment -> ExecutionContract -> ExecutionEvent
 ```
 
+M2 adds the independent root topic `robot.articulated_state`. Its payload is
+`ArticulatedRobotState`:
+
+```text
+robot_id
+model_reference: { model_id, model_revision, description_hash }
+root_pose
+joints: [{ joint_name, position_radians }]
+evidence
+```
+
+`description_hash` is a `sha256:` hash over the exact generated robot-description bytes.
+Joint names are semantic and array order is not meaningful; description-backed validation
+reports unknown, fixed, missing, duplicate, non-finite, and out-of-limit joints without
+clamping or substituting a default vector. The pinned SO-101 state has six structural
+revolute joints, including `gripper` in radians. LeRobot's separate normalized `0..100`
+device command domain requires an explicit conversion and is never placed in
+`position_radians`; the number `100` is rejected by the SO-101 structural limit, while a
+numeric value alone does not prove its unit.
+This description-backed validation is a separate consumer boundary. The wire DTO and live
+Mission path preserve references and provenance without resolving SO-101 geometry or applying
+joint positions; a future FK consumer must invoke the validator and expose its diagnostics.
+
+The M2 Mission frame is a separate `mission.articulated_view_state` WebSocket message. It
+requires nullable `confirmed_robot_state`, `arrival_robot_state`, and `target_robot_state`
+keys. M2 currently emits only a confirmed measured/fused state; arrival and target remain
+explicitly null until predictor and IK authoring work exists. Arrival records predicted timing
+metadata and target records operator assertion when those layers are later populated. The M1
+`RobotState`, `RobotForecast`, `SiteSnapshot`, and `mission.view_state` structures remain
+unchanged.
+
 Operation states are `DRAFT -> SUBMITTED -> RECEIVED_BY_FIELD -> ADMITTED | HELD | REJECTED`.
 The M1 contract transition validator accepts only:
 

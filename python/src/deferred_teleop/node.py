@@ -7,6 +7,7 @@ import asyncio
 import json
 import sys
 from collections.abc import Callable, Collection, Mapping
+from contextlib import AsyncExitStack
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
@@ -178,6 +179,31 @@ async def _mission_view_handler(
         logger("mission.view_client_disconnected", {"remote": str(connection.remote_address)})
 
 
+async def _mission_articulated_view_handler(
+    connection: ServerConnection,
+    service: MissionService,
+    logger: JsonLogger,
+    publish_interval: float,
+) -> None:
+    """Serve the opt-in M2 articulated view on its own WebSocket endpoint."""
+
+    logger(
+        "mission.articulated_view_client_connected",
+        {"remote": str(connection.remote_address)},
+    )
+    try:
+        while True:
+            await connection.send(service.articulated_view_state().model_dump_json())
+            await asyncio.sleep(publish_interval)
+    except ConnectionClosed:
+        pass
+    finally:
+        logger(
+            "mission.articulated_view_client_disconnected",
+            {"remote": str(connection.remote_address)},
+        )
+
+
 async def _mission_api_handler(
     reader: asyncio.StreamReader,
     writer: asyncio.StreamWriter,
@@ -253,8 +279,27 @@ async def run_mission(args: argparse.Namespace) -> None:
             ),
             *args.view_ws,
         )
+        articulated_view_ws = getattr(args, "articulated_view_ws", None)
+        articulated_view_server = (
+            await serve(
+                lambda connection: _mission_articulated_view_handler(
+                    connection,
+                    service,
+                    logger,
+                    args.view_publish_interval,
+                ),
+                *articulated_view_ws,
+            )
+            if articulated_view_ws is not None
+            else None
+        )
         api_port = int(api.sockets[0].getsockname()[1]) if api.sockets else 0
         view_port = int(view_server.sockets[0].getsockname()[1]) if view_server.sockets else 0
+        articulated_view_port = (
+            int(articulated_view_server.sockets[0].getsockname()[1])
+            if articulated_view_server is not None and articulated_view_server.sockets
+            else None
+        )
         logger(
             "mission.started",
             {
@@ -262,11 +307,19 @@ async def run_mission(args: argparse.Namespace) -> None:
                 "api_port": api_port,
                 "view_ws_host": args.view_ws[0],
                 "view_ws_port": view_port,
+                "articulated_view_ws_host": (
+                    articulated_view_ws[0] if articulated_view_ws is not None else None
+                ),
+                "articulated_view_ws_port": articulated_view_port,
                 "database": str(Path(args.db).resolve()),
                 "recovered_inbox": recovered,
             },
         )
-        async with api, view_server:
+        async with AsyncExitStack() as stack:
+            await stack.enter_async_context(api)
+            await stack.enter_async_context(view_server)
+            if articulated_view_server is not None:
+                await stack.enter_async_context(articulated_view_server)
             await _connect_forever(
                 args.link,
                 service,
@@ -368,6 +421,12 @@ def _build_parser() -> argparse.ArgumentParser:
     mission.add_argument("--link", required=True)
     mission.add_argument("--api", type=_parse_address, default=("127.0.0.1", 8770))
     mission.add_argument("--view-ws", type=_parse_address, default=("127.0.0.1", 8772))
+    mission.add_argument(
+        "--articulated-view-ws",
+        type=_parse_address,
+        default=None,
+        help="opt-in M2 articulated Mission view WebSocket (keeps the M1 endpoint unchanged)",
+    )
     mission.add_argument("--view-publish-interval", type=float, default=0.1)
     mission.add_argument("--one-way-delay", type=float, default=0.05)
     mission.set_defaults(run=run_mission)

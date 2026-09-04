@@ -1,5 +1,42 @@
 {
   "$defs": {
+    "ArticulatedRobotState": {
+      "additionalProperties": false,
+      "description": "Named articulated robot evidence for the M2 path.\n\nJSON sequence order is transport-only.  Consumers validate names against the referenced\ndescription and then use that description's deterministic order.",
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/EvidenceMetadata"
+        },
+        "joints": {
+          "items": {
+            "$ref": "#/$defs/JointPosition"
+          },
+          "minItems": 1,
+          "title": "Joints",
+          "type": "array"
+        },
+        "model_reference": {
+          "$ref": "#/$defs/RobotModelReference"
+        },
+        "robot_id": {
+          "minLength": 1,
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "root_pose": {
+          "$ref": "#/$defs/Pose"
+        }
+      },
+      "required": [
+        "robot_id",
+        "model_reference",
+        "root_pose",
+        "joints",
+        "evidence"
+      ],
+      "title": "ArticulatedRobotState",
+      "type": "object"
+    },
     "ContractState": {
       "enum": [
         "RECEIVED",
@@ -211,6 +248,27 @@
       "title": "GroundedOperation",
       "type": "object"
     },
+    "JointPosition": {
+      "additionalProperties": false,
+      "description": "One named canonical joint position, expressed in radians.",
+      "properties": {
+        "joint_name": {
+          "minLength": 1,
+          "title": "Joint Name",
+          "type": "string"
+        },
+        "position_radians": {
+          "title": "Position Radians",
+          "type": "number"
+        }
+      },
+      "required": [
+        "joint_name",
+        "position_radians"
+      ],
+      "title": "JointPosition",
+      "type": "object"
+    },
     "OperationIntent": {
       "additionalProperties": false,
       "properties": {
@@ -417,6 +475,36 @@
       "title": "RobotForecast",
       "type": "object"
     },
+    "RobotModelReference": {
+      "additionalProperties": false,
+      "description": "Identity of the structural description used to decode named joints.",
+      "properties": {
+        "description_hash": {
+          "maxLength": 71,
+          "minLength": 71,
+          "pattern": "sha256:[0-9a-f]{64}",
+          "title": "Description Hash",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "model_revision": {
+          "minLength": 1,
+          "title": "Model Revision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_id",
+        "model_revision",
+        "description_hash"
+      ],
+      "title": "RobotModelReference",
+      "type": "object"
+    },
     "RobotState": {
       "additionalProperties": false,
       "properties": {
@@ -604,6 +692,217 @@
   "$id": "https://github.com/YannickPr/Deferred-Teleoperation/protocol/v0/schemas/message-envelope.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "operation.intent"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/OperationIntent"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "operation.grounded"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/GroundedOperation"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "operation.plan"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/OperationPlan"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "task.assignment"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/TaskAssignment"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "execution.contract"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/ExecutionContract"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "execution.event"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/ExecutionEvent"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "robot.state"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/RobotState"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "robot.articulated_state"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/ArticulatedRobotState"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "robot.forecast"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/RobotForecast"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "site.snapshot"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/SiteSnapshot"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "prediction.manifest"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/PredictionManifest"
+          }
+        }
+      }
+    }
+  ],
   "properties": {
     "causation_id": {
       "anyOf": [
@@ -660,6 +959,7 @@
         "execution.contract",
         "execution.event",
         "robot.state",
+        "robot.articulated_state",
         "robot.forecast",
         "site.snapshot",
         "prediction.manifest"
@@ -702,6 +1002,9 @@
         },
         {
           "$ref": "#/$defs/RobotState"
+        },
+        {
+          "$ref": "#/$defs/ArticulatedRobotState"
         },
         {
           "$ref": "#/$defs/RobotForecast"

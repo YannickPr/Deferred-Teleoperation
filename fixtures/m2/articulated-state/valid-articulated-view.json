@@ -1,0 +1,141 @@
+{
+  "protocol_version": "dtt/0",
+  "message_type": "mission.articulated_view_state",
+  "source_id": "mission-1",
+  "source_sequence": 4,
+  "produced_at": "2026-09-04T12:00:04Z",
+  "connection": {
+    "mission_to_field": "CONNECTED",
+    "changed_at": "2026-09-04T11:59:59Z",
+    "detail": "delayed-link"
+  },
+  "status": {
+    "operation_id": "11111111-1111-4111-8111-111111111111",
+    "correlation_id": "22222222-2222-4222-8222-222222222222",
+    "terminal_state": null,
+    "terminal_contract_id": null,
+    "received_message_count": 3
+  },
+  "confirmed_robot_state": {
+    "robot_id": "so101-follower-1",
+    "model_reference": {
+      "model_id": "so101_new_calib",
+      "model_revision": "git:385e8d7c68e24945df6c60d9bd68837a4b7411ae:9552a231d8b23bed68ec15779eba620c5d875ec4",
+      "description_hash": "sha256:36ce321332248351f5304630a9ccc4887d6665666e17b6933e3302874735e5f2"
+    },
+    "root_pose": {
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "orientation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 1.0
+      },
+      "frame": {
+        "frame_id": "field-world",
+        "convention": "RIGHT_HANDED_Z_UP",
+        "length_unit": "metre",
+        "angle_unit": "radian",
+        "calibration_version": "field-cal-1"
+      }
+    },
+    "joints": [
+      {"joint_name": "shoulder_pan", "position_radians": 0.1},
+      {"joint_name": "shoulder_lift", "position_radians": -0.2},
+      {"joint_name": "elbow_flex", "position_radians": 0.3},
+      {"joint_name": "wrist_flex", "position_radians": -0.4},
+      {"joint_name": "wrist_roll", "position_radians": 0.5},
+      {"joint_name": "gripper", "position_radians": 0.6}
+    ],
+    "evidence": {
+      "source_ids": ["so101-sensor-1"],
+      "observed_at": "2026-09-04T12:00:00Z",
+      "produced_at": "2026-09-04T12:00:00Z",
+      "provenance": "MEASURED",
+      "world_revision": 7,
+      "fresh_until": "2026-09-04T12:00:30Z",
+      "model_version": null
+    }
+  },
+  "arrival_robot_state": {
+    "robot_state": {
+      "robot_id": "so101-follower-1",
+      "model_reference": {
+        "model_id": "so101_new_calib",
+        "model_revision": "git:385e8d7c68e24945df6c60d9bd68837a4b7411ae:9552a231d8b23bed68ec15779eba620c5d875ec4",
+        "description_hash": "sha256:36ce321332248351f5304630a9ccc4887d6665666e17b6933e3302874735e5f2"
+      },
+      "root_pose": {
+        "position": {"x": 0.0, "y": 0.0, "z": 0.0},
+        "orientation": {"x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0},
+        "frame": {
+          "frame_id": "field-world",
+          "convention": "RIGHT_HANDED_Z_UP",
+          "length_unit": "metre",
+          "angle_unit": "radian",
+          "calibration_version": "field-cal-1"
+        }
+      },
+      "joints": [
+        {"joint_name": "shoulder_pan", "position_radians": 0.1},
+        {"joint_name": "shoulder_lift", "position_radians": -0.2},
+        {"joint_name": "elbow_flex", "position_radians": 0.3},
+        {"joint_name": "wrist_flex", "position_radians": -0.4},
+        {"joint_name": "wrist_roll", "position_radians": 0.5},
+        {"joint_name": "gripper", "position_radians": 0.6}
+      ],
+      "evidence": {
+        "source_ids": ["so101-predictor-1"],
+        "observed_at": "2026-09-04T12:00:00Z",
+        "produced_at": "2026-09-04T12:00:01Z",
+        "provenance": "PREDICTED",
+        "world_revision": 7,
+        "fresh_until": "2026-09-04T12:00:40Z",
+        "model_version": "articulated-predictor-fixture-1"
+      }
+    },
+    "predicted_for": "2026-09-04T12:00:05Z",
+    "estimated_intent_arrival_at": "2026-09-04T12:00:03Z",
+    "link_one_way_delay_seconds": 0.25
+  },
+  "target_robot_state": {
+    "robot_id": "so101-follower-1",
+    "model_reference": {
+      "model_id": "so101_new_calib",
+      "model_revision": "git:385e8d7c68e24945df6c60d9bd68837a4b7411ae:9552a231d8b23bed68ec15779eba620c5d875ec4",
+      "description_hash": "sha256:36ce321332248351f5304630a9ccc4887d6665666e17b6933e3302874735e5f2"
+    },
+    "root_pose": {
+      "position": {"x": 0.0, "y": 0.0, "z": 0.0},
+      "orientation": {"x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0},
+      "frame": {
+        "frame_id": "field-world",
+        "convention": "RIGHT_HANDED_Z_UP",
+        "length_unit": "metre",
+        "angle_unit": "radian",
+        "calibration_version": "field-cal-1"
+      }
+    },
+    "joints": [
+      {"joint_name": "shoulder_pan", "position_radians": 0.2},
+      {"joint_name": "shoulder_lift", "position_radians": -0.1},
+      {"joint_name": "elbow_flex", "position_radians": 0.4},
+      {"joint_name": "wrist_flex", "position_radians": -0.3},
+      {"joint_name": "wrist_roll", "position_radians": 0.6},
+      {"joint_name": "gripper", "position_radians": 0.7}
+    ],
+    "evidence": {
+      "source_ids": ["operator-1"],
+      "observed_at": "2026-09-04T12:00:02Z",
+      "produced_at": "2026-09-04T12:00:02Z",
+      "provenance": "OPERATOR_ASSERTED",
+      "world_revision": 7,
+      "fresh_until": "2026-09-04T12:01:00Z",
+      "model_version": null
+    }
+  }
+}
