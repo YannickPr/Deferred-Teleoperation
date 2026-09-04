@@ -144,7 +144,7 @@ No hardware-control path is introduced by this increment.
 
 ## M2 — Mathematical SO-101 twin in Unreal
 
-Status: **M2.2 protocol, M2.3 math core, M2.4 oracle and M2.5 kinematic actor complete; Jacobian, IK, preview and VR remain open**
+Status: **M2.2 protocol, M2.3 math core, M2.4 oracle and M2.5 kinematic actor complete; M2.7 constrained IK complete with Linux/Win64 evidence; preview and VR remain open**
 Target release: **`v0.2.0`**
 
 - M2.2 articulated robot-state and model-reference protocol (#14), complete with strict Python and
@@ -157,7 +157,10 @@ Target release: **`v0.2.0`**
   eight-test `DeferredTeleop.M2.Kinematics` selector on Linux and Win64;
 - M2.5 generic rigid-link kinematic actor and debug primitives without a skeletal mesh (#17),
   with an explicit Blueprint boundary and independent Confirmed/Arrival/Target layers;
-- Jacobian and constrained damped-least-squares IK;
+- M2.7 bounded constrained damped-least-squares IK (#19), complete with named generic joint
+  groups and tool frames, PositionOnly and PositionPlusApproachAxis tasks, central finite-
+  difference Jacobians, structural-limit projection and inspectable result diagnostics, with
+  Linux/Win64 Unreal Engine 5.8.2 evidence;
 - Blueprint-accessible target authoring and debugging;
 - confirmed, arrival and target representations with causal provenance;
 - trajectory lines and temporal markers;
@@ -187,6 +190,12 @@ milestone. `v0.2.0` requires no physical robot, hardware calibration or hardware
 must preserve the distinction between an
 operator goal, a local kinematic preview, a Field admission and a Robot result. See the [M2 design](docs/design/M2_SO101_MATHEMATICAL_TWIN.md)
 and the [delayed-intent validation design](docs/design/DELAYED_INTENT_VALIDATION.md).
+
+The bounded M2.7 implementation is complete with a 13-test `DeferredTeleop.M2.IK` selector. Linux
+and Win64 each record 35 contextual successes (13 IK plus 22 contextual tests), no warnings,
+failures or not-run tests in process, and build/editor exit code 0. See the [constrained IK guide](docs/m2/CONSTRAINED_IK.md)
+and the [M2.7 platform record](docs/m2/evidence/constrained-ik-platform-validation.json) for
+the platform details and source bindings.
 
 ## M3 — Autonomous delayed button press with bounded re-anchoring
 
@@ -264,8 +273,9 @@ replanning policies must retain explicit authorization, effect identity and caus
 
 `v0.1.0` remains the historical M1 release. The M1.7a, M1.7, M1.8, M3a and M3b design increments do not
 retroactively add capabilities or evidence to that tag. `v0.2.0` remains the M2 target; the M2.2,
-M2.3, M2.4 and bounded M2.5 slices are evidenced, while the remaining Jacobian, IK, preview and VR
-gates stay open. The target does not require a physical SO-101 or claim hardware control.
+M2.3, M2.4 and bounded M2.5 slices are evidenced, and the M2.7 constrained-IK slice is complete
+with Linux/Win64 evidence; preview and VR gates stay open. The target does not require a
+physical SO-101 or claim hardware control.
 
 Every status claim in this roadmap distinguishes an implemented increment from planned or
 in-progress work. A design document, fixture or proposed oracle is not reported as an

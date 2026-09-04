@@ -12,7 +12,7 @@ progress. The [roadmap](../ROADMAP.md) defines the corresponding evidence gates.
 | M1.7a | **Implemented; PR #30** | Bounded correlation selection and compatible Mission-view layer filtering |
 | M1.7 | **Planned after M1.7a** | Full causal coherence for concurrent operations and reordered Mission-view data |
 | M1.8 | **In progress; M1.8b combined proof implemented** | External device runs through delayed Mission/Field domain; durable budget and cross-revision identity remain open |
-| M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.2 articulated-state protocol, M2.3 FK math core, M2.4 oracle, and the bounded M2.5 actor are complete with Linux/Win64 UE evidence; Jacobian, IK, preview and VR authoring remain |
+| M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.2 articulated-state protocol, M2.3 FK math core, M2.4 oracle, and the bounded M2.5 actor are complete with Linux/Win64 UE evidence; M2.7 constrained IK is complete with Linux/Win64 UE evidence; preview and VR authoring remain |
 | M3 | **Planned; M3a + M3b required** | Simulation oracle gate plus calibrated physical-fixture gate |
 | M4/M5 | **Planned** | Broader robot-agnostic assignment, context acquisition and replanning |
 
@@ -102,6 +102,12 @@ independent external effect, or concurrent-operation causal coherence.
 - M2.5 Linux and Win64 Unreal Engine 5.8.2 validation: full reports with 19 successful tests on
   Linux and 22 on Win64, including the same five actor tests on each target, with final build and
   headless-editor exit code 0.
+- M2.7 constrained IK implementation (#19): named generic joint groups and tool
+  frames, PositionOnly and PositionPlusApproachAxis tasks, deterministic damped least squares,
+  central finite-difference Jacobian, structural-limit projection and full result diagnostics;
+  the acceptance selector contains 13 automation tests. Linux and Win64 each record 35 contextual
+  successes (13 IK plus 22 contextual tests), no warnings, failures or not-run tests in process,
+  and build/editor exit code 0. See the [M2.7 platform record](m2/evidence/constrained-ik-platform-validation.json).
 
 The [M2.4 fixture contract](m2/KINEMATICS_FIXTURES.md) documents the numerical oracle and the
 mandatory Python `--check` gate. The [M2.4 platform summary](m2/evidence/fk-oracle-platform-validation.json)
@@ -119,6 +125,16 @@ the five-test subset, report hashes, source hashes, and synthetic PNG provenance
 visual demonstration only: it does not establish FK correctness, measured telemetry, an operational
 UI, or VR authoring. M2 remains a mathematical and visualization milestone and does not require a
 physical robot.
+
+### M2.7 constrained IK
+
+The bounded #19 runtime and test slice is complete, including the private test-only Jacobian
+oracle, generic-group cases, SO-101 position and approach-axis cases, honest local-failure
+handling and warm-start/free-roll regressions. Its 13-test selector records 35 contextual
+successes on both Linux and Win64 (13 IK plus 22 contextual tests), with no warnings, failures or
+not-run tests in process and build/editor exit code 0. The slice is a local kinematic preview aid
+and does not add hardware, collision or motion-control behavior. The [platform record](m2/evidence/constrained-ik-platform-validation.json)
+binds the report hashes and source details.
 
 ## Implemented in M1.7a
 
@@ -168,8 +184,6 @@ The remaining full M1.8 gate requires:
 
 ### Remaining M2 work
 
-- Jacobian in C++;
-- constrained damped-least-squares IK with explicit status and residuals;
 - desktop/VR target authoring and time-sampled `KinematicPreview`;
 - available provenance connecting confirmed, arrival and target branches, with missing references
   shown explicitly and without treating a preview as an execution command; complete multi-operation
@@ -213,7 +227,8 @@ The M2.5 runtime actor, public scene recipe, platform reports, and synthetic PNG
 in this bounded tranche; they introduce no hardware path. M1.7a has the separate implementation
 and validation cited above; the bounded M1.8b proof is implemented while the full M1.8 gate remains
 open. M2.2, M2.3, M2.4, and M2.5 have their implementation and machine-readable Linux/Win64
-platform records; Jacobian, IK, preview, and VR authoring remain open. A milestone is complete
+platform records. M2.7 is complete with machine-readable Linux/Win64 platform records; preview
+and VR authoring remain open. A milestone is complete
 only after its deterministic replay, machine-readable artifacts and visible result satisfy the gate
 in the [roadmap](../ROADMAP.md).
 
@@ -229,4 +244,5 @@ No public hardware-control path exists. Nothing in the current repository should
 physical robot. The M1 release gate operates entirely on the public dummy path. Unreal Engine
 5.8.2 is verified on the reference Windows platform for `v0.1.0` and on Linux/Win64 for the M2.2
 protocol, M2.3 math-core, M2.4 oracle, and M2.5 actor evidence; `v0.1.0` does not claim Unreal
-support on Linux.
+support on Linux. M2.7 has Linux/Win64 platform evidence, and the IK slice introduces no
+hardware-control path.

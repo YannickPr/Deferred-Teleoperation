@@ -36,6 +36,12 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
   report (19 full Linux tests and 22 full Win64 tests); the committed 1920x1080 PNG is a
   synthetic visual demonstration and is not FK proof, measured telemetry, an operational UI,
   or VR authoring evidence.
+- bounded M2.7 constrained IK implementation (#19) with named generic joint groups and tool
+  frames, PositionOnly and PositionPlusApproachAxis tasks, deterministic damped least squares,
+  central finite-difference Jacobians, structural-limit projection, inspectable result diagnostics
+  and a 13-test acceptance selector. Linux and Win64 each record 35 contextual successes (13 IK
+  plus 22 contextual tests), with no warnings, failures or not-run tests in process and
+  build/editor exit code 0. See the [M2.7 platform record](docs/m2/evidence/constrained-ik-platform-validation.json).
 
 ### Status
 
@@ -45,10 +51,11 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 - M2.4 is complete, including the cross-version reference check and native Linux/Win64 Kinematics
   validation.
 - M2.2 is complete. Its raw articulated feed does not validate model geometry; an FK consumer must
-  call the explicit description-backed validator. Root's post-rebase integrated validation passes
+  call the explicit description-backed validator. The post-rebase integrated validation passes
   141 Python tests; the historical M2.2 135/20 snapshot remains identified in its platform record.
-- M2.5 is complete for the bounded kinematic-actor slice; M2 remains open for Jacobian, IK,
-  `KinematicPreview`, and VR authoring.
+- M2.5 is complete for the bounded kinematic-actor slice. M2.7 constrained IK is complete with
+  Linux/Win64 evidence; `KinematicPreview` and VR authoring remain open, and no physical or
+  hardware-control path is claimed.
 
 ## 0.1.0 - 2026-09-04
 
