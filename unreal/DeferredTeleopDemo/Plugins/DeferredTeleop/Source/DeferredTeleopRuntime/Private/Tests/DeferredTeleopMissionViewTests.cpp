@@ -3,6 +3,8 @@
 #include "DeferredTeleopMissionViewParser.h"
 #include "DeferredTeleopVisualizationLibrary.h"
 #include "Misc/AutomationTest.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
 
 namespace
 {
@@ -76,6 +78,59 @@ bool FDeferredTeleopMissionViewRejectTest::RunTest(const FString& Parameters)
         TEXT("malformed JSON is rejected"),
         DeferredTeleop::MissionView::Parse(TEXT("{not-json"), State, Error));
     TestTrue(TEXT("malformed JSON has an explicit error"), !Error.IsEmpty());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FDeferredTeleopGoldenMissionViewTest,
+    "DeferredTeleop.M1.MissionView.GoldenFixtureParses",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FDeferredTeleopGoldenMissionViewTest::RunTest(const FString& Parameters)
+{
+    (void)Parameters;
+    const FString FixturePath = FPaths::ConvertRelativePathToFull(
+        FPaths::ProjectDir()
+        / TEXT("../../fixtures/m1/golden-session/expected-mission-view.json"));
+    FString Json;
+    if (!TestTrue(
+            *FString::Printf(TEXT("golden Mission view loads from %s"), *FixturePath),
+            FFileHelper::LoadFileToString(Json, *FixturePath)))
+    {
+        return false;
+    }
+
+    FDeferredTeleopMissionViewState State;
+    FString Error;
+    if (!TestTrue(
+            TEXT("the Python golden Mission view passes the strict Unreal parser"),
+            DeferredTeleop::MissionView::Parse(Json, State, Error)))
+    {
+        AddError(Error);
+        return false;
+    }
+
+    TestTrue(TEXT("confirmed state is available"), State.ConfirmedState.bAvailable);
+    TestEqual(
+        TEXT("confirmed state remains measured"),
+        State.ConfirmedState.Evidence.Provenance,
+        EDeferredTeleopProvenance::Measured);
+    TestTrue(TEXT("arrival belief is available"), State.ArrivalBelief.bAvailable);
+    TestEqual(
+        TEXT("arrival belief remains predicted"),
+        State.ArrivalBelief.Evidence.Provenance,
+        EDeferredTeleopProvenance::Predicted);
+    TestTrue(TEXT("target branch is available"), State.TargetBranch.bAvailable);
+    TestEqual(
+        TEXT("target branch remains operator asserted"),
+        State.TargetBranch.Evidence.Provenance,
+        EDeferredTeleopProvenance::OperatorAsserted);
+    TestEqual(
+        TEXT("one effect reaches Mission"),
+        State.Status.TerminalState,
+        FString(TEXT("SUCCEEDED")));
+    TestTrue(TEXT("timed trajectory is present"), State.TrajectoryForecasts.Num() >= 2);
+    TestTrue(TEXT("prediction manifest is present"), State.PredictionManifests.Num() >= 1);
     return true;
 }
 

@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this research prototype, please cite the software repository."
+title: "Deferred Teleoperation"
+type: software
+authors:
+  - name: YannickPr
+repository-code: "https://github.com/YannickPr/Deferred-Teleoperation"
+url: "https://github.com/YannickPr/Deferred-Teleoperation"
+license: Apache-2.0
+abstract: >-
+  A research prototype for delay-tolerant, VR-mediated shared autonomy with remote robots.
+keywords:
+  - teleoperation
+  - robotics
+  - shared autonomy
+  - delay tolerance

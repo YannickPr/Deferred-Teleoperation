@@ -20,7 +20,7 @@ bootstrap pull request. The first runnable release target remains M1.
 
 First runnable release target.
 
-Status: **runnable development slice implemented; milestone validation in progress**
+Status: **runnable slice and portable release gate implemented; Linux Unreal validation pending**
 
 ```text
 OperationIntent(PressButton)
@@ -32,6 +32,10 @@ OperationIntent(PressButton)
 ```
 
 The test harness will inject delay, blackout windows, duplication, reordering, retransmission and crash points. Delivery is at-least-once; application effects must be idempotent.
+
+The deterministic golden session and fourteen-profile adversarial matrix are implemented. The
+`v0.1.0` tag remains gated on a recorded Unreal Engine 5.8 Linux verification; the Windows 5.8.2
+result alone does not satisfy the release rule.
 
 ## M2 — Mathematical SO-101 twin in Unreal
 

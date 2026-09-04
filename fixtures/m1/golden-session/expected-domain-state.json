@@ -1,0 +1,112 @@
+{
+  "assignment_id": "e5b12493-7391-5f2c-956c-c980c5b5371e",
+  "capability_registry": [
+    "PRESS_BUTTON"
+  ],
+  "causal_chain": [
+    {
+      "caused_by": null,
+      "id": "1191320b-46b6-5f33-891c-f9233f6810a4",
+      "kind": "OperationIntent"
+    },
+    {
+      "caused_by": "1191320b-46b6-5f33-891c-f9233f6810a4",
+      "id": "f818dd93-5605-5b9a-8925-bf79a1b312b8",
+      "kind": "GroundedOperation"
+    },
+    {
+      "caused_by": "f818dd93-5605-5b9a-8925-bf79a1b312b8",
+      "id": "c7bfd695-d064-5435-9525-1f0de4cce52e",
+      "kind": "OperationPlan"
+    },
+    {
+      "caused_by": "c7bfd695-d064-5435-9525-1f0de4cce52e",
+      "id": "f35b0f3a-fb5a-55d3-9019-028eff06a39d",
+      "kind": "TaskAssignment"
+    },
+    {
+      "caused_by": "f35b0f3a-fb5a-55d3-9019-028eff06a39d",
+      "id": "57a9dad4-2cf2-5720-93f7-3427e5b32dd2",
+      "kind": "ExecutionContract"
+    },
+    {
+      "caused_by": "57a9dad4-2cf2-5720-93f7-3427e5b32dd2",
+      "id": "9a88f3ce-f0db-53ff-ac6b-4129a3b5f9de",
+      "kind": "SkillInvocation"
+    },
+    {
+      "caused_by": "9a88f3ce-f0db-53ff-ac6b-4129a3b5f9de",
+      "id": "press:c77e480a-36b3-568b-951e-ecea7bd674fc:1",
+      "kind": "DummyEffect"
+    },
+    {
+      "caused_by": "57a9dad4-2cf2-5720-93f7-3427e5b32dd2",
+      "id": "dd5567ba-c767-536a-9c47-e441c5b444b8",
+      "kind": "TerminalExecutionEvent"
+    },
+    {
+      "caused_by": "dd5567ba-c767-536a-9c47-e441c5b444b8",
+      "id": "6a30b6f3-148a-5ee6-bf22-f04b91513955",
+      "kind": "ReconciledSiteSnapshot"
+    }
+  ],
+  "contract_id": "dc11b8bb-2bb8-5a98-b6ef-156efee82c9c",
+  "contract_revision": 1,
+  "correlation_id": "c77e480a-36b3-568b-951e-ecea7bd674fc",
+  "delivery_count": 23,
+  "effect_counter": 1,
+  "effect_key": "press:c77e480a-36b3-568b-951e-ecea7bd674fc:1",
+  "operation_id": "c77e480a-36b3-568b-951e-ecea7bd674fc",
+  "plan_id": "f985938c-8e68-5e08-aa14-455cf973fb07",
+  "projection_manifests": {
+    "arrival": {
+      "evidence": {
+        "fresh_until": "2026-09-04T12:00:30.370000Z",
+        "model_version": "dummy-constant-velocity-v1",
+        "observed_at": "2026-09-04T12:00:00.370000Z",
+        "produced_at": "2026-09-04T12:00:00.370000Z",
+        "provenance": "PREDICTED",
+        "source_ids": [
+          "dummy-robot-1"
+        ],
+        "world_revision": 1
+      },
+      "forecast_ids": [
+        "4e550267-dddb-5c58-bb52-8f9de3340e1d"
+      ],
+      "generated_for_world_revision": 1,
+      "manifest_id": "8898d86c-1510-5ebd-bc0d-1f1cd72e0c7a",
+      "site_id": "dummy-site-1"
+    },
+    "target": {
+      "condition": "button effect succeeds",
+      "kind": "OPERATOR_TARGET_ASSERTION",
+      "provenance": "OPERATOR_ASSERTED",
+      "source_ids": [
+        "mission-operator-1"
+      ],
+      "world_revision": 2
+    }
+  },
+  "protocol_version": "dtt/0",
+  "provenance": {
+    "arrival": "PREDICTED",
+    "confirmed": "MEASURED",
+    "target": "OPERATOR_ASSERTED"
+  },
+  "scenario_id": "m1-golden-press-button",
+  "schema_version": 1,
+  "semantic_duplicate_count": 1,
+  "skill_phases": [
+    "VALIDATING",
+    "APPROACHING",
+    "CONTACTING",
+    "VERIFYING_EFFECT",
+    "RETRACTING",
+    "SUCCEEDED"
+  ],
+  "terminal_replay_pending_count": 1,
+  "terminal_state": "SUCCEEDED",
+  "transport_retransmission_count": 3,
+  "unique_envelope_count": 20
+}

@@ -1,0 +1,67 @@
+{
+  "format_version": 1,
+  "release": "v0.1.0",
+  "policy": "Every item must be PASSED before creating the tag.",
+  "items": [
+    {
+      "id": "one-command-demo",
+      "requirement": "The no-hardware demo starts from one documented command.",
+      "status": "PASSED",
+      "evidence": "docs/m1/DELAYED_DUMMY.md"
+    },
+    {
+      "id": "supported-python-ci",
+      "requirement": "CI covers supported Python 3.11 and 3.12.",
+      "status": "PASSED",
+      "evidence": ".github/workflows/ci.yml"
+    },
+    {
+      "id": "golden-replay",
+      "requirement": "The golden session strictly replays to its expected result.",
+      "status": "PASSED",
+      "evidence": "tests/test_release_gate.py::test_golden_session_strictly_replays_to_expected_results"
+    },
+    {
+      "id": "effect-once",
+      "requirement": "A duplicate contract cannot produce a second dummy effect.",
+      "status": "PASSED",
+      "evidence": "fixtures/m1/golden-session/expected-effect-counter.json"
+    },
+    {
+      "id": "blackout-restart",
+      "requirement": "At least one blackout/restart scenario succeeds.",
+      "status": "PASSED",
+      "evidence": "release/m1/scenario-matrix.json"
+    },
+    {
+      "id": "windows-unreal-5.8",
+      "requirement": "Unreal 5.8 local build, strict parser, reconnect and visible-state proof on Windows.",
+      "status": "PASSED",
+      "evidence": "docs/m1/UNREAL_VISUALIZATION.md"
+    },
+    {
+      "id": "linux-unreal-5.8",
+      "requirement": "Unreal 5.8 local verification is recorded on Linux.",
+      "status": "BLOCKED",
+      "evidence": "No Linux Unreal 5.8 environment has been verified; v0.1.0 must not be tagged."
+    },
+    {
+      "id": "distinct-unreal-states",
+      "requirement": "Confirmed, arrival and target states are visibly distinct in Unreal.",
+      "status": "PASSED",
+      "evidence": "docs/m1/evidence/m1-unreal-reconciliation.png"
+    },
+    {
+      "id": "claims-threat-model",
+      "requirement": "README, status, known limitations and threat model match the implementation.",
+      "status": "PASSED",
+      "evidence": "docs/m1/RELEASE_GATE.md"
+    },
+    {
+      "id": "public-no-hardware",
+      "requirement": "The complete gate requires no hardware or private repository.",
+      "status": "PASSED",
+      "evidence": "docs/m1/RELEASE_GATE.md"
+    }
+  ]
+}

@@ -56,3 +56,17 @@ A syntactically valid message, simulation result, LLM proposal or operator annot
 M0 does not yet select production identity, authentication, key management, message signing, encryption-at-rest or relay technology. These must be designed before any network-accessible hardware deployment.
 
 The delayed-link design should eventually protect stored commands as well as transport sessions: an operation may remain at rest in relays long after its original connection ended.
+
+## M1 validation controls
+
+The M1 release gate adds regression evidence, not a security certification:
+
+- a versioned golden session preserves message provenance, time basis, correlation and causation;
+- transport retransmissions remain distinguishable from new domain decisions;
+- semantic duplicate contracts converge on one durable dummy effect;
+- malformed or unsupported frames are isolated before the next valid delivery;
+- predicted and operator-asserted state remain distinct from measured confirmation;
+- the release command fails closed while mandatory platform evidence is missing.
+
+These controls exercise the public dummy only. They do not resolve production authentication,
+signing, encryption, storage quotas, clock trust, or physical emergency-stop requirements.

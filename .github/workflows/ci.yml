@@ -29,5 +29,7 @@ jobs:
         run: ruff check .
       - name: Verify generated schemas
         run: python -m deferred_teleop.schema --check
+      - name: Verify M1 golden session and release evidence
+        run: python -m deferred_teleop.release_gate verify --scope ci --skip-pytest
       - name: Test
         run: pytest

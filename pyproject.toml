@@ -30,6 +30,7 @@ dtt-robot-dummy = "deferred_teleop.node:robot_main"
 dtt-operator = "deferred_teleop.operator:main"
 dtt-demo = "deferred_teleop.demo:main"
 dtt-inspect = "deferred_teleop.inspect:main"
+dtt-release-gate = "deferred_teleop.release_gate:main"
 
 [project.optional-dependencies]
 dev = [

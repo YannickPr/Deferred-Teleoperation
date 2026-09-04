@@ -43,6 +43,10 @@ The exact commands, environment and visible evidence are recorded on bootstrap p
 - explicit metres/right-handed to centimetres/left-handed Unreal conversion with tests;
 - generated Blueprint example scene separating confirmed, arrival-belief and target states;
 - timed trajectory marker, provenance/freshness labels and deterministic PNG evidence capture.
+- deterministic golden session replayed through the real M1 domain services;
+- fourteen-profile adversarial matrix mapped to executable tests and durable evidence;
+- machine-readable `v0.1.0` release checklist and CI-compatible gate;
+- changelog and citation metadata prepared for the first tagged release.
 
 ## Planned, not implemented
 
@@ -51,7 +55,10 @@ The exact commands, environment and visible evidence are recorded on bootstrap p
 - Simulation Worker;
 - LeRobot integration;
 - learned policies or LLM planning.
+- Linux Unreal Engine 5.8 verification required before the `v0.1.0` tag.
 
 ## Safety status
 
 No public hardware-control path exists. Nothing in the current repository should command a physical robot.
+The M1 release gate operates entirely on the public dummy path and explicitly reports the missing
+Linux Unreal proof instead of weakening or silently skipping that requirement.

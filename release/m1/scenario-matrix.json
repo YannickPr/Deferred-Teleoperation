@@ -1,0 +1,76 @@
+{
+  "format_version": 1,
+  "description": "M1 adversarial release matrix; every entry maps to executable pytest evidence.",
+  "scenarios": [
+    {
+      "id": "reliable-short-delay",
+      "tests": ["tests/test_demo.py::test_delayed_dummy_runs_as_four_processes_and_reconciles"],
+      "evidence": ["docs/m1/DELAYED_DUMMY.md"]
+    },
+    {
+      "id": "duplicated-intent",
+      "tests": ["tests/test_runtime.py::test_semantic_duplicate_intent_and_contract_do_not_duplicate_effect"],
+      "evidence": ["fixtures/m1/golden-session/messages.jsonl"]
+    },
+    {
+      "id": "duplicated-execution-contract",
+      "tests": ["tests/test_runtime.py::test_semantic_duplicate_intent_and_contract_do_not_duplicate_effect", "tests/test_storage.py::test_duplicate_contract_and_effect_key_never_duplicate_effect"],
+      "evidence": ["fixtures/m1/golden-session/expected-effect-counter.json"]
+    },
+    {
+      "id": "ack-duplication-reordering",
+      "tests": ["tests/test_link.py::test_duplicate_ack_is_idempotent_at_durable_outbox", "tests/test_link.py::test_scripted_schedule_controls_delay_duplicates_and_reordering"],
+      "evidence": ["docs/adr/0004-deterministic-development-link.md"]
+    },
+    {
+      "id": "blackout-before-field-receipt",
+      "tests": ["tests/test_link.py::test_blackout_defers_delivery_without_real_waiting"],
+      "evidence": ["profiles/15min-blackout.toml"]
+    },
+    {
+      "id": "blackout-after-field-acceptance",
+      "tests": ["tests/test_runtime.py::test_complete_domain_slice_survives_mission_disconnect_and_reconstructs"],
+      "evidence": ["docs/m1/DELAYED_DUMMY.md"]
+    },
+    {
+      "id": "mission-restart-pending-outbox",
+      "tests": ["tests/test_demo.py::test_delayed_dummy_runs_as_four_processes_and_reconciles", "tests/test_link.py::test_link_crash_cannot_erase_endpoint_pending_outbox"],
+      "evidence": ["docs/m1/DELAYED_DUMMY.md"]
+    },
+    {
+      "id": "field-restart-after-admission",
+      "tests": ["tests/test_release_gate.py::test_field_restart_after_admission_preserves_robot_dispatch"],
+      "evidence": ["docs/m1/RELEASE_GATE.md"]
+    },
+    {
+      "id": "dummy-restart-after-dispatch",
+      "tests": ["tests/test_runtime.py::test_robot_recovers_after_crash_during_skill_without_duplicate_effect", "tests/test_storage.py::test_crash_after_dispatch_resumes_before_dummy_effect"],
+      "evidence": ["docs/adr/0003-durable-node-store.md"]
+    },
+    {
+      "id": "effect-before-terminal-delivery",
+      "tests": ["tests/test_storage.py::test_crash_after_effect_preserves_terminal_result_and_event", "tests/test_storage.py::test_crash_before_ack_preserves_attempt_and_acknowledges_once"],
+      "evidence": ["fixtures/m1/golden-session/expected-effect-counter.json"]
+    },
+    {
+      "id": "stale-expired-operation",
+      "tests": ["tests/test_runtime.py::test_expired_operation_is_explicitly_held_and_never_dispatched"],
+      "evidence": ["docs/adr/0005-m1-delayed-dummy-runtime.md"]
+    },
+    {
+      "id": "malformed-message-isolation",
+      "tests": ["tests/test_release_gate.py::test_malformed_or_unsupported_frame_isolated_before_valid_delivery", "tests/test_mission_view.py::test_mission_view_rejects_unsupported_version_and_unknown_fields"],
+      "evidence": ["protocol/v0/fixtures/invalid/m1-cases.json"]
+    },
+    {
+      "id": "low-bandwidth-control-plane",
+      "tests": ["tests/test_link.py::test_control_lane_is_not_starved_by_low_bandwidth_payload"],
+      "evidence": ["docs/adr/0004-deterministic-development-link.md"]
+    },
+    {
+      "id": "unreal-mission-disconnect-reconnect",
+      "tests": ["tests/test_release_gate.py::test_mission_view_consumer_reconnects_after_server_restart"],
+      "evidence": ["docs/m1/UNREAL_VISUALIZATION.md"]
+    }
+  ]
+}
