@@ -11,7 +11,7 @@ progress. The [roadmap](../ROADMAP.md) defines the corresponding evidence gates.
 | M1 | **Implemented; `v0.1.0` historical** | Delay-tolerant dummy, persistence, replay and Mission reconciliation |
 | M1.7a | **Implemented; PR #30** | Bounded correlation selection and compatible Mission-view layer filtering |
 | M1.7 | **Planned after M1.7a** | Full causal coherence for concurrent operations and reordered Mission-view data |
-| M1.8 | **Planned** | Independent external-effect evidence and virtual long-delay proof |
+| M1.8 | **In progress** | Virtual-time dummy domain tests implemented; combined independent-effect gate remains open |
 | M2 | **In progress; target `v0.2.0`** | M2.1 structural model is complete; FK, articulated Unreal state, IK and authoring remain |
 | M3 | **Planned; M3a + M3b required** | Simulation oracle gate plus calibrated physical-fixture gate |
 | M4/M5 | **Planned** | Broader robot-agnostic assignment, context acquisition and replanning |
@@ -110,6 +110,10 @@ All 72 Python tests, Ruff and the unchanged M1 CI release gate passed in
 - deterministic machine-readable and visible evidence without cross-operation association.
 
 ### M1.8 external effect and long-delay gate
+
+The [long-delay domain tests](m1/LONG_DELAY_DOMAIN.md) already exercise the real M1 services
+and deterministic link with up to 1200 seconds of one-way transit. This is supporting dummy
+evidence; the following combined gate remains unimplemented:
 
 - a deterministic external device whose effect evidence is independent of the Robot journal;
 - crash-window recovery that recognizes an observed effect or reports an unknown result without
