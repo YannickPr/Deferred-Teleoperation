@@ -16,6 +16,7 @@ from typing import Any, Literal, Protocol
 from uuid import UUID
 
 from websockets.asyncio.server import Server, ServerConnection, serve
+from websockets.exceptions import ConnectionClosed
 
 from deferred_teleop.protocol import MessageEnvelope
 
@@ -406,6 +407,8 @@ class WebSocketRelay:
                 if not isinstance(encoded, str):
                     raise ValueError("binary frames are not supported")
                 self.link.submit(side, LinkFrame.from_json(encoded), now=self._now())
+        except ConnectionClosed:
+            pass
         finally:
             self._connections[side].discard(connection)
 

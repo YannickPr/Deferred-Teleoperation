@@ -33,11 +33,14 @@ The exact commands, environment and visible evidence are recorded on bootstrap p
 - deterministic in-memory and two-sided WebSocket link emulator;
 - seeded delay, jitter, duplication, reordering, blackout, bandwidth and capacity profiles;
 - transport-level ACK frames, observability metrics and virtual-time fault tests.
+- separate Mission, Field and dummy-Robot processes with independent durable stores;
+- constrained Field grounding, one-node planning, assignment and local execution contract;
+- deterministic six-phase dummy skill with an effect-once journal boundary;
+- confirmed, predicted-arrival and operator-target Mission projections with explicit provenance;
+- one-command nominal and fault/reconnect demonstrations plus causal-history inspection.
 
 ## Planned, not implemented
 
-- runnable Mission, Field and dummy Robot process orchestration;
-- end-to-end delayed dummy execution and reconciliation;
 - Unreal VR visualization;
 - SO-101 geometry, kinematics or hardware integration;
 - Simulation Worker;
