@@ -4,7 +4,7 @@ The roadmap is organized around runnable vertical slices. Dates are intentionall
 
 ## M0 — Public foundation
 
-Status: **in progress**
+Status: **complete**
 
 - public documentation and status matrix;
 - minimal Python package and CI;
@@ -13,7 +13,8 @@ Status: **in progress**
 - initial threat model and safe defaults;
 - experimental `protocol/v0` namespace with conformance fixtures.
 
-M0 is not a release. It exits after local Unreal Engine 5.8 verification and a reviewed bootstrap pull request.
+M0 is not a release. It completed after local Unreal Engine 5.8 verification and review of the
+bootstrap pull request. The first runnable release target remains M1.
 
 ## M1 — Delay-tolerant dummy
 

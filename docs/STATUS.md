@@ -2,7 +2,7 @@
 
 This file separates what exists from what is planned.
 
-## Implemented in the M0 branch
+## Implemented in M0
 
 - public repository and Apache-2.0 code licence;
 - minimal Python package metadata;

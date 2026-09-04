@@ -2,7 +2,8 @@
 
 **A research prototype for delay-tolerant, VR-mediated shared autonomy with remote robots.**
 
-> **Status:** M0 bootstrap in progress. No runnable release is available yet.
+> **Status:** M0 public foundation complete. No runnable release is available yet; the first
+> runnable target is the M1 delay-tolerant dummy.
 
 Deferred Teleoperation explores how an operator can express a spatial and linguistic intent from a delayed representation of a remote environment, while an autonomous field site grounds, assigns, executes, adapts, or holds that intent without depending on a real-time round trip.
 
@@ -24,7 +25,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | Area | State |
 |---|---|
 | Architecture and authority model | Defined, still experimental |
-| Public Python package | M0 bootstrap |
+| Public Python package | M0 foundation complete |
 | Unreal Engine plugin | M0 skeleton; locally verified with UE 5.8.2 on Windows |
 | Delay-tolerant dummy | Planned for M1 |
 | SO-101 twin | Planned for M2 |
