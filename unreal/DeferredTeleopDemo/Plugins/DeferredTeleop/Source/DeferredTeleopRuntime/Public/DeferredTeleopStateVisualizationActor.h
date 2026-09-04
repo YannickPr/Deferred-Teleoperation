@@ -57,49 +57,49 @@ protected:
     virtual void BeginPlay() override;
 
 private:
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<USceneComponent> SceneRoot;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<UCameraComponent> DemoCamera;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<USceneCaptureComponent2D> EvidenceCamera;
 
     UPROPERTY(Transient)
     TObjectPtr<UTextureRenderTarget2D> EvidenceRenderTarget;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<UPointLightComponent> DemoLight;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<UStaticMeshComponent> ConfirmedMesh;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<UStaticMeshComponent> ArrivalMesh;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<UStaticMeshComponent> TargetMesh;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<UTextRenderComponent> ConfirmedLabel;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<UTextRenderComponent> ArrivalLabel;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<UTextRenderComponent> TargetLabel;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<UTextRenderComponent> ConnectionLabel;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<USplineComponent> TrajectorySpline;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<UStaticMeshComponent> TrajectoryLine;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(VisibleAnywhere, Category = "Deferred Teleoperation|Components")
     TObjectPtr<UStaticMeshComponent> TrajectoryMarker;
 
     UPROPERTY()

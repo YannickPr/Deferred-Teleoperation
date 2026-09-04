@@ -15,6 +15,8 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
   symmetric 1200-second and asymmetric 900-second outbound / 1200-second return delays, including
   duplicate-contract recovery and receiving-site expiry boundaries;
 - pinned SO-101 structural source, canonical generated description and cross-platform drift gate.
+- canonical Unreal C++ transforms, strict robot-description parsing, generic tree FK, tool-frame
+  propagation, Blueprint functions and deterministic Automation Tests.
 
 ### Status
 

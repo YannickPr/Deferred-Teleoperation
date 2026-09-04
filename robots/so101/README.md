@@ -69,7 +69,7 @@ radians
 quaternion XYZW rotations
 ```
 
-The Unreal runtime will consume the generated description rather than parse arbitrary URDF/XML.
+The Unreal runtime consumes this generated description rather than parsing arbitrary URDF/XML.
 CI and unit tests reject source-hash drift or a generated file that no longer matches the pinned
 source and generator.
 
@@ -79,6 +79,7 @@ On 4 September 2026, a fresh `--check` produced the same committed artifact with
 
 ## Current status
 
-The M2.1 increment contains the pinned source, source lock, deterministic generator, canonical
-generated description, third-party notice and drift checks. Forward kinematics, Unreal loading and
-hardware calibration remain separate later increments.
+M2.1 contains the pinned source, source lock, deterministic generator, canonical generated
+description, third-party notice and drift checks. M2.2 adds strict Unreal-side parsing and generic
+fixed/revolute tree FK. Shared SO-101 golden fixtures, articulated rendering, IK and hardware
+calibration remain separate later increments.

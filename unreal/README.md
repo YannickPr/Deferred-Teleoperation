@@ -8,10 +8,10 @@ DeferredTeleopDemo/
     └── Source/DeferredTeleopRuntime/
 ```
 
-The plugin exposes the M0 protocol-version function plus the M1 read-only Mission client and
-visualization actor. Its network boundary is limited to the local Mission view endpoint
-(`ws://127.0.0.1:8772` by default). It contains no Field or Robot connection, kinematics,
-robot assets, or hardware control.
+The plugin exposes the M0 protocol-version function, the M1 read-only Mission client and
+visualization actor, and the M2 canonical kinematics core. Its network boundary is limited to the
+local Mission view endpoint (`ws://127.0.0.1:8772` by default). It contains no Field or Robot
+connection, robot assets, or hardware control.
 
 ## Local verification
 
@@ -42,3 +42,14 @@ strict client rejects malformed/version-incompatible frames, retains its last va
 disconnects, and exposes state, connection, and rejection events to Blueprint. See the
 [reproducible M1 proof](../docs/m1/UNREAL_VISUALIZATION.md) for exact generate, build, test,
 run, and capture commands.
+
+## M2 canonical kinematics
+
+`DeferredTeleopRuntime` contains a strict parser for the generated robot-description subset,
+explicit right-handed metre/radian transforms, generic fixed/revolute tree FK, tool-frame
+propagation, and the single canonical-to-Unreal basis boundary. The API is also exposed to
+Blueprint without moving the mathematical core into Blueprint graphs.
+
+See the [M2 canonical kinematics guide](../docs/m2/CANONICAL_KINEMATICS.md) for the contract,
+headless build and Automation Test commands, and the capabilities deliberately left for later
+increments.
