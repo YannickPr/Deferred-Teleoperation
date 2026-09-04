@@ -19,7 +19,11 @@ classifiers = [
 ]
 dependencies = [
     "pydantic>=2.11,<3",
+    "websockets>=15,<17",
 ]
+
+[project.scripts]
+dtt-link = "deferred_teleop.link:main"
 
 [project.optional-dependencies]
 dev = [
