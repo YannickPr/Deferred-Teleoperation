@@ -96,18 +96,22 @@ general perception system. M1.7a is a prerequisite correction, not a substitute 
 
 ## M1.8 — External effect and long-delay evidence
 
-Status: **in progress; external-effect recovery and virtual-time dummy domain tests implemented**
+Status: **in progress; M1.8b combined external-effect/long-delay proof implemented**
 
 The [long-delay domain tests](docs/m1/LONG_DELAY_DOMAIN.md) cover 0, 30, 900 and 1200 seconds
-of one-way transit, blackout, expiry and persisted-service restart. They use the M1 dummy effect;
-the combined independent-device, delayed-intent and durable-budget gate below remains open.
+of one-way transit, blackout, expiry and persisted-service restart with the M1 dummy effect. The
+[M1.8b combined proof](docs/m1/EXTERNAL_EFFECT_LONG_DELAY.md) now runs the independent device
+through the delayed Mission/Field domain, including symmetric 1200-second and asymmetric
+900-second outbound / 1200-second return transit.
 
-The [external-effect recovery proof](docs/m1/EXTERNAL_EFFECT_RECOVERY.md) separately exercises
-a non-idempotent simulated device with its own persistent record. Robot binds the device at
+The [external-effect recovery proof](docs/m1/EXTERNAL_EFFECT_RECOVERY.md) defines the
+non-idempotent simulated device and its own persistent record. Robot binds the device at
 dispatch, observes after uncertain dispatch instead of repeating the action, and holds when the
 outcome is unknown or not applied. Missing or substituted adapters are rejected during recovery.
-This experimental injection path does not yet combine the independent device with the long-delay
-scenario, stable effect identity across plan revisions, or a durable autonomy budget.
+The M1.8b proof combines that adapter with the delayed domain and verifies independent pulse
+history, duplicate contract delivery after Robot-store recovery, receiving-site expiry, and the
+absence of a fabricated completion snapshot. Stable effect identity across plan revisions and a
+durable autonomy budget remain unimplemented.
 
 M1.8 adds the smallest deterministic proof that a recorded execution event is not itself proof
 of an external effect. A fake button device keeps an effect counter or state in storage separate
@@ -120,6 +124,13 @@ fifteen-minute delay must configure and record at least 900 seconds of one-way t
 900-second blackout alone is not such evidence. The run also varies direction/asymmetry and
 validity so that admission, execution and expiry are evaluated at the receiving site rather than
 inferred from a link profile name.
+
+The M1.8b bounded combined slice is implemented and covered by six focused tests in the 115-test
+Python suite. It does not validate physical hardware, a real network, or a whole-OS restart.
+Positive and ambiguous observation recovery are covered under long delay; absent external
+evidence remains covered by the separate M1.8a recovery proof. It covers contract revision 1;
+cross-revision identity and durable budget accounting remain open. Expiry or cancellation after
+external dispatch and before Robot recovery is outside this proof.
 
 M1.8 closes when deterministic evidence shows that:
 
