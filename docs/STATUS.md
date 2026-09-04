@@ -26,7 +26,7 @@ Completed on 4 September 2026 on the primary Windows development platform with U
 
 The exact commands, environment and visible evidence are recorded on bootstrap pull request #2.
 
-## Implemented toward M1
+## Implemented in M1
 
 - strict Python wire models and JSON schemas for the constrained `dtt/0` dummy path;
 - durable SQLite inbox, outbox, execution journal and crash recovery primitives;
@@ -43,6 +43,12 @@ The exact commands, environment and visible evidence are recorded on bootstrap p
 - explicit metres/right-handed to centimetres/left-handed Unreal conversion with tests;
 - generated Blueprint example scene separating confirmed, arrival-belief and target states;
 - timed trajectory marker, provenance/freshness labels and deterministic PNG evidence capture.
+- deterministic golden session replayed through the real M1 domain services;
+- fourteen-profile adversarial matrix mapped to executable tests and durable evidence;
+- machine-readable `v0.1.0` release checklist and CI-compatible gate;
+- changelog and citation metadata prepared for the first tagged release.
+- Unreal Engine 5.8.2 validation on Windows, the reference Unreal platform for `v0.1.0`;
+- portable Python validation on Linux through GitHub CI.
 
 ## Planned, not implemented
 
@@ -55,3 +61,5 @@ The exact commands, environment and visible evidence are recorded on bootstrap p
 ## Safety status
 
 No public hardware-control path exists. Nothing in the current repository should command a physical robot.
+The M1 release gate operates entirely on the public dummy path. Unreal Engine 5.8.2 is verified on
+the reference Windows platform; `v0.1.0` does not claim Unreal support on Linux.

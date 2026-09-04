@@ -1,7 +1,7 @@
 {
   "FileVersion": 3,
   "Version": 1,
-  "VersionName": "0.0.0",
+  "VersionName": "0.1.0",
   "FriendlyName": "Deferred Teleoperation",
   "Description": "Experimental runtime primitives for delay-tolerant, VR-mediated shared autonomy.",
   "Category": "Robotics",

@@ -1,0 +1,202 @@
+{
+  "arrival_belief": {
+    "estimated_intent_arrival_at": "2026-09-04T12:00:00.250001Z",
+    "evidence": {
+      "fresh_until": "2026-09-04T12:00:30.370000Z",
+      "model_version": "dummy-constant-velocity-v1",
+      "observed_at": "2026-09-04T12:00:00.370000Z",
+      "produced_at": "2026-09-04T12:00:00.370000Z",
+      "provenance": "PREDICTED",
+      "source_ids": [
+        "dummy-robot-1"
+      ],
+      "world_revision": 1
+    },
+    "link_one_way_delay_seconds": 0.25,
+    "pose": {
+      "frame": {
+        "angle_unit": "radian",
+        "calibration_version": "dummy-cal-1",
+        "convention": "RIGHT_HANDED_Z_UP",
+        "frame_id": "field-world",
+        "length_unit": "metre"
+      },
+      "orientation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": 0.4,
+        "y": 0.1,
+        "z": 0.18
+      }
+    },
+    "predicted_for": "2026-09-04T12:00:01.370000Z",
+    "robot_id": "dummy-robot-1"
+  },
+  "confirmed_state": {
+    "evidence": {
+      "fresh_until": "2026-09-04T12:00:30.480000Z",
+      "model_version": null,
+      "observed_at": "2026-09-04T12:00:00.480000Z",
+      "produced_at": "2026-09-04T12:00:00.480000Z",
+      "provenance": "MEASURED",
+      "source_ids": [
+        "field-fixture-1"
+      ],
+      "world_revision": 2
+    },
+    "pose": {
+      "frame": {
+        "angle_unit": "radian",
+        "calibration_version": "dummy-cal-1",
+        "convention": "RIGHT_HANDED_Z_UP",
+        "frame_id": "field-world",
+        "length_unit": "metre"
+      },
+      "orientation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": 0.4,
+        "y": 0.1,
+        "z": 0.18
+      }
+    },
+    "robot_id": "dummy-robot-1",
+    "site_id": "dummy-site-1"
+  },
+  "connection": {
+    "changed_at": "2026-09-04T12:00:00Z",
+    "detail": "delayed-link",
+    "mission_to_field": "CONNECTED"
+  },
+  "message_type": "mission.view_state",
+  "prediction_manifests": [
+    {
+      "evidence": {
+        "fresh_until": "2026-09-04T12:00:30.370000Z",
+        "model_version": "dummy-constant-velocity-v1",
+        "observed_at": "2026-09-04T12:00:00.370000Z",
+        "produced_at": "2026-09-04T12:00:00.370000Z",
+        "provenance": "PREDICTED",
+        "source_ids": [
+          "dummy-robot-1"
+        ],
+        "world_revision": 1
+      },
+      "forecast_ids": [
+        "4e550267-dddb-5c58-bb52-8f9de3340e1d"
+      ],
+      "generated_for_world_revision": 1,
+      "manifest_id": "8898d86c-1510-5ebd-bc0d-1f1cd72e0c7a",
+      "site_id": "dummy-site-1"
+    }
+  ],
+  "produced_at": "2026-09-04T12:00:00.602000Z",
+  "protocol_version": "dtt/0",
+  "source_id": "mission-1",
+  "source_sequence": 1,
+  "status": {
+    "correlation_id": "c77e480a-36b3-568b-951e-ecea7bd674fc",
+    "operation_id": "c77e480a-36b3-568b-951e-ecea7bd674fc",
+    "received_message_count": 10,
+    "terminal_contract_id": "dc11b8bb-2bb8-5a98-b6ef-156efee82c9c",
+    "terminal_state": "SUCCEEDED"
+  },
+  "target_branch": {
+    "condition": "button effect succeeds",
+    "entity_id": "dummy-button-1",
+    "evidence": {
+      "fresh_until": "2026-09-04T12:01:00.000001Z",
+      "model_version": null,
+      "observed_at": "2026-09-04T12:00:00.000001Z",
+      "produced_at": "2026-09-04T12:00:00.000001Z",
+      "provenance": "OPERATOR_ASSERTED",
+      "source_ids": [
+        "mission-operator-1"
+      ],
+      "world_revision": 2
+    },
+    "pose": {
+      "frame": {
+        "angle_unit": "radian",
+        "calibration_version": "dummy-cal-1",
+        "convention": "RIGHT_HANDED_Z_UP",
+        "frame_id": "field-world",
+        "length_unit": "metre"
+      },
+      "orientation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": 0.4,
+        "y": 0.1,
+        "z": 0.18
+      }
+    },
+    "requested_state": "PRESSED"
+  },
+  "trajectory_forecasts": [
+    {
+      "pose": {
+        "frame": {
+          "angle_unit": "radian",
+          "calibration_version": "dummy-cal-1",
+          "convention": "RIGHT_HANDED_Z_UP",
+          "frame_id": "field-world",
+          "length_unit": "metre"
+        },
+        "orientation": {
+          "w": 1.0,
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "position": {
+          "x": 0.4,
+          "y": 0.1,
+          "z": 0.18
+        }
+      },
+      "provenance": "MEASURED",
+      "sample_time": "2026-09-04T12:00:00.480000Z",
+      "source": "CONFIRMED_STATE",
+      "timestamp_basis": "WALL_CLOCK_UTC"
+    },
+    {
+      "pose": {
+        "frame": {
+          "angle_unit": "radian",
+          "calibration_version": "dummy-cal-1",
+          "convention": "RIGHT_HANDED_Z_UP",
+          "frame_id": "field-world",
+          "length_unit": "metre"
+        },
+        "orientation": {
+          "w": 1.0,
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "position": {
+          "x": 0.4,
+          "y": 0.1,
+          "z": 0.18
+        }
+      },
+      "provenance": "PREDICTED",
+      "sample_time": "2026-09-04T12:00:01.370000Z",
+      "source": "ARRIVAL_BELIEF",
+      "timestamp_basis": "WALL_CLOCK_UTC"
+    }
+  ]
+}

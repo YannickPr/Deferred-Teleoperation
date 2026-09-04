@@ -20,7 +20,7 @@ bootstrap pull request. The first runnable release target remains M1.
 
 First runnable release target.
 
-Status: **runnable development slice implemented; milestone validation in progress**
+Status: **complete for v0.1.0**
 
 ```text
 OperationIntent(PressButton)
@@ -32,6 +32,10 @@ OperationIntent(PressButton)
 ```
 
 The test harness will inject delay, blackout windows, duplication, reordering, retransmission and crash points. Delivery is at-least-once; application effects must be idempotent.
+
+The deterministic golden session and fourteen-profile adversarial matrix are implemented. Portable
+Python checks run on Linux in CI; Unreal Engine 5.8.2 was built and exercised on Windows, the
+reference Unreal platform for `v0.1.0`. This release does not claim Unreal support on Linux.
 
 ## M2 — Mathematical SO-101 twin in Unreal
 

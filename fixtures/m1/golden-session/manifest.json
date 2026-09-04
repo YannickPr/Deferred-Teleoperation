@@ -1,0 +1,46 @@
+{
+  "features": [
+    "initial-field-snapshot",
+    "dummy-robot-capability-state-forecast",
+    "delayed-and-duplicated-envelopes",
+    "field-grounding-plan-assignment-contract",
+    "dummy-skill-phases-and-effect-once",
+    "mission-reconciliation",
+    "arrival-and-target-prediction-manifests",
+    "causal-graph",
+    "strict-unreal-mission-view"
+  ],
+  "files": {
+    "README.md": {
+      "bytes": 1487,
+      "sha256": "2de71be2ee218d9b7c0f4ee63f5f3a20f67f27cdd69e844824550b3ba685c6d7"
+    },
+    "expected-domain-state.json": {
+      "bytes": 3292,
+      "sha256": "59f5b1927fc18e6f00ba6e654b91f8137eaca002497f2701acdeb39f7c41eed2"
+    },
+    "expected-effect-counter.json": {
+      "bytes": 359,
+      "sha256": "f952470e7b4f214803a9039711f93b4099507c9b506257054a71ab6dd5ab138b"
+    },
+    "expected-mission-view.json": {
+      "bytes": 5221,
+      "sha256": "5412ade4288360091807e7be4040d319873d2089822564683a99eeb4f5033512"
+    },
+    "messages.jsonl": {
+      "bytes": 23364,
+      "sha256": "6c1ac3bd0c46fdcee1bc664e70816802f6373711ef63b3ff687177771af37829"
+    }
+  },
+  "format_version": 1,
+  "generated_at": "2026-09-04T12:00:00Z",
+  "generator": "python -m deferred_teleop.release_gate generate",
+  "protocol_version": "dtt/0",
+  "records": {
+    "deliveries": 23,
+    "semantic_duplicates": 1,
+    "transport_retransmissions": 3,
+    "unique_envelopes": 20
+  },
+  "scenario_id": "m1-golden-press-button"
+}
