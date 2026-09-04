@@ -18,9 +18,14 @@ from uuid import UUID
 
 from pydantic import ValidationError
 
+from deferred_teleop.external_effect import (
+    ExternalEffectObservation,
+    ExternalOutcome,
+    coerce_observation,
+)
 from deferred_teleop.protocol import ContractState, ExecutionEvent, MessageEnvelope
 
-CURRENT_SCHEMA_VERSION = 2
+CURRENT_SCHEMA_VERSION = 3
 DEFAULT_BUSY_TIMEOUT_MS = 5_000
 TERMINAL_STATES = frozenset(
     {
@@ -56,6 +61,20 @@ def _utc_text(value: datetime) -> str:
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError("timestamps must be timezone-aware")
     return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
+
+
+def _parse_utc_text(value: object, *, field_name: str) -> datetime:
+    """Decode a persisted timestamp before making an external decision."""
+
+    if not isinstance(value, str):
+        raise CorruptRecordError(f"journal {field_name} is not a timestamp")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise CorruptRecordError(f"journal {field_name} is not a timestamp") from error
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise CorruptRecordError(f"journal {field_name} must be timezone-aware")
+    return parsed
 
 
 def _now_text() -> str:
@@ -167,7 +186,18 @@ def _migration_2(connection: sqlite3.Connection) -> None:
         connection.execute(statement)
 
 
-MIGRATIONS = {1: _migration_1, 2: _migration_2}
+def _migration_3(connection: sqlite3.Connection) -> None:
+    """Bind an optional external device to the durable dispatch boundary."""
+
+    connection.execute(
+        """
+        ALTER TABLE execution_journal ADD COLUMN dispatch_device_id TEXT
+            CHECK (dispatch_device_id IS NULL OR length(trim(dispatch_device_id)) > 0)
+        """
+    )
+
+
+MIGRATIONS = {1: _migration_1, 2: _migration_2, 3: _migration_3}
 
 
 def initialize_database(
@@ -515,21 +545,41 @@ class NodeStore:
         return True
 
     def record_dispatch(
-        self, contract_id: UUID, contract_revision: int, *, recorded_at: datetime
+        self,
+        contract_id: UUID,
+        contract_revision: int,
+        *,
+        recorded_at: datetime,
+        device_id: str | None = None,
     ) -> bool:
+        if device_id is not None and (
+            not isinstance(device_id, str) or not device_id.strip()
+        ):
+            raise ValueError("device_id must be a non-empty string when provided")
         with self._transaction() as connection:
             row = self._journal_row(connection, contract_id, contract_revision)
             if row["dispatch_recorded_at"] is not None:
+                stored_device_id = row["dispatch_device_id"]
+                if device_id is not None and stored_device_id != device_id:
+                    raise RecordConflictError(
+                        "dispatch device identity is immutable and does not match"
+                    )
                 return False
             if row["state"] != "ACCEPTED":
                 raise InvalidStateTransitionError("dispatch requires ACCEPTED state")
             connection.execute(
                 """
                 UPDATE execution_journal
-                SET state = 'DISPATCH_RECORDED', dispatch_recorded_at = ?
+                SET state = 'DISPATCH_RECORDED', dispatch_recorded_at = ?,
+                    dispatch_device_id = ?
                 WHERE contract_id = ? AND contract_revision = ?
                 """,
-                (_utc_text(recorded_at), str(contract_id), contract_revision),
+                (
+                    _utc_text(recorded_at),
+                    device_id,
+                    str(contract_id),
+                    contract_revision,
+                ),
             )
         return True
 
@@ -577,6 +627,161 @@ class NodeStore:
                     terminal_state.value,
                     _utc_text(occurred_at),
                     _utc_text(occurred_at),
+                    encoded_result,
+                    str(contract_id),
+                    contract_revision,
+                ),
+            )
+        return True
+
+    def resolve_external_outcome(
+        self,
+        contract_id: UUID,
+        contract_revision: int,
+        *,
+        observation: ExternalEffectObservation | Mapping[str, Any] | object | None = None,
+        expected_device_id: str | None = None,
+        terminal_state: ContractState | None = None,
+        terminal_result: Mapping[str, Any] | None = None,
+        occurred_at: datetime,
+        terminal_event: MessageEnvelope,
+    ) -> bool:
+        """Atomically resolve an effect performed outside the Robot journal.
+
+        The external path deliberately leaves ``effect_count`` at zero.  The
+        adapter owns the physical/test effect record, while this transaction
+        owns only the immutable contract resolution and its terminal outbox
+        event.  A proof must identify both the semantic ``effect_key`` and the
+        concrete ``device_id``; a bare status or boolean is rejected.
+
+        When ``terminal_state`` is omitted it is derived from the proof:
+        APPLIED resolves to SUCCEEDED and either other observation resolves to
+        HELD.
+        """
+
+        if observation is None:
+            raise ValueError("external observation proof is required")
+
+        row = self._journal_row(self._connection, contract_id, contract_revision)
+        expected_effect_key = str(row["effect_key"])
+        occurred_text = _utc_text(occurred_at)
+        dispatch_recorded_at = row["dispatch_recorded_at"]
+        if dispatch_recorded_at is not None:
+            dispatch_at = _parse_utc_text(
+                dispatch_recorded_at, field_name="dispatch_recorded_at"
+            )
+            if occurred_at < dispatch_at:
+                raise RecordConflictError(
+                    "external terminal resolution cannot precede durable dispatch_recorded_at"
+                )
+        proof = coerce_observation(
+            observation,
+            expected_effect_key=expected_effect_key,
+            expected_device_id=expected_device_id,
+        )
+        if proof.observed_at > occurred_at:
+            raise RecordConflictError(
+                "external observation cannot be later than its terminal resolution"
+            )
+        resolved_state = (
+            ContractState.SUCCEEDED
+            if proof.outcome is ExternalOutcome.APPLIED
+            else ContractState.HELD
+        )
+        if terminal_state is not None:
+            try:
+                terminal_state = ContractState(terminal_state)
+            except (TypeError, ValueError) as error:
+                raise ValueError("terminal_state must be a ContractState") from error
+            if terminal_state is not resolved_state:
+                raise RecordConflictError("terminal state does not match external observation")
+        terminal_state = resolved_state
+
+        event = terminal_event.payload
+        if not isinstance(event, ExecutionEvent):
+            raise ValueError("terminal_event must contain an ExecutionEvent")
+        if (
+            event.contract_id != contract_id
+            or event.contract_revision != contract_revision
+            or event.previous_state is not ContractState.RUNNING
+            or event.next_state is not terminal_state
+            or event.occurred_at != occurred_at
+            or terminal_event.created_at != occurred_at
+        ):
+            raise RecordConflictError(
+                "terminal event or timestamp does not match external resolution"
+            )
+
+        resolution = {
+            ExternalOutcome.APPLIED: "APPLIED",
+            ExternalOutcome.UNKNOWN: "OUTCOME_UNKNOWN",
+            ExternalOutcome.NOT_APPLIED: "NOT_APPLIED_AFTER_UNCERTAIN_DISPATCH",
+        }[proof.outcome]
+        result: dict[str, Any] = dict(terminal_result or {})
+        required_result = {
+            "effect_key": proof.effect_key,
+            "device_id": proof.device_id,
+            "external_outcome": proof.outcome.value,
+            "outcome": resolution,
+            "resolution": resolution,
+            "observation_id": proof.observation_id,
+            "observed_at": proof.observed_at.astimezone(UTC).isoformat().replace("+00:00", "Z"),
+            "terminal_at": occurred_text,
+            "proof": proof.model_dump(),
+        }
+        for key, value in required_result.items():
+            if key in result and result[key] != value:
+                raise RecordConflictError(f"external terminal result field collision: {key}")
+            result[key] = value
+        encoded_result = _result_json(result)
+
+        with self._transaction() as connection:
+            journal = self._journal_row(connection, contract_id, contract_revision)
+            dispatch_device_id = journal["dispatch_device_id"]
+            if journal["terminal_at"] is not None:
+                if dispatch_device_id is None:
+                    raise RecordConflictError(
+                        "external resolution has no durable dispatch device identity"
+                    )
+                if dispatch_device_id != proof.device_id:
+                    raise RecordConflictError(
+                        "external observation device differs from durable dispatch identity"
+                    )
+                existing_raw = journal["terminal_result_json"]
+                try:
+                    existing = json.loads(existing_raw) if existing_raw is not None else {}
+                except (TypeError, json.JSONDecodeError) as error:
+                    raise CorruptRecordError(
+                        f"invalid external terminal result {contract_id}:{contract_revision}"
+                    ) from error
+                # Compare the complete canonical record.  Python's mapping
+                # equality would treat values such as 1 and 1.0 as equal and
+                # could silently accept a changed immutable proof detail.
+                if _canonical_json(existing) == encoded_result:
+                    return False
+                raise RecordConflictError("external terminal result is immutable")
+            if journal["state"] != "DISPATCH_RECORDED" or journal["effect_count"] != 0:
+                raise InvalidStateTransitionError(
+                    "external outcome requires an unconsumed DISPATCH_RECORDED journal entry"
+                )
+            if dispatch_device_id is None:
+                raise RecordConflictError(
+                    "external resolution has no durable dispatch device identity"
+                )
+            if dispatch_device_id != proof.device_id:
+                raise RecordConflictError(
+                    "external observation device differs from durable dispatch identity"
+                )
+            self._insert_outbox(connection, terminal_event)
+            connection.execute(
+                """
+                UPDATE execution_journal SET state = ?, terminal_at = ?,
+                    terminal_result_json = ?
+                WHERE contract_id = ? AND contract_revision = ?
+                """,
+                (
+                    terminal_state.value,
+                    occurred_text,
                     encoded_result,
                     str(contract_id),
                     contract_revision,

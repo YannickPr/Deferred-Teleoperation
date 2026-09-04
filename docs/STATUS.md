@@ -11,7 +11,7 @@ progress. The [roadmap](../ROADMAP.md) defines the corresponding evidence gates.
 | M1 | **Implemented; `v0.1.0` historical** | Delay-tolerant dummy, persistence, replay and Mission reconciliation |
 | M1.7a | **Implemented; PR #30** | Bounded correlation selection and compatible Mission-view layer filtering |
 | M1.7 | **Planned after M1.7a** | Full causal coherence for concurrent operations and reordered Mission-view data |
-| M1.8 | **In progress** | Virtual-time dummy domain tests implemented; combined independent-effect gate remains open |
+| M1.8 | **In progress** | External-effect recovery and virtual-time dummy tests implemented separately; combined gate remains open |
 | M2 | **In progress; target `v0.2.0`** | M2.1 structural model is complete; FK, articulated Unreal state, IK and authoring remain |
 | M3 | **Planned; M3a + M3b required** | Simulation oracle gate plus calibrated physical-fixture gate |
 | M4/M5 | **Planned** | Broader robot-agnostic assignment, context acquisition and replanning |
@@ -109,17 +109,25 @@ All 72 Python tests, Ruff and the unchanged M1 CI release gate passed in
 - explicit handling for missing or incompatible parent references;
 - deterministic machine-readable and visible evidence without cross-operation association.
 
-### M1.8 external effect and long-delay gate
+### M1.8 combined external-effect and long-delay gate
 
 The [long-delay domain tests](m1/LONG_DELAY_DOMAIN.md) already exercise the real M1 services
-and deterministic link with up to 1200 seconds of one-way transit. This is supporting dummy
-evidence; the following combined gate remains unimplemented:
+and deterministic link with up to 1200 seconds of one-way transit. Separately, the
+[external-effect recovery proof](m1/EXTERNAL_EFFECT_RECOVERY.md) uses a persistent simulated
+device outside the Robot journal. Dispatch binds its identity durably; recovery observes without
+blind replay and rejects a missing or substituted adapter. An unknown outcome remains held, and
+a terminal event alone does not manufacture measured completion telemetry in the normal Field.
 
-- a deterministic external device whose effect evidence is independent of the Robot journal;
-- crash-window recovery that recognizes an observed effect or reports an unknown result without
-  blind replay;
-- virtual-time long-delay runs that distinguish propagation from blackout, queue age, validity and
-  expiry.
+The integrated Python suite passes 109 tests. Regenerating the historical golden session in a
+separate directory also reproduced all six committed files byte for byte. Its explicit dummy
+fixture compatibility is documented; it is not an external observation guarantee.
+
+The remaining combined gate requires:
+
+- the independent device exercised through the delayed domain, including asymmetric transit,
+  queue age, validity, expiry and restart;
+- stable effect identity across plan revisions and durable autonomy-budget accounting;
+- machine-readable evidence connecting those decisions and the independently recorded effect.
 
 ### Remaining M2 work
 

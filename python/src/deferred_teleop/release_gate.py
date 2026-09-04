@@ -182,7 +182,11 @@ async def _build_golden_values(data_dir: Path) -> dict[str, Any]:
             _factory("mission-1", clock),
             configured_one_way_delay=0.25,
         )
-        field = FieldService(field_store, _factory("field-1", clock))
+        field = FieldService(
+            field_store,
+            _factory("field-1", clock),
+            dummy_fixture_compatibility=True,
+        )
         robot = DummyRobotService(
             robot_store,
             _factory("dummy-robot-1", clock),
