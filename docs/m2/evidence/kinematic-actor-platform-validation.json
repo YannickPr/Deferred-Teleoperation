@@ -1,0 +1,150 @@
+{
+  "schema": "deferred-teleoperation/m2.5-kinematic-actor-platform-validation.v1",
+  "status": "complete",
+  "scope": "M2.5 public kinematic actor; five actor tests",
+  "issue": 17,
+  "base_revision": {
+    "commit": "31827af",
+    "kind": "historical_snapshot_base",
+    "note": "Base snapshot for this public tranche; this is not a claim about current main."
+  },
+  "sources": {
+    "header": {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Visualization/DeferredTeleopKinematicRobotActor.h",
+      "sha256": "18a41f6569c8ba405214adf8690932ef5bf2f2387741bf5ab7fe61c4d989901b"
+    },
+    "implementation": {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Visualization/DeferredTeleopKinematicRobotActor.cpp",
+      "sha256": "8d5012779aba60b2a369f4c79e003a87eb72c18a953f5b4c7afdd6191d0b76bd"
+    },
+    "tests": {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicRobotActorTests.cpp",
+      "sha256": "3a65cb8b94521c0b7d4d76b6b59d033c3f788c41bc6581cee14fed3580e3742e"
+    },
+    "generator": {
+      "path": "unreal/Scripts/generate_m2_kinematic_scene.py",
+      "sha256": "3bc05eb07aeb71ad5f8d10f8d0475377222ef0c3d616f616c3fa2bc90b5069e6"
+    },
+    "model": {
+      "path": "robots/so101/generated/so101.kinematics.json",
+      "sha256": "36ce321332248351f5304630a9ccc4887d6665666e17b6933e3302874735e5f2"
+    }
+  },
+  "platforms": {
+    "linux": {
+      "platform": "LinuxEditor",
+      "engine": "Unreal Engine 5.8.2",
+      "full_report": {
+        "succeeded": 19,
+        "succeeded_with_warnings": 0,
+        "failed": 0,
+        "not_run": 0,
+        "in_process": 0,
+        "report_sha256": "dc2ae604354f6e7abbb3305dc0446f53ff75a2daeb44fb495996b9bc52ba771f",
+        "context": "Full project report: 4 M1 tests + 8 kinematics tests + 2 robot-model tests + 5 actor tests; only the actor five are this scope."
+      },
+      "build_exit_code": 0,
+      "editor_exit_code": 0,
+      "build_attempt": "final recorded retry",
+      "actor_tests": [
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.IndependentSemanticLayers",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.InvalidStatePreservesPose",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.MatchesCoreByName",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.ReusesTopology",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.SO101GeneratedDescription",
+          "state": "Success"
+        }
+      ],
+      "toolchain": {
+        "compiler": "Clang 20.1.8"
+      }
+    },
+    "windows": {
+      "platform": "Win64Editor",
+      "engine": "Unreal Engine 5.8.2",
+      "full_report": {
+        "succeeded": 22,
+        "succeeded_with_warnings": 0,
+        "failed": 0,
+        "not_run": 0,
+        "in_process": 0,
+        "report_sha256": "4861c34340b835062a5d9f8f2221928afe8687f34d44d71920cc5460db709f24",
+        "context": "Full project report: 4 M1 tests + 3 articulated-view tests + 8 kinematics tests + 2 robot-model tests + 5 actor tests; only the actor five are this scope."
+      },
+      "build_exit_code": 0,
+      "editor_exit_code": 0,
+      "build_attempt": "recorded platform run",
+      "actor_tests": [
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.IndependentSemanticLayers",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.InvalidStatePreservesPose",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.MatchesCoreByName",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.ReusesTopology",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.SO101GeneratedDescription",
+          "state": "Success"
+        }
+      ],
+      "toolchain": {
+        "compiler": "MSVC 19.50.35737.0",
+        "windows_sdk": "10.0.26100.0"
+      }
+    }
+  },
+  "capture": {
+    "artifact": "docs/m2/evidence/m2-kinematic-scene.png",
+    "sha256": "7161748a0423ffaba72ecdf78a9ab6a98809dc41772e6c1f55ee74947976afe2",
+    "resolution": "1920x1080",
+    "engine": "Unreal Engine 5.8.2",
+    "platform": "Linux",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "attempt": "retry5",
+    "editor_log": {
+      "filename": "editor_retry5.log",
+      "sha256": "092391763d8b41977d4fc30f4e12cdec785d3edf79c5de5f19fff6eaff4b2c30"
+    },
+    "workflow": "same editor process: public generator, M2 Kinematic Camera view, then HighResShot",
+    "provenance": "synthetic three-layer demonstration with deterministic non-zero joint state",
+    "limitations": [
+      "projected axes and origin segments can overlap",
+      "the tool marker is small at the recorded framing",
+      "the PNG alone is not FK proof; named-pose correspondence is established by the five actor tests",
+      "no measured telemetry, operational UI, or VR authoring"
+    ],
+    "executed_generator_sha256": "ad72d4f81ae3e8646c37604b03e36e7385a86561bd4aeca051c770d66314dd82",
+    "generator_style_normalization": {
+      "captured_script_sha256": "ad72d4f81ae3e8646c37604b03e36e7385a86561bd4aeca051c770d66314dd82",
+      "current_script_sha256": "3bc05eb07aeb71ad5f8d10f8d0475377222ef0c3d616f616c3fa2bc90b5069e6",
+      "ast_equal_after_omitting_default_read_mode": true,
+      "changes": [
+        "Import-block whitespace",
+        "Wrapped long call",
+        "Omitted explicit default read mode from open()"
+      ]
+    }
+  }
+}

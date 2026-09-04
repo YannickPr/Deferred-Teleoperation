@@ -2,8 +2,8 @@
 
 **A research prototype for delay-tolerant, VR-mediated shared autonomy with remote robots.**
 
-> **Status:** M0, the M1 delay-tolerant dummy, and the bounded M2.2–M2.4 protocol, math, and oracle
-> slices are complete. The `v0.1.0` release gate is satisfied with portable Python CI; M2.2–M2.4
+> **Status:** M0, the M1 delay-tolerant dummy, and the bounded M2.2–M2.5 protocol, math, oracle, and actor
+> slices are complete. The `v0.1.0` release gate is satisfied with portable Python CI; M2.2–M2.5
 > have separate Unreal Engine 5.8.2 evidence on Linux and Win64. No physical robot path is enabled.
 
 Deferred Teleoperation explores how an operator can express a spatial and linguistic intent from a delayed representation of a remote environment, while an autonomous field site grounds, assigns, executes, adapts, or holds that intent without depending on a real-time round trip.
@@ -30,7 +30,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | Unreal Engine plugin | M1 Mission view, strict client and reconciliation scene; verified with UE 5.8.2 on Windows |
 | Delay-tolerant dummy | Runnable M1 Mission / Field / dummy-Robot development slice |
 | M1 release gate | Passed: golden replay, adversarial matrix, portable CI, and Windows UE 5.8.2 evidence |
-| SO-101 twin | M2.2 articulated-state protocol (#14), M2.3 canonical transforms/generic FK code (#15), and M2.4 cross-language numerical oracle (#16) complete with Python 3.11/3.12 and Linux/Win64 UE 5.8.2 evidence; Jacobian and IK remain pending |
+| SO-101 twin | M2.2 articulated-state protocol (#14), M2.3 canonical transforms/generic FK code (#15), M2.4 cross-language numerical oracle (#16), and the bounded M2.5 rigid-link actor are complete with Python 3.11/3.12 and Linux/Win64 UE 5.8.2 evidence; Jacobian, IK, preview and VR authoring remain pending |
 | Autonomous delayed button press | Planned for M3 |
 | Hardware control | Disabled by default; not implemented publicly |
 
@@ -124,6 +124,13 @@ historical 135/20 context. The raw articulated feed does not validate SO-101
 geometry: an FK consumer must call the description-backed validator and retain its diagnostics.
 M2.4 supplies the numerical FK oracle; Jacobian and IK remain future work, and no hardware path
 is claimed.
+
+The bounded M2.5 rigid-link actor now provides three independent semantic layers,
+explicit world-transform conversion, deterministic invalid-input preservation, and
+debug primitives without robot mesh assets. See the [M2.5 actor guide](docs/m2/KINEMATIC_ROBOT_ACTOR.md)
+and its [Linux/Win64 platform evidence](docs/m2/evidence/kinematic-actor-platform-validation.json).
+The accompanying scene and PNG are a synthetic visual demonstration; they do not
+represent measured telemetry, an operational UI, VR authoring, or hardware control.
 
 Verify the portable gate in CI-compatible mode:
 

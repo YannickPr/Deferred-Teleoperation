@@ -30,6 +30,12 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
   fixture bytes. The oracle snapshot reports 121 Python tests. Final native validation passes the
   eight-test Kinematics selector on Linux and Win64; the earlier full 14-test reports remain
   contextual evidence in the [platform summary](docs/m2/evidence/fk-oracle-platform-validation.json).
+- bounded M2.5 generic rigid-link actor (#17) with explicit Confirmed/Arrival/Target semantic
+  layers, deterministic invalid-input preservation, reusable flat link topology, and debug
+  primitives without robot mesh assets. Five actor Automation tests pass in each platform
+  report (19 full Linux tests and 22 full Win64 tests); the committed 1920x1080 PNG is a
+  synthetic visual demonstration and is not FK proof, measured telemetry, an operational UI,
+  or VR authoring evidence.
 
 ### Status
 
@@ -41,6 +47,8 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 - M2.2 is complete. Its raw articulated feed does not validate model geometry; an FK consumer must
   call the explicit description-backed validator. Root's post-rebase integrated validation passes
   141 Python tests; the historical M2.2 135/20 snapshot remains identified in its platform record.
+- M2.5 is complete for the bounded kinematic-actor slice; M2 remains open for Jacobian, IK,
+  `KinematicPreview`, and VR authoring.
 
 ## 0.1.0 - 2026-09-04
 
