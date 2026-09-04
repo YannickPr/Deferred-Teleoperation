@@ -1,14 +1,19 @@
 {
   "protocol_version": "dtt/0",
   "message_id": "9e4c8f49-d715-4fa5-93a9-bc4e41cfa1f9",
-  "message_type": "system.hello",
+  "message_type": "operation.intent",
   "source_id": "mission-dev",
+  "source_boot_id": "1e4c8f49-d715-4fa5-93a9-bc4e41cfa1f9",
   "destination_id": "field-dev",
-  "sequence_id": 0,
+  "source_sequence": 0,
   "correlation_id": "65d31b96-d35c-4fc3-97ed-f13e2c4b6ee5",
   "created_at": "2026-09-03T08:30:00Z",
   "payload": {
-    "implementation": "deferred-teleop",
-    "status": "experimental"
+    "operation_id": "30000000-0000-4000-8000-000000000001",
+    "operation_type": "PRESS_BUTTON",
+    "selector": {"entity_id": "dummy-button-1"},
+    "preferred_executor": "dummy-robot-1",
+    "approval_policy": "AUTO_IF_WHITELISTED",
+    "state": "SUBMITTED"
   }
 }

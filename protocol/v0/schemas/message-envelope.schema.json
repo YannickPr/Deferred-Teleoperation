@@ -1,65 +1,753 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "ContractState": {
+      "enum": [
+        "RECEIVED",
+        "ACCEPTED",
+        "DISPATCH_RECORDED",
+        "RUNNING",
+        "SUCCEEDED",
+        "FAILED",
+        "HELD",
+        "CANCELLED"
+      ],
+      "title": "ContractState",
+      "type": "string"
+    },
+    "EntitySelector": {
+      "additionalProperties": false,
+      "properties": {
+        "entity_id": {
+          "minLength": 1,
+          "title": "Entity Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id"
+      ],
+      "title": "EntitySelector",
+      "type": "object"
+    },
+    "EvidenceMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "fresh_until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fresh Until"
+        },
+        "model_version": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Version"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "produced_at": {
+          "format": "date-time",
+          "title": "Produced At",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/ProvenanceKind"
+        },
+        "source_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "world_revision": {
+          "minimum": 1,
+          "title": "World Revision",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "source_ids",
+        "observed_at",
+        "produced_at",
+        "provenance",
+        "world_revision"
+      ],
+      "title": "EvidenceMetadata",
+      "type": "object"
+    },
+    "ExecutionContract": {
+      "additionalProperties": false,
+      "properties": {
+        "assignment_id": {
+          "format": "uuid",
+          "title": "Assignment Id",
+          "type": "string"
+        },
+        "contract_id": {
+          "format": "uuid",
+          "title": "Contract Id",
+          "type": "string"
+        },
+        "contract_revision": {
+          "minimum": 1,
+          "title": "Contract Revision",
+          "type": "integer"
+        },
+        "operation_id": {
+          "format": "uuid",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "state": {
+          "const": "RECEIVED",
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contract_id",
+        "contract_revision",
+        "operation_id",
+        "assignment_id",
+        "state"
+      ],
+      "title": "ExecutionContract",
+      "type": "object"
+    },
+    "ExecutionEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_id": {
+          "format": "uuid",
+          "title": "Contract Id",
+          "type": "string"
+        },
+        "contract_revision": {
+          "minimum": 1,
+          "title": "Contract Revision",
+          "type": "integer"
+        },
+        "event_id": {
+          "format": "uuid",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "next_state": {
+          "$ref": "#/$defs/ContractState"
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "title": "Occurred At",
+          "type": "string"
+        },
+        "previous_state": {
+          "$ref": "#/$defs/ContractState"
+        }
+      },
+      "required": [
+        "event_id",
+        "contract_id",
+        "contract_revision",
+        "previous_state",
+        "next_state",
+        "occurred_at"
+      ],
+      "title": "ExecutionEvent",
+      "type": "object"
+    },
+    "GroundedOperation": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/EvidenceMetadata"
+        },
+        "operation_id": {
+          "format": "uuid",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "state": {
+          "const": "ADMITTED",
+          "title": "State",
+          "type": "string"
+        },
+        "target_entity_id": {
+          "minLength": 1,
+          "title": "Target Entity Id",
+          "type": "string"
+        },
+        "target_pose": {
+          "$ref": "#/$defs/Pose"
+        }
+      },
+      "required": [
+        "operation_id",
+        "target_entity_id",
+        "target_pose",
+        "state",
+        "evidence"
+      ],
+      "title": "GroundedOperation",
+      "type": "object"
+    },
+    "OperationIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "approval_policy": {
+          "const": "AUTO_IF_WHITELISTED",
+          "title": "Approval Policy",
+          "type": "string"
+        },
+        "operation_id": {
+          "format": "uuid",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "operation_type": {
+          "const": "PRESS_BUTTON",
+          "title": "Operation Type",
+          "type": "string"
+        },
+        "preferred_executor": {
+          "minLength": 1,
+          "title": "Preferred Executor",
+          "type": "string"
+        },
+        "selector": {
+          "$ref": "#/$defs/EntitySelector"
+        },
+        "state": {
+          "const": "SUBMITTED",
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation_id",
+        "operation_type",
+        "selector",
+        "preferred_executor",
+        "approval_policy",
+        "state"
+      ],
+      "title": "OperationIntent",
+      "type": "object"
+    },
+    "OperationPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "operation_id": {
+          "format": "uuid",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "plan_id": {
+          "format": "uuid",
+          "title": "Plan Id",
+          "type": "string"
+        },
+        "tasks": {
+          "items": {
+            "$ref": "#/$defs/TaskNode"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "title": "Tasks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "plan_id",
+        "operation_id",
+        "tasks"
+      ],
+      "title": "OperationPlan",
+      "type": "object"
+    },
+    "Pose": {
+      "additionalProperties": false,
+      "properties": {
+        "frame": {
+          "$ref": "#/$defs/SpatialFrame"
+        },
+        "orientation": {
+          "$ref": "#/$defs/Quaternion"
+        },
+        "position": {
+          "$ref": "#/$defs/Vector3"
+        }
+      },
+      "required": [
+        "position",
+        "orientation",
+        "frame"
+      ],
+      "title": "Pose",
+      "type": "object"
+    },
+    "PredictionManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/EvidenceMetadata"
+        },
+        "forecast_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forecast Ids",
+          "type": "array"
+        },
+        "generated_for_world_revision": {
+          "minimum": 1,
+          "title": "Generated For World Revision",
+          "type": "integer"
+        },
+        "manifest_id": {
+          "format": "uuid",
+          "title": "Manifest Id",
+          "type": "string"
+        },
+        "site_id": {
+          "minLength": 1,
+          "title": "Site Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "manifest_id",
+        "site_id",
+        "forecast_ids",
+        "generated_for_world_revision",
+        "evidence"
+      ],
+      "title": "PredictionManifest",
+      "type": "object"
+    },
+    "ProvenanceKind": {
+      "enum": [
+        "MEASURED",
+        "FUSED",
+        "OPERATOR_ASSERTED",
+        "INFERRED",
+        "PREDICTED",
+        "SIMULATED"
+      ],
+      "title": "ProvenanceKind",
+      "type": "string"
+    },
+    "Quaternion": {
+      "additionalProperties": false,
+      "properties": {
+        "w": {
+          "title": "W",
+          "type": "number"
+        },
+        "x": {
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "title": "Y",
+          "type": "number"
+        },
+        "z": {
+          "title": "Z",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z",
+        "w"
+      ],
+      "title": "Quaternion",
+      "type": "object"
+    },
+    "RobotForecast": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/EvidenceMetadata"
+        },
+        "predicted_for": {
+          "format": "date-time",
+          "title": "Predicted For",
+          "type": "string"
+        },
+        "predicted_pose": {
+          "$ref": "#/$defs/Pose"
+        },
+        "robot_id": {
+          "minLength": 1,
+          "title": "Robot Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot_id",
+        "predicted_pose",
+        "predicted_for",
+        "evidence"
+      ],
+      "title": "RobotForecast",
+      "type": "object"
+    },
+    "RobotState": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/EvidenceMetadata"
+        },
+        "pose": {
+          "$ref": "#/$defs/Pose"
+        },
+        "robot_id": {
+          "minLength": 1,
+          "title": "Robot Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot_id",
+        "pose",
+        "evidence"
+      ],
+      "title": "RobotState",
+      "type": "object"
+    },
+    "SiteSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "entities": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Entities",
+          "type": "array"
+        },
+        "evidence": {
+          "$ref": "#/$defs/EvidenceMetadata"
+        },
+        "robot_states": {
+          "items": {
+            "$ref": "#/$defs/RobotState"
+          },
+          "title": "Robot States",
+          "type": "array"
+        },
+        "site_id": {
+          "minLength": 1,
+          "title": "Site Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "site_id",
+        "entities",
+        "robot_states",
+        "evidence"
+      ],
+      "title": "SiteSnapshot",
+      "type": "object"
+    },
+    "SpatialFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "angle_unit": {
+          "const": "radian",
+          "default": "radian",
+          "title": "Angle Unit",
+          "type": "string"
+        },
+        "calibration_version": {
+          "minLength": 1,
+          "title": "Calibration Version",
+          "type": "string"
+        },
+        "convention": {
+          "const": "RIGHT_HANDED_Z_UP",
+          "default": "RIGHT_HANDED_Z_UP",
+          "title": "Convention",
+          "type": "string"
+        },
+        "frame_id": {
+          "minLength": 1,
+          "title": "Frame Id",
+          "type": "string"
+        },
+        "length_unit": {
+          "const": "metre",
+          "default": "metre",
+          "title": "Length Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "frame_id",
+        "calibration_version"
+      ],
+      "title": "SpatialFrame",
+      "type": "object"
+    },
+    "TaskAssignment": {
+      "additionalProperties": false,
+      "properties": {
+        "assignment_id": {
+          "format": "uuid",
+          "title": "Assignment Id",
+          "type": "string"
+        },
+        "executor_id": {
+          "minLength": 1,
+          "title": "Executor Id",
+          "type": "string"
+        },
+        "plan_id": {
+          "format": "uuid",
+          "title": "Plan Id",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "assignment_id",
+        "plan_id",
+        "task_id",
+        "executor_id"
+      ],
+      "title": "TaskAssignment",
+      "type": "object"
+    },
+    "TaskNode": {
+      "additionalProperties": false,
+      "properties": {
+        "skill": {
+          "const": "PRESS_BUTTON",
+          "title": "Skill",
+          "type": "string"
+        },
+        "target_entity_id": {
+          "minLength": 1,
+          "title": "Target Entity Id",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "skill",
+        "target_entity_id"
+      ],
+      "title": "TaskNode",
+      "type": "object"
+    },
+    "Vector3": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "title": "Y",
+          "type": "number"
+        },
+        "z": {
+          "title": "Z",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "title": "Vector3",
+      "type": "object"
+    }
+  },
   "$id": "https://github.com/YannickPr/Deferred-Teleoperation/protocol/v0/schemas/message-envelope.schema.json",
-  "title": "Deferred Teleoperation experimental message envelope",
-  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
+  "properties": {
+    "causation_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Causation Id"
+    },
+    "correlation_id": {
+      "format": "uuid",
+      "title": "Correlation Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "destination_id": {
+      "minLength": 1,
+      "title": "Destination Id",
+      "type": "string"
+    },
+    "expires_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expires At"
+    },
+    "message_id": {
+      "format": "uuid",
+      "title": "Message Id",
+      "type": "string"
+    },
+    "message_type": {
+      "enum": [
+        "operation.intent",
+        "operation.grounded",
+        "operation.plan",
+        "task.assignment",
+        "execution.contract",
+        "execution.event",
+        "robot.state",
+        "robot.forecast",
+        "site.snapshot",
+        "prediction.manifest"
+      ],
+      "title": "Message Type",
+      "type": "string"
+    },
+    "not_before": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Not Before"
+    },
+    "payload": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OperationIntent"
+        },
+        {
+          "$ref": "#/$defs/GroundedOperation"
+        },
+        {
+          "$ref": "#/$defs/OperationPlan"
+        },
+        {
+          "$ref": "#/$defs/TaskAssignment"
+        },
+        {
+          "$ref": "#/$defs/ExecutionContract"
+        },
+        {
+          "$ref": "#/$defs/ExecutionEvent"
+        },
+        {
+          "$ref": "#/$defs/RobotState"
+        },
+        {
+          "$ref": "#/$defs/RobotForecast"
+        },
+        {
+          "$ref": "#/$defs/SiteSnapshot"
+        },
+        {
+          "$ref": "#/$defs/PredictionManifest"
+        }
+      ],
+      "title": "Payload"
+    },
+    "protocol_version": {
+      "const": "dtt/0",
+      "default": "dtt/0",
+      "title": "Protocol Version",
+      "type": "string"
+    },
+    "source_boot_id": {
+      "format": "uuid",
+      "title": "Source Boot Id",
+      "type": "string"
+    },
+    "source_id": {
+      "minLength": 1,
+      "title": "Source Id",
+      "type": "string"
+    },
+    "source_sequence": {
+      "minimum": 0,
+      "title": "Source Sequence",
+      "type": "integer"
+    }
+  },
   "required": [
-    "protocol_version",
     "message_id",
     "message_type",
     "source_id",
+    "source_boot_id",
+    "source_sequence",
     "destination_id",
+    "correlation_id",
     "created_at",
     "payload"
   ],
-  "properties": {
-    "protocol_version": {
-      "const": "dtt/0"
-    },
-    "message_id": {
-      "type": "string",
-      "format": "uuid"
-    },
-    "message_type": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
-    },
-    "source_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "destination_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "sequence_id": {
-      "type": "integer",
-      "minimum": 0
-    },
-    "correlation_id": {
-      "type": "string",
-      "format": "uuid"
-    },
-    "causation_id": {
-      "type": "string",
-      "format": "uuid"
-    },
-    "created_at": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "observed_at": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "expires_at": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "payload": {
-      "type": "object"
-    }
-  }
+  "title": "MessageEnvelope",
+  "type": "object"
 }
