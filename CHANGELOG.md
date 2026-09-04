@@ -7,6 +7,10 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 
 ### Added
 
+- experimental external-effect recovery with a separate persistent simulated button, durable
+  device binding, observe-only recovery after uncertain dispatch, and immutable outcome evidence;
+- explicit historical dummy-fixture compatibility; normal Field reconciliation requires compatible
+  Robot telemetry instead of manufacturing a measured completion pose from a terminal event.
 - pinned SO-101 structural source, canonical generated description and cross-platform drift gate.
 
 ## 0.1.0 - 2026-09-04

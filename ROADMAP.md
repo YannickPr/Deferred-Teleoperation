@@ -96,11 +96,18 @@ general perception system. M1.7a is a prerequisite correction, not a substitute 
 
 ## M1.8 — External effect and long-delay evidence
 
-Status: **in progress; virtual-time dummy domain tests implemented**
+Status: **in progress; external-effect recovery and virtual-time dummy domain tests implemented**
 
 The [long-delay domain tests](docs/m1/LONG_DELAY_DOMAIN.md) cover 0, 30, 900 and 1200 seconds
 of one-way transit, blackout, expiry and persisted-service restart. They use the M1 dummy effect;
 the combined independent-device, delayed-intent and durable-budget gate below remains open.
+
+The [external-effect recovery proof](docs/m1/EXTERNAL_EFFECT_RECOVERY.md) separately exercises
+a non-idempotent simulated device with its own persistent record. Robot binds the device at
+dispatch, observes after uncertain dispatch instead of repeating the action, and holds when the
+outcome is unknown or not applied. Missing or substituted adapters are rejected during recovery.
+This experimental injection path does not yet combine the independent device with the long-delay
+scenario, stable effect identity across plan revisions, or a durable autonomy budget.
 
 M1.8 adds the smallest deterministic proof that a recorded execution event is not itself proof
 of an external effect. A fake button device keeps an effect counter or state in storage separate

@@ -8,6 +8,12 @@ from datetime import UTC, datetime, timedelta
 from typing import Any, Protocol
 from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
+from deferred_teleop.external_effect import (
+    ExternalEffectAdapter,
+    ExternalEffectObservation,
+    ExternalOutcome,
+    coerce_observation,
+)
 from deferred_teleop.mission_view import (
     ArrivalBeliefView,
     ConfirmedStateView,
@@ -45,7 +51,7 @@ from deferred_teleop.protocol import (
     Vector3,
     WireModel,
 )
-from deferred_teleop.storage import NodeStore
+from deferred_teleop.storage import NodeStore, RecordConflictError
 
 TERMINAL_STATES = frozenset(
     {
@@ -108,6 +114,20 @@ EventSink = Callable[[str, Mapping[str, Any]], None]
 
 def _ignore_event(_event: str, _fields: Mapping[str, Any]) -> None:
     return None
+
+
+def _durable_timestamp(value: object, *, field_name: str) -> datetime:
+    """Decode one UTC timestamp persisted in the execution journal."""
+
+    if not isinstance(value, str):
+        raise RecordConflictError(f"journal {field_name} is not a timestamp")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise RecordConflictError(f"journal {field_name} is not a timestamp") from error
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise RecordConflictError(f"journal {field_name} must be timezone-aware")
+    return parsed
 
 
 @dataclass
@@ -700,11 +720,16 @@ class FieldService(RuntimeService):
         *,
         mission_id: str = "mission-1",
         robot_id: str = "dummy-robot-1",
+        # The historical no-telemetry ordering is opt-in.  The golden replay
+        # enables it explicitly; a normal Field only reconciles measured or
+        # fused RobotState evidence.
+        dummy_fixture_compatibility: bool = False,
         emit: EventSink = _ignore_event,
     ) -> None:
         super().__init__(store, factory, emit=emit)
         self.mission_id = mission_id
         self.robot_id = robot_id
+        self.dummy_fixture_compatibility = dummy_fixture_compatibility
 
     async def process_claimed(self, envelope: MessageEnvelope) -> None:
         if isinstance(envelope.payload, OperationIntent):
@@ -902,37 +927,73 @@ class FieldService(RuntimeService):
         outgoing: list[MessageEnvelope] = [forwarded]
         if (
             isinstance(envelope.payload, ExecutionEvent)
-            and envelope.payload.next_state in TERMINAL_STATES
+            and envelope.payload.next_state is ContractState.SUCCEEDED
         ):
             robot_state = next(
                 (
                     message.payload
                     for message in reversed(self.store.inbox_messages())
-                    if isinstance(message.payload, RobotState)
+                    if (
+                        message.correlation_id == envelope.correlation_id
+                        and isinstance(message.payload, RobotState)
+                        and message.payload.robot_id == self.robot_id
+                        and message.payload.evidence.provenance
+                        in {ProvenanceKind.MEASURED, ProvenanceKind.FUSED}
+                    )
                 ),
-                RobotState(
-                    robot_id=self.robot_id,
-                    pose=dummy_pose(pressed=True),
-                    evidence=evidence(
-                        "field-fixture-1", now, ProvenanceKind.MEASURED, world_revision=2
-                    ),
-                ),
+                None,
             )
-            snapshot = self.factory.make(
-                "site.snapshot",
-                self.mission_id,
-                envelope.correlation_id,
-                SiteSnapshot(
-                    site_id="dummy-site-1",
-                    entities=("dummy-button-1",),
-                    robot_states=(robot_state,),
-                    evidence=evidence(
-                        "field-fixture-1", now, ProvenanceKind.MEASURED, world_revision=2
+            # A terminal event alone is not physical evidence.  In particular,
+            # never borrow a state from another operation or synthesize a
+            # measured pose for an external effect that emitted no telemetry.
+            if robot_state is not None:
+                snapshot = self.factory.make(
+                    "site.snapshot",
+                    self.mission_id,
+                    envelope.correlation_id,
+                    SiteSnapshot(
+                        site_id="dummy-site-1",
+                        entities=("dummy-button-1",),
+                        robot_states=(robot_state,),
+                        evidence=evidence(
+                            "field-fixture-1", now, ProvenanceKind.MEASURED, world_revision=2
+                        ),
                     ),
-                ),
-                causation_id=envelope.message_id,
-            )
-            outgoing.append(snapshot)
+                    causation_id=envelope.message_id,
+                )
+                outgoing.append(snapshot)
+            elif self.dummy_fixture_compatibility:
+                # Preserve the historical M1 golden replay for the original
+                # database dummy.  Its fixture emits the terminal before its
+                # pre-effect telemetry.  This compatibility option is explicit
+                # and is never inferred from the message shape; callers
+                # handling an external adapter must disable it.
+                snapshot = self.factory.make(
+                    "site.snapshot",
+                    self.mission_id,
+                    envelope.correlation_id,
+                    SiteSnapshot(
+                        site_id="dummy-site-1",
+                        entities=("dummy-button-1",),
+                        robot_states=(
+                            RobotState(
+                                robot_id=self.robot_id,
+                                pose=dummy_pose(pressed=True),
+                                evidence=evidence(
+                                    "field-fixture-1",
+                                    now,
+                                    ProvenanceKind.MEASURED,
+                                    world_revision=2,
+                                ),
+                            ),
+                        ),
+                        evidence=evidence(
+                            "field-fixture-1", now, ProvenanceKind.MEASURED, world_revision=2
+                        ),
+                    ),
+                    causation_id=envelope.message_id,
+                )
+                outgoing.append(snapshot)
         self.store.complete_inbox(
             envelope.message_id,
             processed_at=now,
@@ -956,11 +1017,13 @@ class DummyRobotService(RuntimeService):
         *,
         field_id: str = "field-1",
         phase_duration: float = 0.05,
+        external_effect_adapter: ExternalEffectAdapter | None = None,
         emit: EventSink = _ignore_event,
     ) -> None:
         super().__init__(store, factory, emit=emit)
         self.field_id = field_id
         self.phase_duration = phase_duration
+        self.external_effect_adapter = external_effect_adapter
 
     @property
     def capabilities(self) -> tuple[str, ...]:
@@ -1038,6 +1101,8 @@ class DummyRobotService(RuntimeService):
             )
             return
 
+        external_device_id = self._external_device_id()
+        external_mode = self.external_effect_adapter is not None
         effect_key = f"press:{contract.operation_id}:{contract.contract_revision}"
         accepted_now = self.store.accept_contract(
             contract_id=contract.contract_id,
@@ -1048,6 +1113,7 @@ class DummyRobotService(RuntimeService):
             accepted_at=self.clock.now(),
         )
         journal = self._journal(contract)
+        self._assert_external_dispatch_configuration(journal, external_device_id)
         if journal["state"] in {state.value for state in TERMINAL_STATES}:
             self._enqueue_terminal_replay(envelope, journal)
             self.store.complete_inbox(
@@ -1063,18 +1129,34 @@ class DummyRobotService(RuntimeService):
                 ContractState.RECEIVED,
                 ContractState.ACCEPTED,
                 ordinal=1,
+                occurred_at=(
+                    _durable_timestamp(journal["accepted_at"], field_name="accepted_at")
+                    if external_mode
+                    else None
+                ),
             )
+        dispatch_recorded_now = False
         if journal["state"] == ContractState.ACCEPTED.value:
-            self.store.record_dispatch(
+            dispatch_recorded_now = self.store.record_dispatch(
                 contract.contract_id,
                 contract.contract_revision,
                 recorded_at=self.clock.now(),
+                device_id=external_device_id,
             )
+            journal = self._journal(contract)
             self._enqueue_transition(
                 envelope,
                 ContractState.ACCEPTED,
                 ContractState.DISPATCH_RECORDED,
                 ordinal=2,
+                occurred_at=(
+                    _durable_timestamp(
+                        journal["dispatch_recorded_at"],
+                        field_name="dispatch_recorded_at",
+                    )
+                    if external_mode
+                    else None
+                ),
             )
             invocation_id = uuid5(
                 NAMESPACE_URL,
@@ -1096,6 +1178,17 @@ class DummyRobotService(RuntimeService):
                 "robot.skill_invoked",
                 {"contract_id": str(contract.contract_id), **invocation},
             )
+
+        if self.external_effect_adapter is not None:
+            journal = self._journal(contract)
+            self._assert_external_dispatch_configuration(journal, external_device_id)
+            await self._process_external_contract(
+                envelope,
+                effect_key=effect_key,
+                dispatch_recorded_now=dispatch_recorded_now,
+                expected_device_id=external_device_id,
+            )
+            return
 
         self._enqueue_transition(
             envelope,
@@ -1174,6 +1267,221 @@ class DummyRobotService(RuntimeService):
             },
         )
 
+    def _external_device_id(self) -> str | None:
+        adapter = self.external_effect_adapter
+        if adapter is None:
+            return None
+        device_id = getattr(adapter, "device_id", None)
+        if not isinstance(device_id, str) or not device_id.strip():
+            raise ValueError(
+                "an external effect adapter must expose a non-empty string device_id"
+            )
+        return device_id
+
+    def _assert_external_dispatch_configuration(
+        self, journal: Mapping[str, Any], expected_device_id: str | None
+    ) -> None:
+        """Prevent a durable external dispatch from falling back to dummy I/O."""
+
+        durable_device_id = journal.get("dispatch_device_id")
+        dispatch_recorded = journal.get("dispatch_recorded_at") is not None
+        if durable_device_id is not None:
+            if self.external_effect_adapter is None:
+                raise RecordConflictError(
+                    "external dispatch requires its original adapter for recovery"
+                )
+            assert expected_device_id is not None
+            self._assert_external_identity(journal, expected_device_id)
+        elif dispatch_recorded and self.external_effect_adapter is not None:
+            # A pre-v3 journal has no trustworthy external device binding.  It
+            # may still be replayed by the historical database dummy, but an
+            # injected adapter must not guess which device performed dispatch.
+            raise RecordConflictError(
+                "external adapter cannot recover a dispatch without durable device identity"
+            )
+
+    @staticmethod
+    def _assert_external_identity(
+        journal: Mapping[str, Any], expected_device_id: str
+    ) -> None:
+        durable_device_id = journal.get("dispatch_device_id")
+        if durable_device_id != expected_device_id:
+            raise RecordConflictError(
+                "external adapter device_id differs from durable dispatch identity"
+            )
+
+    def _external_clock_at_or_after(self, persisted_at: datetime) -> datetime:
+        """Refuse external recovery while the process clock is behind dispatch.
+
+        The durable dispatch boundary is the earliest valid timestamp for the
+        remaining external lifecycle.  A restarted process whose clock has
+        moved backwards must wait for a trusted clock before it can observe or
+        resolve the effect.  Returning the checked value also prevents a
+        second ``now()`` call from producing a terminal timestamp before the
+        check that guarded it.
+        """
+
+        current = self.clock.now()
+        if (
+            not isinstance(current, datetime)
+            or current.tzinfo is None
+            or current.utcoffset() is None
+        ):
+            raise RecordConflictError(
+                "external recovery requires a timezone-aware runtime clock"
+            )
+        if current < persisted_at:
+            raise RecordConflictError(
+                "external recovery clock is earlier than durable dispatch_recorded_at"
+            )
+        return current
+
+    async def _process_external_contract(
+        self,
+        envelope: MessageEnvelope,
+        *,
+        effect_key: str,
+        dispatch_recorded_now: bool,
+        expected_device_id: str,
+    ) -> None:
+        """Issue or recover one external effect without a hidden retry.
+
+        The durable dispatch boundary is deliberately checked before calling
+        the adapter.  A fresh contract may press once after
+        ``ACCEPTED -> DISPATCH_RECORDED``.  Any later invocation observes the
+        external device, even when the previous process died before writing its
+        terminal result.
+        """
+
+        contract = envelope.payload
+        assert isinstance(contract, ExecutionContract)
+        adapter = self.external_effect_adapter
+        assert adapter is not None
+        journal = self._journal(contract)
+        self._assert_external_identity(journal, expected_device_id)
+        dispatch_recorded_at = _durable_timestamp(
+            journal["dispatch_recorded_at"], field_name="dispatch_recorded_at"
+        )
+        # Check before constructing/enqueuing RUNNING and before any adapter
+        # observation or press.  This keeps a clock-regressed restart from
+        # adding a synthetic lifecycle event or issuing an impulse.
+        self._external_clock_at_or_after(dispatch_recorded_at)
+
+        running_event = self._transition(
+            envelope,
+            ContractState.DISPATCH_RECORDED,
+            ContractState.RUNNING,
+            ordinal=3,
+            occurred_at=dispatch_recorded_at,
+        )
+        self._enqueue_if_absent(running_event)
+        if dispatch_recorded_now:
+            self._external_clock_at_or_after(dispatch_recorded_at)
+            invocation_id = uuid5(
+                NAMESPACE_URL,
+                f"dtt-external-skill:{contract.contract_id}:{contract.contract_revision}",
+            )
+            self.store.append_execution_audit(
+                contract.contract_id,
+                contract.contract_revision,
+                event_type="external-effect-dispatch",
+                metadata={
+                    "effect_key": effect_key,
+                    "device_id": expected_device_id,
+                    "invocation_id": str(invocation_id),
+                },
+                recorded_at=self.clock.now(),
+            )
+            self.emit(
+                "robot.external_effect_dispatch",
+                {
+                    "contract_id": str(contract.contract_id),
+                    "effect_key": effect_key,
+                    "device_id": expected_device_id,
+                },
+            )
+            # A conforming adapter may persist the physical/test action and
+            # then raise to model a crash.  Let that exception escape: the
+            # inbox remains PROCESSING and recovery will observe, never press.
+            adapter.press(effect_key)
+        else:
+            self._external_clock_at_or_after(dispatch_recorded_at)
+            self.store.append_execution_audit(
+                contract.contract_id,
+                contract.contract_revision,
+                event_type="external-effect-recovery-observation",
+                metadata={
+                    "effect_key": effect_key,
+                    "device_id": expected_device_id,
+                    "reason": "dispatch-already-recorded",
+                },
+                recorded_at=self.clock.now(),
+            )
+
+        self._external_clock_at_or_after(dispatch_recorded_at)
+        observation: ExternalEffectObservation = coerce_observation(
+            adapter.observe(effect_key),
+            expected_effect_key=effect_key,
+            expected_device_id=expected_device_id,
+        )
+        terminal_state = (
+            ContractState.SUCCEEDED
+            if observation.outcome is ExternalOutcome.APPLIED
+            else ContractState.HELD
+        )
+        terminal_at = self._external_clock_at_or_after(dispatch_recorded_at)
+        terminal_event = self._transition(
+            envelope,
+            ContractState.RUNNING,
+            terminal_state,
+            ordinal=4,
+            occurred_at=terminal_at,
+            causation_id=running_event.message_id,
+        )
+        resolution = {
+            ExternalOutcome.APPLIED: "APPLIED",
+            ExternalOutcome.UNKNOWN: "OUTCOME_UNKNOWN",
+            ExternalOutcome.NOT_APPLIED: "NOT_APPLIED_AFTER_UNCERTAIN_DISPATCH",
+        }[observation.outcome]
+        committed = self.store.resolve_external_outcome(
+            contract.contract_id,
+            contract.contract_revision,
+            observation=observation,
+            expected_device_id=expected_device_id,
+            terminal_state=terminal_state,
+            terminal_result={
+                "effect_key": effect_key,
+                "device_id": observation.device_id,
+                "outcome": resolution,
+                "external_outcome": observation.outcome.value,
+            },
+            occurred_at=terminal_at,
+            terminal_event=terminal_event,
+        )
+        self.store.append_execution_audit(
+            contract.contract_id,
+            contract.contract_revision,
+            event_type="external-effect-outcome",
+            metadata=observation.model_dump(),
+            recorded_at=terminal_at,
+        )
+        self.store.complete_inbox(
+            envelope.message_id,
+            processed_at=self.clock.now(),
+            handler_result_reference=f"external-{resolution.lower()}:{contract.contract_id}",
+        )
+        self.emit(
+            "robot.external_effect_resolved",
+            {
+                "contract_id": str(contract.contract_id),
+                "effect_key": effect_key,
+                "device_id": observation.device_id,
+                "outcome": observation.outcome.value,
+                "terminal_state": terminal_state.value,
+                "committed": committed,
+            },
+        )
+
     def _journal(self, contract: ExecutionContract) -> dict[str, Any]:
         return next(
             row
@@ -1189,13 +1497,19 @@ class DummyRobotService(RuntimeService):
         next_state: ContractState,
         *,
         ordinal: int,
+        occurred_at: datetime | None = None,
+        causation_id: UUID | None = None,
     ) -> MessageEnvelope:
         contract = cause.payload
         assert isinstance(contract, ExecutionContract)
         stable = f"{contract.contract_id}:{contract.contract_revision}:{next_state.value}"
         event_id = uuid5(NAMESPACE_URL, f"dtt-event:{stable}")
         message_id = uuid5(NAMESPACE_URL, f"dtt-envelope:{stable}")
-        occurred_at = cause.created_at + timedelta(milliseconds=ordinal)
+        event_occurred_at = (
+            occurred_at
+            if occurred_at is not None
+            else cause.created_at + timedelta(milliseconds=ordinal)
+        )
         return self.factory.make(
             "execution.event",
             self.field_id,
@@ -1206,11 +1520,11 @@ class DummyRobotService(RuntimeService):
                 contract_revision=contract.contract_revision,
                 previous_state=previous,
                 next_state=next_state,
-                occurred_at=occurred_at,
+                occurred_at=event_occurred_at,
             ),
-            causation_id=cause.message_id,
+            causation_id=causation_id or cause.message_id,
             message_id=message_id,
-            created_at=occurred_at,
+            created_at=event_occurred_at,
         )
 
     def _enqueue_transition(
@@ -1220,9 +1534,18 @@ class DummyRobotService(RuntimeService):
         next_state: ContractState,
         *,
         ordinal: int,
+        occurred_at: datetime | None = None,
+        causation_id: UUID | None = None,
     ) -> None:
         self._enqueue_if_absent(
-            self._transition(cause, previous, next_state, ordinal=ordinal)
+            self._transition(
+                cause,
+                previous,
+                next_state,
+                ordinal=ordinal,
+                occurred_at=occurred_at,
+                causation_id=causation_id,
+            )
         )
 
     def _enqueue_if_absent(self, envelope: MessageEnvelope) -> bool:
