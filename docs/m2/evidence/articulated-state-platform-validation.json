@@ -1,0 +1,227 @@
+{
+  "schema": "dtt.validation-summary/0",
+  "scope": "M2.2 strict articulated state, model reference, and opt-in Mission view (#14)",
+  "milestone": "M2.2",
+  "issue": 14,
+  "status": "complete",
+  "evidence_date": "2026-09-04",
+  "evidence_kind": "Normalized compact record of the suite22 articulated platform validation",
+  "reproduction_recipe": "docs/m2/ARTICULATED_STATE.md",
+  "build_scope": "Existing UnrealEditor Development project/runtime module; not an engine build or packaged-plugin build",
+  "automation_arguments": [
+    "-unattended",
+    "-nop4",
+    "-nosplash",
+    "-NullRHI",
+    "-ExecCmds=\"Automation RunTests DeferredTeleop.; SoftQuit\"",
+    "-ReportExportPath=<REPORT_DIR>"
+  ],
+  "source_file_counts": {
+    "total": 19,
+    "cpp": 4,
+    "fixtures": 15
+  },
+  "source_files": [
+    {
+      "path": "fixtures/m2/articulated-state/README.md",
+      "sha256": "a251e48f0f494f2031f69d8d153656d9285abc69ae7f37abf55bb14ec79fe59b"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-articulated-view-duplicate-joint.json",
+      "sha256": "da9dcb96313cd61c32513408168f67d63d8df4a36b85706625f1827222f401ca"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-articulated-view-nonunit-quaternion.json",
+      "sha256": "318678662f13d9696ee918a813267fa4d0be69e033cfcbabaf8b0b2a4eca84c0"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-duplicate-joint.json",
+      "sha256": "08af914bfb74b9b21272f699b527d97c66387e5f71973f23387c97bb078a9e21"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-fixed-joint.json",
+      "sha256": "ec2843364e48aeefeb5c26c45bcbc70376a55806bf8c486f2d980e44f4958f3a"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-gripper-100.json",
+      "sha256": "7cab7b64d3cdd089354a8c2cf776dabf77b8dc46a51501fa2f013040f9a587dd"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-missing-joint.json",
+      "sha256": "6c41a0c573a5a5fb44dbe03da230d7525fe895ffba8f3635690066875f72f729"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-model-reference.json",
+      "sha256": "7bace857da96aaa6a2db7c0614f322ae7bbeada6ba3462ba7548bb09ddb78f22"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-nonfinite.json",
+      "sha256": "2e568eecb54ed9c7d01043bd3ea7dc7d47acc1fc46f1d7006a0321ba2db6a5e9"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-unknown-joint.json",
+      "sha256": "c88987e2a16ce053b805cf8c158f849b78c5456dd14db7edc42d269a6bc7c488"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/live-articulated-view.json",
+      "sha256": "a810abeb1de31c6e53c8c2f66d2fb547fe2668a23f45d321719510e862bd5367"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/reordered-articulated-state.json",
+      "sha256": "c60c6de55b531430546033a17e0b276714377281fc6c3c935170caea2b0611ff"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/valid-articulated-envelope.json",
+      "sha256": "3830e8d86af96d5fbe93e8700378b3b386f8314dfb4c862985aff52c2eb48ff2"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/valid-articulated-state.json",
+      "sha256": "706258ba04457dbd22e2c1a66cce530221d4debeeb3bce43ec3f0fcc8ae4a30c"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/valid-articulated-view.json",
+      "sha256": "ca7e5582ae7f668b96f410f5112c656b02dbff25fcb06201b0d21ae9d375b884"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedViewParser.cpp",
+      "sha256": "83d5a66e3d7047cdbef5080b8324764b55b84bb40b11d41f920d7eb2f52b73ad"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedViewParser.h",
+      "sha256": "6803ec5686544aa6f40f0af52979262bc9c5f921fc275216c911ed46962579e9"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopArticulatedViewTests.cpp",
+      "sha256": "2ff481a948507c5f0008132c5fe7b7a71245bc5adc870818f02e7d370c95c488"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Articulated/DeferredTeleopArticulatedViewTypes.h",
+      "sha256": "4ded7520fb560d9d4d42f8d76fef53cbbd1fc1e9e9b6c9e3b0a45e8991ba6c3d"
+    }
+  ],
+  "source_files_sha256": "272df1b868a57d1e79ed7f294f72c950de66ca95c5f5f9b0bbd842deb08379f7",
+  "source_files_hash_encoding": "UTF-8 JSON array of {path,sha256}, sorted object keys and path order, compact separators, no trailing newline",
+  "source_hash_verification": {
+    "all_files_match": true,
+    "linux_private_copy_verified": true,
+    "linux_copy_manifest_sha256": "a472f438d4225c54cb095f547dd2b89f9ab71d54717724553c165839ce7ab48f",
+    "windows_overlay_manifest_verified": true,
+    "windows_overlay_source_manifest_sha256": "710a5281671c461945a20b1fd07d92e194dfd338f6ac9a0e3fc6b0ed5070ec17"
+  },
+  "platforms": [
+    {
+      "platform": "Linux",
+      "editor_platform": "LinuxEditor",
+      "environment": {
+        "engine_version": "5.8.2",
+        "compiler": "Clang 20.1.8"
+      },
+      "report_created_on_utc": "2026.09.04-22.02.09Z",
+      "build_exit_code": 0,
+      "editor_exit_code": 0,
+      "automation_exit_code": 0,
+      "raw_automation_report_sha256": "4e8852f4d9d9793836211faf208f13c483d7df5ffb8247698f708ef416b5fb4e",
+      "automation_result_sha256": "1c2e25b3bd458cc68f1cc206b3c7fb9925fc81715f86fa9d532b065b05164561",
+      "build_result_sha256": "338f60fa90de1ea0fffe1cab7815facce2f26ebf27dc222c45733382c3441af8",
+      "full_suite_counts": {
+        "succeeded": 22,
+        "succeededWithWarnings": 0,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0
+      },
+      "scope_test_count": 3,
+      "scope_note": "The 22-test report includes the 3 M2.2 ArticulatedView tests plus 4 M1 and 15 unrelated M2 tests; the full report is context rather than an M2.2-only count.",
+      "tests": [
+        {
+          "name": "DeferredTeleop.M2.ArticulatedView.ModelReferenceDiagnostic",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedView.RejectsInvalidAndPreservesLastValid",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedView.ValidThreeLayers",
+          "state": "Success"
+        }
+      ]
+    },
+    {
+      "platform": "Win64",
+      "editor_platform": "WindowsEditor",
+      "environment": {
+        "engine_version": "5.8.2",
+        "compiler": "MSVC cl.exe 19.50.35737.0",
+        "toolchain_reported_by_ubt": "14.50.35737",
+        "windows_sdk": "10.0.26100.0"
+      },
+      "report_created_on_utc": "2026.09.04-22.10.03Z",
+      "build_exit_code": 0,
+      "editor_exit_code": 0,
+      "automation_exit_code": 0,
+      "raw_automation_report_sha256": "4861c34340b835062a5d9f8f2221928afe8687f34d44d71920cc5460db709f24",
+      "automation_result_sha256": "90bded454c544b91179ee7b794da528d6fd4a2f25c9d31099572e194cdee3bc0",
+      "build_result_sha256": "4e84c4606ba64e65782c829c2d2dbcd1aa05e3722c7dfb66c4413b8c724c64f9",
+      "full_suite_counts": {
+        "succeeded": 22,
+        "succeededWithWarnings": 0,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0
+      },
+      "scope_test_count": 3,
+      "scope_note": "The 22-test report includes the 3 M2.2 ArticulatedView tests plus 4 M1 and 15 unrelated M2 tests; the full report is context rather than an M2.2-only count.",
+      "tests": [
+        {
+          "name": "DeferredTeleop.M2.ArticulatedView.ModelReferenceDiagnostic",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedView.RejectsInvalidAndPreservesLastValid",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedView.ValidThreeLayers",
+          "state": "Success"
+        }
+      ]
+    }
+  ],
+  "python_validation": {
+    "focused_tests_passed": 20,
+    "integrated_tests_passed": 135,
+    "scope": "M2.2 plus public baseline at validation snapshot",
+    "breakdown": "135 = 115 main baseline + 20 M2.2 focused tests; the M2.4 oracle was absent from this snapshot"
+  },
+  "golden_comparison": {
+    "count": 6,
+    "all_byte_identical": true,
+    "artifact_sha256": "a392ba92f873f91bae3b46b749e0507d247afc5873b1fcf69fcc9a0bfdb4518c",
+    "files": [
+      "README.md",
+      "expected-domain-state.json",
+      "expected-effect-counter.json",
+      "expected-mission-view.json",
+      "manifest.json",
+      "messages.jsonl"
+    ]
+  },
+  "consumer_boundary": {
+    "raw_feed_model_validation": "not_claimed",
+    "description_backed_fk_validator_required": true,
+    "model_reference_resolution": "consumer boundary only; no runtime resolver or fallback",
+    "live_view": {
+      "confirmed_robot_state": "latest selected MEASURED/FUSED evidence for the active operation and preferred executor, with provenance retained",
+      "arrival_robot_state": null,
+      "target_robot_state": null,
+      "geometry_confirmation": "not performed by wire parsing, Field relay, or Mission view"
+    }
+  },
+  "limitations": [
+    "This is not the full M1.7 lineage gate.",
+    "Live arrival and target states remain null; no predictor or IK is included.",
+    "No Unreal network consumer or hardware validation is claimed.",
+    "The raw feed preserves its model reference; an FK consumer must call the explicit description-backed validator and keep diagnostics visible."
+  ]
+}

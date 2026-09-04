@@ -1,7 +1,9 @@
-"""Strict experimental ``dtt/0`` wire models for the M1 dummy path."""
+"""Strict experimental ``dtt/0`` wire models for M1 and the M2 articulated path."""
 
 from __future__ import annotations
 
+import math
+import re
 from datetime import datetime
 from enum import StrEnum
 from typing import Annotated, Literal
@@ -63,6 +65,12 @@ class Vector3(WireModel):
     y: float
     z: float
 
+    @model_validator(mode="after")
+    def validate_finite(self) -> Vector3:
+        if not all(math.isfinite(component) for component in (self.x, self.y, self.z)):
+            raise ValueError("vector components must be finite")
+        return self
+
 
 class Quaternion(WireModel):
     x: float
@@ -72,8 +80,11 @@ class Quaternion(WireModel):
 
     @model_validator(mode="after")
     def validate_unit_length(self) -> Quaternion:
-        norm_squared = self.x**2 + self.y**2 + self.z**2 + self.w**2
-        if abs(norm_squared - 1.0) > 1e-6:
+        components = (self.x, self.y, self.z, self.w)
+        if not all(math.isfinite(component) for component in components):
+            raise ValueError("quaternion components must be finite")
+        norm_squared = sum(component * component for component in components)
+        if not math.isfinite(norm_squared) or abs(norm_squared - 1.0) > 1e-6:
             raise ValueError("quaternion must have unit length")
         return self
 
@@ -193,6 +204,71 @@ class RobotState(WireModel):
     evidence: EvidenceMetadata
 
 
+class RobotModelReference(WireModel):
+    """Identity of the structural description used to decode named joints."""
+
+    model_id: Annotated[str, Field(min_length=1)]
+    model_revision: Annotated[str, Field(min_length=1)]
+    description_hash: Annotated[
+        str,
+        Field(pattern=r"sha256:[0-9a-f]{64}", min_length=71, max_length=71),
+    ]
+
+    @model_validator(mode="after")
+    def validate_reference(self) -> RobotModelReference:
+        for field_name in ("model_id", "model_revision", "description_hash"):
+            value = getattr(self, field_name)
+            if not value.strip():
+                raise ValueError(f"{field_name} must not be blank")
+        if re.fullmatch(r"sha256:[0-9a-f]{64}", self.description_hash) is None:
+            raise ValueError("description_hash must be sha256:<64 lowercase hexadecimal digits>")
+        return self
+
+
+class JointPosition(WireModel):
+    """One named canonical joint position, expressed in radians."""
+
+    joint_name: Annotated[str, Field(min_length=1)]
+    position_radians: float
+
+    @model_validator(mode="after")
+    def validate_position(self) -> JointPosition:
+        if not self.joint_name.strip():
+            raise ValueError("joint_name must not be blank")
+        if not math.isfinite(self.position_radians):
+            raise ValueError("position_radians must be finite")
+        return self
+
+
+class ArticulatedRobotState(WireModel):
+    """Named articulated robot evidence for the M2 path.
+
+    JSON sequence order is transport-only.  Consumers validate names against the referenced
+    description and then use that description's deterministic order.
+    """
+
+    robot_id: OpaqueId
+    model_reference: RobotModelReference
+    root_pose: Pose
+    joints: Annotated[tuple[JointPosition, ...], Field(min_length=1)]
+    evidence: EvidenceMetadata
+
+    @model_validator(mode="after")
+    def validate_joints(self) -> ArticulatedRobotState:
+        if not self.robot_id.strip():
+            raise ValueError("robot_id must not be blank")
+        for field_name in ("frame_id", "calibration_version"):
+            if not getattr(self.root_pose.frame, field_name).strip():
+                raise ValueError(f"root_pose.frame.{field_name} must not be blank")
+        if any(not source_id.strip() for source_id in self.evidence.source_ids):
+            raise ValueError("evidence.source_ids must not contain blank values")
+        names = [joint.joint_name for joint in self.joints]
+        if len(set(names)) != len(names):
+            duplicates = sorted({name for name in names if names.count(name) > 1})
+            raise ValueError(f"duplicate joint names: {', '.join(duplicates)}")
+        return self
+
+
 class RobotForecast(WireModel):
     robot_id: OpaqueId
     predicted_pose: Pose
@@ -237,6 +313,7 @@ Payload = Annotated[
     | ExecutionContract
     | ExecutionEvent
     | RobotState
+    | ArticulatedRobotState
     | RobotForecast
     | SiteSnapshot
     | PredictionManifest,
@@ -244,7 +321,9 @@ Payload = Annotated[
 ]
 
 
-ROOT_MESSAGE_TYPES = frozenset({"operation.intent", "robot.state", "site.snapshot"})
+ROOT_MESSAGE_TYPES = frozenset(
+    {"operation.intent", "robot.state", "robot.articulated_state", "site.snapshot"}
+)
 PAYLOAD_TYPES: dict[str, type[WireModel]] = {
     "operation.intent": OperationIntent,
     "operation.grounded": GroundedOperation,
@@ -253,6 +332,7 @@ PAYLOAD_TYPES: dict[str, type[WireModel]] = {
     "execution.contract": ExecutionContract,
     "execution.event": ExecutionEvent,
     "robot.state": RobotState,
+    "robot.articulated_state": ArticulatedRobotState,
     "robot.forecast": RobotForecast,
     "site.snapshot": SiteSnapshot,
     "prediction.manifest": PredictionManifest,
@@ -270,6 +350,7 @@ class MessageEnvelope(WireModel):
         "execution.contract",
         "execution.event",
         "robot.state",
+        "robot.articulated_state",
         "robot.forecast",
         "site.snapshot",
         "prediction.manifest",

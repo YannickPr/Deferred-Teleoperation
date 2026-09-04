@@ -16,6 +16,7 @@ from deferred_teleop.external_effect import (
 )
 from deferred_teleop.mission_view import (
     ArrivalBeliefView,
+    ArticulatedMissionViewState,
     ConfirmedStateView,
     MissionConnectionState,
     MissionConnectionStatus,
@@ -27,6 +28,7 @@ from deferred_teleop.mission_view import (
 )
 from deferred_teleop.protocol import (
     ApprovalPolicy,
+    ArticulatedRobotState,
     ContractState,
     EntitySelector,
     EvidenceMetadata,
@@ -91,6 +93,75 @@ class _MissionViewProjection:
     target: TargetBranchView | None
     trajectory: tuple[TimedTrajectorySample, ...]
     manifests: tuple[PredictionManifest, ...]
+
+
+def _select_articulated_robot_state(
+    inbox: Iterable[MessageEnvelope],
+    outbox: Iterable[MessageEnvelope],
+    intent: MessageEnvelope | None,
+) -> ArticulatedRobotState | None:
+    """Select only causal, executor-matching measured articulated evidence.
+
+    M2 has no predictor or IK source for the other two layers.  A state from another
+    correlation or another executor must therefore never become an arrival/target substitute.
+    """
+
+    if intent is None or not isinstance(intent.payload, OperationIntent):
+        return None
+    correlation_id = intent.correlation_id
+    candidates = tuple(
+        message
+        for message in tuple(inbox) + tuple(outbox)
+        if isinstance(message.payload, ArticulatedRobotState)
+        and message.correlation_id == correlation_id
+    )
+
+    # The latest evidence is authoritative for this correlation, including when it is
+    # incompatible.  Do not fall back to an older compatible state after a newer robot,
+    # provenance, or frame mismatch.
+    selected = (
+        max(
+            candidates,
+            key=lambda message: (
+                message.payload.evidence.world_revision,
+                message.payload.evidence.observed_at,
+                message.payload.evidence.produced_at,
+                _message_id_key(message),
+            ),
+        )
+        if candidates
+        else None
+    )
+    if selected is None:
+        return None
+    state = selected.payload
+    if state.robot_id != intent.payload.preferred_executor:
+        return None
+    if state.evidence.provenance not in {ProvenanceKind.MEASURED, ProvenanceKind.FUSED}:
+        return None
+
+    # If a grounded record explicitly carries a frame/calibration reference, reject an
+    # incomparable articulated root while retaining the state in durable storage for diagnosis.
+    grounded = tuple(
+        message
+        for message in tuple(inbox) + tuple(outbox)
+        if isinstance(message.payload, GroundedOperation)
+        and message.correlation_id == correlation_id
+        and message.payload.operation_id == intent.payload.operation_id
+    )
+    if grounded:
+        reference = max(
+            grounded,
+            key=lambda message: (
+                message.payload.evidence.world_revision,
+                message.payload.evidence.observed_at,
+                message.payload.evidence.produced_at,
+                _message_id_key(message),
+            ),
+        ).payload.target_pose.frame
+        if state.root_pose.frame != reference:
+            return None
+    return state
 
 
 class Clock(Protocol):
@@ -555,6 +626,7 @@ class MissionService(RuntimeService):
         self._link_connection_state = MissionConnectionState.DISCONNECTED
         self._link_status_changed_at = self.clock.now()
         self._view_sequence = 0
+        self._articulated_view_sequence = 0
 
     def set_link_connected(self, connected: bool) -> None:
         next_state = (
@@ -711,6 +783,48 @@ class MissionService(RuntimeService):
             ),
         )
 
+    def articulated_view_state(self) -> ArticulatedMissionViewState:
+        """Build the opt-in M2 frame with a confirmed articulated layer only.
+
+        Arrival and target are deliberately emitted as explicit nulls until M2 has a predictor
+        and an IK authoring path.  Selection still runs through the M1 correlation ambiguity
+        checks, so a newer operation cannot borrow evidence from an older branch.
+        """
+
+        inbox = self.store.inbox_messages()
+        outbox = self.store.outbox_messages()
+        selection = _select_mission_view(inbox, outbox)
+        intent = selection.intent
+        confirmed = _select_articulated_robot_state(inbox, outbox, intent)
+
+        self._articulated_view_sequence += 1
+        return ArticulatedMissionViewState(
+            source_id=self.factory.node_id,
+            source_sequence=self._articulated_view_sequence,
+            produced_at=self.clock.now(),
+            connection=MissionConnectionStatus(
+                mission_to_field=self._link_connection_state,
+                changed_at=self._link_status_changed_at,
+            ),
+            status=MissionViewStatus(
+                operation_id=intent.payload.operation_id if intent else None,
+                correlation_id=intent.correlation_id if intent else None,
+                terminal_state=(
+                    selection.terminal.payload.next_state
+                    if selection.terminal is not None
+                    else None
+                ),
+                terminal_contract_id=(
+                    selection.terminal.payload.contract_id
+                    if selection.terminal is not None
+                    else None
+                ),
+                received_message_count=len(inbox),
+            ),
+            confirmed_robot_state=confirmed,
+            arrival_robot_state=None,
+            target_robot_state=None,
+        )
 
 class FieldService(RuntimeService):
     def __init__(
@@ -735,7 +849,10 @@ class FieldService(RuntimeService):
         if isinstance(envelope.payload, OperationIntent):
             self._process_intent(envelope)
             return
-        if isinstance(envelope.payload, (ExecutionEvent, RobotState, RobotForecast)):
+        if isinstance(
+            envelope.payload,
+            (ExecutionEvent, RobotState, ArticulatedRobotState, RobotForecast),
+        ):
             self._process_robot_message(envelope)
             return
         self.store.complete_inbox(

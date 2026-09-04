@@ -2,9 +2,9 @@
 
 **A research prototype for delay-tolerant, VR-mediated shared autonomy with remote robots.**
 
-> **Status:** M0 and the M1 delay-tolerant dummy are complete. The `v0.1.0` release gate is
-> satisfied with portable Python CI and Unreal Engine 5.8.2 verification on the reference Windows
-> platform. No physical robot path is enabled.
+> **Status:** M0, the M1 delay-tolerant dummy, and the bounded M2.2–M2.4 protocol, math, and oracle
+> slices are complete. The `v0.1.0` release gate is satisfied with portable Python CI; M2.2–M2.4
+> have separate Unreal Engine 5.8.2 evidence on Linux and Win64. No physical robot path is enabled.
 
 Deferred Teleoperation explores how an operator can express a spatial and linguistic intent from a delayed representation of a remote environment, while an autonomous field site grounds, assigns, executes, adapts, or holds that intent without depending on a real-time round trip.
 
@@ -30,7 +30,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | Unreal Engine plugin | M1 Mission view, strict client and reconciliation scene; verified with UE 5.8.2 on Windows |
 | Delay-tolerant dummy | Runnable M1 Mission / Field / dummy-Robot development slice |
 | M1 release gate | Passed: golden replay, adversarial matrix, portable CI, and Windows UE 5.8.2 evidence |
-| SO-101 twin | M2.3 canonical transforms/generic FK code (#15) complete; M2.4 cross-language numerical oracle (#16) complete with Python 3.11/3.12 portability and native Linux/Win64 evidence; M2.2 articulated-state protocol (#14), Jacobian and IK remain pending |
+| SO-101 twin | M2.2 articulated-state protocol (#14), M2.3 canonical transforms/generic FK code (#15), and M2.4 cross-language numerical oracle (#16) complete with Python 3.11/3.12 and Linux/Win64 UE 5.8.2 evidence; Jacobian and IK remain pending |
 | Autonomous delayed button press | Planned for M3 |
 | Hardware control | Disabled by default; not implemented publicly |
 
@@ -106,16 +106,24 @@ The runtime authority and recovery boundaries are recorded in
 [ADR 0005](docs/adr/0005-m1-delayed-dummy-runtime.md).
 
 M2 starts from a pinned SO-101 structural source and a deterministic canonical description. M2.2
-covers the articulated robot-state and model-reference protocol (#14), while M2.3 provides the
-generic C++ fixed/revolute tree and canonical/Unreal boundary (#15). The [canonical Unreal
-kinematics guide](docs/m2/CANONICAL_KINEMATICS.md) documents the schema-scoped parser, its
-Blueprint boundary, and the remaining limits of that increment. The [M2.4 fixture contract](docs/m2/KINEMATICS_FIXTURES.md)
-now provides the complete numerical cross-language oracle (#16): nine SO-101 cases, six
-independent Python reference tests, and three Unreal Automation tests. Version 2 fixes the
-reference operation order so Python 3.11 and 3.12 generate identical bytes. The final native
-validation passes the eight-test `DeferredTeleop.M2.Kinematics` selector on Linux and Win64; the
-[M2.4 platform summary](docs/m2/evidence/fk-oracle-platform-validation.json) links that result
-with the earlier full 14-test context and records the evidence boundary.
+is complete for the strict articulated robot-state/model-reference wire contract, Field relay,
+opt-in Mission view, and the explicit description-backed validator boundary. Its LinuxEditor and
+WindowsEditor record each lists the three targeted ArticulatedView Automation tests with `Success`
+inside a 22-test contextual report, with build/editor exit code `0`; the compact [platform evidence](docs/m2/evidence/articulated-state-platform-validation.json)
+also records the independent source hashes and unchanged M1 goldens. M2.3 provides the generic
+C++ fixed/revolute tree and canonical/Unreal boundary (#15). The [canonical Unreal kinematics
+guide](docs/m2/CANONICAL_KINEMATICS.md) documents the schema-scoped parser and its Blueprint
+boundary. M2.4 is complete for the numerical cross-language oracle (#16): the [fixture contract](docs/m2/KINEMATICS_FIXTURES.md)
+defines nine SO-101 cases, six independent Python reference tests, and three Unreal Automation
+tests. Version 2 fixes the reference operation order so Python 3.11 and 3.12 generate identical
+bytes; the final native validation passes the eight-test `DeferredTeleop.M2.Kinematics` selector
+on Linux and Win64, as recorded in the [M2.4 platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
+alongside the earlier full 14-test context. The post-rebase integrated Python validation passes
+141 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
+historical 135/20 context. The raw articulated feed does not validate SO-101
+geometry: an FK consumer must call the description-backed validator and retain its diagnostics.
+M2.4 supplies the numerical FK oracle; Jacobian and IK remain future work, and no hardware path
+is claimed.
 
 Verify the portable gate in CI-compatible mode:
 

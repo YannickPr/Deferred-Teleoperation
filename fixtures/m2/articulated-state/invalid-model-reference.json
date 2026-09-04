@@ -1,0 +1,31 @@
+{
+  "robot_id": "so101-follower-1",
+  "model_reference": {
+    "model_id": "wrong-model",
+    "model_revision": "wrong-revision",
+    "description_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "root_pose": {
+    "position": {"x": 0.0, "y": 0.0, "z": 0.0},
+    "orientation": {"x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0},
+    "frame": {
+      "frame_id": "field-world",
+      "convention": "RIGHT_HANDED_Z_UP",
+      "length_unit": "metre",
+      "angle_unit": "radian",
+      "calibration_version": "field-cal-1"
+    }
+  },
+  "joints": [
+    {"joint_name": "shoulder_pan", "position_radians": 0.1}
+  ],
+  "evidence": {
+    "source_ids": ["so101-sensor-1"],
+    "observed_at": "2026-09-04T12:00:00Z",
+    "produced_at": "2026-09-04T12:00:00Z",
+    "provenance": "MEASURED",
+    "world_revision": 7,
+    "fresh_until": null,
+    "model_version": null
+  }
+}
