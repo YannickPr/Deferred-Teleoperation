@@ -310,7 +310,8 @@ class NodeStore:
                 """
                 SELECT message_id, payload_json FROM inbox
                 WHERE processing_state IN ('RECEIVED', 'FAILED')
-                ORDER BY received_at, message_id LIMIT 1
+                ORDER BY CASE processing_state WHEN 'RECEIVED' THEN 0 ELSE 1 END,
+                         received_at, message_id LIMIT 1
                 """
             ).fetchone()
             if row is None:
@@ -322,6 +323,29 @@ class NodeStore:
                 WHERE message_id = ?
                 """,
                 (row["message_id"],),
+            )
+            return envelope
+
+    def claim_inbox(self, message_id: UUID) -> MessageEnvelope | None:
+        """Claim one known inbox message, or return None if it is no longer claimable."""
+
+        with self._transaction() as connection:
+            row = connection.execute(
+                """
+                SELECT payload_json FROM inbox
+                WHERE message_id = ? AND processing_state IN ('RECEIVED', 'FAILED')
+                """,
+                (str(message_id),),
+            ).fetchone()
+            if row is None:
+                return None
+            envelope = self._decode_envelope("inbox", str(message_id), row["payload_json"])
+            connection.execute(
+                """
+                UPDATE inbox SET processing_state = 'PROCESSING', error_json = NULL
+                WHERE message_id = ?
+                """,
+                (str(message_id),),
             )
             return envelope
 
@@ -598,6 +622,28 @@ class NodeStore:
         return self._rows(
             "SELECT * FROM execution_journal ORDER BY contract_id, contract_revision"
         )
+
+    def inbox_messages(self) -> list[MessageEnvelope]:
+        """Return validated inbox envelopes for recovery and read-model reconstruction."""
+
+        rows = self._connection.execute(
+            "SELECT message_id, payload_json FROM inbox ORDER BY received_at, message_id"
+        ).fetchall()
+        return [
+            self._decode_envelope("inbox", row["message_id"], row["payload_json"])
+            for row in rows
+        ]
+
+    def outbox_messages(self) -> list[MessageEnvelope]:
+        """Return validated outbox envelopes, including acknowledged records."""
+
+        rows = self._connection.execute(
+            "SELECT message_id, payload_json FROM outbox ORDER BY created_at, message_id"
+        ).fetchall()
+        return [
+            self._decode_envelope("outbox", row["message_id"], row["payload_json"])
+            for row in rows
+        ]
 
     def causal_history(self, correlation_id: UUID) -> list[dict[str, Any]]:
         rows = self._connection.execute(

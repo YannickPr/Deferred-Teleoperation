@@ -20,6 +20,8 @@ bootstrap pull request. The first runnable release target remains M1.
 
 First runnable release target.
 
+Status: **runnable development slice implemented; milestone validation in progress**
+
 ```text
 OperationIntent(PressButton)
 -> one-node OperationPlan

@@ -24,6 +24,12 @@ dependencies = [
 
 [project.scripts]
 dtt-link = "deferred_teleop.link:main"
+dtt-mission = "deferred_teleop.node:mission_main"
+dtt-field = "deferred_teleop.node:field_main"
+dtt-robot-dummy = "deferred_teleop.node:robot_main"
+dtt-operator = "deferred_teleop.operator:main"
+dtt-demo = "deferred_teleop.demo:main"
+dtt-inspect = "deferred_teleop.inspect:main"
 
 [project.optional-dependencies]
 dev = [

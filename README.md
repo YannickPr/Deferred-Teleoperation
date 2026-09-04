@@ -2,8 +2,8 @@
 
 **A research prototype for delay-tolerant, VR-mediated shared autonomy with remote robots.**
 
-> **Status:** M0 public foundation complete. No runnable release is available yet; the first
-> runnable target is the M1 delay-tolerant dummy.
+> **Status:** M0 public foundation complete. The M1 delay-tolerant dummy is now a runnable
+> development slice; no physical robot path is enabled.
 
 Deferred Teleoperation explores how an operator can express a spatial and linguistic intent from a delayed representation of a remote environment, while an autonomous field site grounds, assigns, executes, adapts, or holds that intent without depending on a real-time round trip.
 
@@ -27,7 +27,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | Architecture and authority model | Defined, still experimental |
 | Public Python package | M0 foundation complete |
 | Unreal Engine plugin | M0 skeleton; locally verified with UE 5.8.2 on Windows |
-| Delay-tolerant dummy | M1 in progress: protocol, durable store and link emulator implemented |
+| Delay-tolerant dummy | Runnable M1 Mission / Field / dummy-Robot development slice |
 | SO-101 twin | Planned for M2 |
 | Autonomous delayed button press | Planned for M3 |
 | Hardware control | Disabled by default; not implemented publicly |
@@ -81,6 +81,23 @@ The emulator queue is intentionally volatile and never acknowledges on behalf of
 Durable endpoint outboxes retain messages for retry until a receiver persists the envelope and
 its ACK returns.
 See [ADR 0004](docs/adr/0004-deterministic-development-link.md).
+
+Run the complete nominal M1 path with four local processes:
+
+```bash
+dtt-demo delayed-dummy --profile short-visible-delay
+```
+
+Run the deterministic fault/reconnect proof with:
+
+```bash
+dtt-demo delayed-dummy --profile short-visible-fault --restart-mission-after-admission
+```
+
+See the [M1 delayed-dummy guide](docs/m1/DELAYED_DUMMY.md) for the expected evidence,
+manual four-terminal launch, online Mission queries, and offline causal-history inspection.
+The runtime authority and recovery boundaries are recorded in
+[ADR 0005](docs/adr/0005-m1-delayed-dummy-runtime.md).
 
 The Unreal host project and plugin skeleton live under `unreal/DeferredTeleopDemo`. See [the Unreal bootstrap notes](unreal/README.md). GitHub CI does not compile Unreal; the M0 skeleton was therefore verified locally with Unreal Engine 5.8.2 on Windows.
 
