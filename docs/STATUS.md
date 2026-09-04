@@ -1,6 +1,25 @@
 # Project status
 
-This file separates what exists from what is planned.
+This file separates demonstrated behavior from design work that is planned or still in
+progress. The [roadmap](../ROADMAP.md) defines the corresponding evidence gates.
+
+## Status at a glance
+
+| Slice | State | Evidence boundary |
+|---|---|---|
+| M0 | **Implemented** | Public foundation, protocol vocabulary, CI and Unreal module skeleton |
+| M1 | **Implemented; `v0.1.0` historical** | Delay-tolerant dummy, persistence, replay and Mission reconciliation |
+| M1.7a | **Implemented; PR #30** | Bounded correlation selection and compatible Mission-view layer filtering |
+| M1.7 | **Planned after M1.7a** | Full causal coherence for concurrent operations and reordered Mission-view data |
+| M1.8 | **Planned** | Independent external-effect evidence and virtual long-delay proof |
+| M2 | **In progress; target `v0.2.0`** | M2.1 structural model is complete; FK, articulated Unreal state, IK and authoring remain |
+| M3 | **Planned; M3a + M3b required** | Simulation oracle gate plus calibrated physical-fixture gate |
+| M4/M5 | **Planned** | Broader robot-agnostic assignment, context acquisition and replanning |
+
+M1.7a, M1.7, M1.8 and the enriched M3a/M3b slices are specified in the [delayed-intent
+validation design](design/DELAYED_INTENT_VALIDATION.md). M1.7a is implemented in
+[PR #30](https://github.com/YannickPr/Deferred-Teleoperation/pull/30); the other new gates remain
+planned and are not established by the design document.
 
 ## Implemented in M0
 
@@ -50,6 +69,10 @@ The exact commands, environment and visible evidence are recorded on bootstrap p
 - Unreal Engine 5.8.2 validation on Windows, the reference Unreal platform for `v0.1.0`;
 - portable Python validation on Linux through GitHub CI.
 
+The [M1 release gate](m1/RELEASE_GATE.md) records the evidence for this historical release.
+It covers the constrained dummy path. It does not cover stale-world target decisions, an
+independent external effect, or concurrent-operation causal coherence.
+
 ## Implemented in M2
 
 - pinned, unmodified SO-101 structural URDF with immutable source identity and licence metadata;
@@ -57,16 +80,102 @@ The exact commands, environment and visible evidence are recorded on bootstrap p
 - explicit arm and gripper joint groups plus the `gripper_frame_link` tool frame;
 - offline source-hash, structure and generated-description drift checks on Linux and Windows.
 
+The remaining M2 work is described in the [M2 design](design/M2_SO101_MATHEMATICAL_TWIN.md).
+Its target is `v0.2.0`; it remains a mathematical and visualization milestone and does not
+require a physical robot.
+
+## Implemented in M1.7a
+
+The [selection contract](m1/MISSION_OPERATION_SELECTION.md) documents this bounded correction.
+All 72 Python tests, Ruff and the unchanged M1 CI release gate passed in
+[PR #30](https://github.com/YannickPr/Deferred-Teleoperation/pull/30).
+
+- validation of the operation/correlation mapping among Mission outbox intents, with latest-intent
+  selection by `MAX(created_at, str(message_id))`;
+- distinct operation IDs sharing a correlation, or one operation using several correlations, raise
+  `MissionViewSelectionError`; duplicate delivery of one operation/correlation remains allowed;
+- snapshot, forecast and terminal-event layers filtered to the selected operation/correlation;
+- frame, calibration or robot mismatches in snapshot/forecast/target projection represented as
+  absent/unknown layers; terminal events have no frame;
+- existing `dtt/0` golden and Unreal Mission-view evidence preserved;
+- no claim of complete lineage or multi-operation coherence.
+
 ## Planned, not implemented
 
-- VR interaction and headset-specific presentation (the desktop Unreal visualization exists);
-- SO-101 forward kinematics, articulated Unreal visualization, IK and hardware integration;
-- Simulation Worker;
-- LeRobot integration;
-- learned policies or LLM planning.
+### M1.7 full lineage gate
+
+- operation/intent-revision lineage on every Mission-view branch, with compatibility checks across
+  two concurrent operations and reordered delivery;
+- explicit handling for missing or incompatible parent references;
+- deterministic machine-readable and visible evidence without cross-operation association.
+
+### M1.8 external effect and long-delay gate
+
+- a deterministic external device whose effect evidence is independent of the Robot journal;
+- crash-window recovery that recognizes an observed effect or reports an unknown result without
+  blind replay;
+- virtual-time long-delay runs that distinguish propagation from blackout, queue age, validity and
+  expiry.
+
+### Remaining M2 work
+
+- forward kinematics and Jacobian in C++;
+- constrained damped-least-squares IK with explicit status and residuals;
+- articulated Unreal link visualization and cross-language golden evidence;
+- desktop/VR target authoring and time-sampled `KinematicPreview`;
+- available provenance connecting confirmed, arrival and target branches, with missing references
+  shown explicitly and without treating a preview as an execution command; complete multi-operation
+  lineage remains the later M1.7 gate.
+
+### M3a simulation gate
+
+- known two-button simulation fixture with explicit identity and independently recorded effect
+  state;
+- S0–S10 scenario/oracle rows with exact target, action/outcome and effect-counter invariants;
+- authorized same-identity displacement, with no substitution when buttons are swapped or
+  indistinguishable;
+- observation/hold decisions for ambiguity, missing targets, obstacles and exhausted budgets;
+- already-acquired-effect and late-cancellation outcomes;
+- controlled comparison of a fixed-skill baseline, delayed 2D authoring and delayed VR authoring
+  under the same local autonomy and controller;
+- simulation evidence only; no physical-hardware claim.
+
+### M3b physical-fixture gate
+
+- calibrated SO-101 with a measured articulated mirror in Unreal;
+- real two-button fixture, independent button instrumentation and an independent effect register;
+- `PressButton` skill, independent local stop and conservative test conditions validated before
+  delayed trials;
+- M3a oracles transposed to the physical fixture, with Robot and independent fixture evidence
+  recorded separately for every result.
+
+M3 remains incomplete until both M3a and M3b pass. Neither gate is currently implemented.
+
+### Later M4/M5 work
+
+- VR target rebinding beyond the bounded two-button rule;
+- capability registry, typed procedure templates and robot-independent intent;
+- broader context acquisition, plan revision, incident bundles and assistance requests;
+- optional non-authoritative LLM proposals, excluded from the first decision oracle and safety gate;
+- Simulation Worker, LeRobot integration and learned policies.
+
+## Evidence boundary
+
+This documentation update introduces no runtime implementation or hardware path. M1.7a has the
+separate implementation and validation cited above; the broader scenario matrix remains planned.
+A milestone is complete
+only after its deterministic replay, machine-readable artifacts and visible result satisfy the
+gate in the [roadmap](../ROADMAP.md).
+
+This documentation change does not close M1.7 or M3. M3a remains a future simulation gate, and
+M3b's physical-fixture evidence is not present.
+
+`v0.1.0` remains the historical M1 tag; later planned increments do not add capabilities to it.
+`v0.2.0` remains the M2 target and makes no physical SO-101 or hardware-control claim.
 
 ## Safety status
 
-No public hardware-control path exists. Nothing in the current repository should command a physical robot.
-The M1 release gate operates entirely on the public dummy path. Unreal Engine 5.8.2 is verified on
-the reference Windows platform; `v0.1.0` does not claim Unreal support on Linux.
+No public hardware-control path exists. Nothing in the current repository should command a
+physical robot. The M1 release gate operates entirely on the public dummy path. Unreal Engine
+5.8.2 is verified on the reference Windows platform; `v0.1.0` does not claim Unreal support on
+Linux.
