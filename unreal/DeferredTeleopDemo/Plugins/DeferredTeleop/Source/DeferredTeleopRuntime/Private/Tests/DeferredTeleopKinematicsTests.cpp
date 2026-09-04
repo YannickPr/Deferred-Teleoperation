@@ -2,6 +2,8 @@
 
 #include "Kinematics/DeferredTeleopKinematicsLibrary.h"
 #include "Misc/AutomationTest.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
 
 #include <limits>
 
@@ -614,6 +616,231 @@ bool FDeferredTeleopCanonicalConversionTest::RunTest(const FString& Parameters)
             RoundTripOutput,
             Error));
     TestTrue(TEXT("scale rejection exposes an error"), Error.Contains(TEXT("unit scale")));
+
+    FTransform NonUnitQuaternion = FTransform::Identity;
+    NonUnitQuaternion.SetRotation(FQuat(0.0F, 0.0F, 0.0F, 2.0F));
+    Error.Reset();
+    TestFalse(
+        TEXT("non-unit Unreal quaternions are rejected instead of normalized"),
+        DeferredTeleop::Kinematics::ConvertUnrealToCanonicalTransform(
+            NonUnitQuaternion,
+            RoundTripOutput,
+            Error));
+    TestTrue(
+        TEXT("non-unit quaternion rejection exposes an error"),
+        Error.Contains(TEXT("normalized quaternion")));
+
+    FTransform ZeroQuaternion = FTransform::Identity;
+    ZeroQuaternion.SetRotation(FQuat(0.0F, 0.0F, 0.0F, 0.0F));
+    Error.Reset();
+    TestFalse(
+        TEXT("zero Unreal quaternions are rejected"),
+        DeferredTeleop::Kinematics::ConvertUnrealToCanonicalTransform(
+            ZeroQuaternion,
+            RoundTripOutput,
+            Error));
+    TestTrue(
+        TEXT("zero quaternion rejection exposes an error"),
+        Error.Contains(TEXT("non-zero")));
+
+    FTransform NonFiniteQuaternion = FTransform::Identity;
+    NonFiniteQuaternion.SetRotation(FQuat(
+        std::numeric_limits<float>::quiet_NaN(),
+        0.0F,
+        0.0F,
+        1.0F));
+    Error.Reset();
+    TestFalse(
+        TEXT("non-finite Unreal quaternions are rejected"),
+        DeferredTeleop::Kinematics::ConvertUnrealToCanonicalTransform(
+            NonFiniteQuaternion,
+            RoundTripOutput,
+            Error));
+    TestTrue(
+        TEXT("non-finite quaternion rejection exposes an error"),
+        Error.Contains(TEXT("non-finite")));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FDeferredTeleopGeneratedSo101RobotDescriptionTest,
+    "DeferredTeleop.M2.RobotModel.ParsesGeneratedSo101Description",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FDeferredTeleopGeneratedSo101RobotDescriptionTest::RunTest(const FString& Parameters)
+{
+    (void)Parameters;
+    const FString GeneratedPath = FPaths::Combine(
+        FPaths::ProjectDir(),
+        TEXT("../../robots/so101/generated/so101.kinematics.json"));
+    FString Json;
+    const bool bLoaded = FFileHelper::LoadFileToString(Json, *GeneratedPath);
+    TestTrue(
+        *FString::Printf(TEXT("committed SO-101 description is readable: %s"), *GeneratedPath),
+        bLoaded);
+    if (!bLoaded)
+    {
+        return false;
+    }
+
+    FDttRobotDescription Description;
+    FString Error;
+    const bool bParsed = TestTrue(
+        TEXT("generated SO-101 description parses"),
+        DeferredTeleop::RobotModel::ParseRobotDescriptionJson(Json, Description, Error));
+    if (!bParsed)
+    {
+        AddError(Error);
+        return false;
+    }
+
+    FDttValidatedRobotModel Validated;
+    const bool bValidated = TestTrue(
+        TEXT("generated SO-101 description validates as one rooted model"),
+        DeferredTeleop::Kinematics::ValidateRobotDescription(Description, Validated, Error));
+    if (!bValidated)
+    {
+        AddError(Error);
+        return false;
+    }
+
+    TestEqual(TEXT("generated model id is SO-101"), Description.ModelId, FString(TEXT("so101_new_calib")));
+    TestEqual(TEXT("generated root link is base_link"), Description.RootLinkName, FName(TEXT("base_link")));
+
+    const FName ExpectedLinkNames[] = {
+        FName(TEXT("base_link")),
+        FName(TEXT("shoulder_link")),
+        FName(TEXT("upper_arm_link")),
+        FName(TEXT("lower_arm_link")),
+        FName(TEXT("wrist_link")),
+        FName(TEXT("gripper_link")),
+        FName(TEXT("moving_jaw_so101_v1_link")),
+        FName(TEXT("gripper_frame_link")),
+    };
+    TestEqual(
+        TEXT("generated description has all expected links"),
+        Description.Links.Num(),
+        static_cast<int32>(UE_ARRAY_COUNT(ExpectedLinkNames)));
+    for (const FName ExpectedName : ExpectedLinkNames)
+    {
+        bool bFound = false;
+        for (const FDttRobotLinkDescription& Link : Description.Links)
+        {
+            bFound = Link.Name == ExpectedName;
+            if (bFound)
+            {
+                break;
+            }
+        }
+        TestTrue(
+            *FString::Printf(TEXT("generated link is present: %s"), *ExpectedName.ToString()),
+            bFound);
+    }
+
+    const FName ExpectedJointNames[] = {
+        FName(TEXT("shoulder_pan")),
+        FName(TEXT("shoulder_lift")),
+        FName(TEXT("elbow_flex")),
+        FName(TEXT("wrist_flex")),
+        FName(TEXT("wrist_roll")),
+        FName(TEXT("gripper")),
+        FName(TEXT("gripper_frame_joint")),
+    };
+    TestEqual(
+        TEXT("generated description has all expected joints"),
+        Description.Joints.Num(),
+        static_cast<int32>(UE_ARRAY_COUNT(ExpectedJointNames)));
+    int32 RevoluteCount = 0;
+    int32 FixedCount = 0;
+    for (const FDttRobotJointDescription& Joint : Description.Joints)
+    {
+        if (Joint.Type == EDttRobotJointType::Revolute)
+        {
+            ++RevoluteCount;
+        }
+        else if (Joint.Type == EDttRobotJointType::Fixed)
+        {
+            ++FixedCount;
+        }
+    }
+    TestEqual(TEXT("generated description has six revolute joints"), RevoluteCount, 6);
+    TestEqual(TEXT("generated description has one fixed tool joint"), FixedCount, 1);
+    for (const FName ExpectedName : ExpectedJointNames)
+    {
+        bool bFound = false;
+        for (const FDttRobotJointDescription& Joint : Description.Joints)
+        {
+            bFound = Joint.Name == ExpectedName;
+            if (bFound)
+            {
+                break;
+            }
+        }
+        TestTrue(
+            *FString::Printf(TEXT("generated joint is present: %s"), *ExpectedName.ToString()),
+            bFound);
+    }
+
+    TestEqual(TEXT("generated description has arm and gripper groups"), Description.JointGroups.Num(), 2);
+    const FDttRobotJointGroupDescription* ArmGroup = nullptr;
+    const FDttRobotJointGroupDescription* GripperGroup = nullptr;
+    for (const FDttRobotJointGroupDescription& Group : Description.JointGroups)
+    {
+        if (Group.Name == FName(TEXT("arm")))
+        {
+            ArmGroup = &Group;
+        }
+        else if (Group.Name == FName(TEXT("gripper")))
+        {
+            GripperGroup = &Group;
+        }
+    }
+    TestTrue(TEXT("generated arm group is present"), ArmGroup != nullptr);
+    TestTrue(TEXT("generated gripper group is present"), GripperGroup != nullptr);
+    if (ArmGroup != nullptr)
+    {
+        const FName ExpectedArmJointNames[] = {
+            FName(TEXT("shoulder_pan")),
+            FName(TEXT("shoulder_lift")),
+            FName(TEXT("elbow_flex")),
+            FName(TEXT("wrist_flex")),
+            FName(TEXT("wrist_roll")),
+        };
+        TestEqual(TEXT("arm group contains five joints"), ArmGroup->JointNames.Num(), 5);
+        for (const FName ExpectedName : ExpectedArmJointNames)
+        {
+            TestTrue(
+                *FString::Printf(TEXT("arm group contains %s"), *ExpectedName.ToString()),
+                ArmGroup->JointNames.Contains(ExpectedName));
+        }
+    }
+    if (GripperGroup != nullptr)
+    {
+        TestEqual(TEXT("gripper group contains one joint"), GripperGroup->JointNames.Num(), 1);
+        if (GripperGroup->JointNames.Num() == 1)
+        {
+            TestEqual(
+                TEXT("gripper group names its gripper joint"),
+                GripperGroup->JointNames[0],
+                FName(TEXT("gripper")));
+        }
+    }
+
+    TestEqual(TEXT("generated description has one tool frame"), Description.ToolFrames.Num(), 1);
+    if (Description.ToolFrames.Num() == 1)
+    {
+        TestEqual(
+            TEXT("generated tool frame name is gripper_frame_link"),
+            Description.ToolFrames[0].Name,
+            FName(TEXT("gripper_frame_link")));
+        TestEqual(
+            TEXT("generated tool frame is attached to gripper_frame_link"),
+            Description.ToolFrames[0].LinkName,
+            FName(TEXT("gripper_frame_link")));
+    }
+
+    // This integration check deliberately asserts model identity and structure
+    // only. It is not a numerical SO-101 FK golden oracle; that belongs to M2.4.
     return true;
 }
 

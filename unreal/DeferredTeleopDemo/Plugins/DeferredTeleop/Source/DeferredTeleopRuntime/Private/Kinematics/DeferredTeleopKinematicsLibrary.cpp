@@ -924,9 +924,13 @@ bool ConvertUnrealToCanonicalTransform(
     {
         return Fail(OutError, TEXT("Unreal transform rotation must be non-zero and finite"));
     }
+    if (FMath::Abs(NormSquared - 1.0) > QuaternionNormTolerance)
+    {
+        return Fail(OutError, TEXT("Unreal transform rotation must be a normalized quaternion"));
+    }
 
     const FDttMatrix3 CanonicalRotation = ReflectYBasis(
-        CanonicalRotationMatrix(NormalizeQuaternion(UnrealQuaternion)));
+        CanonicalRotationMatrix(UnrealQuaternion));
     FQuat4d CanonicalQuaternion;
     if (!MatrixToQuaternion(CanonicalRotation, CanonicalQuaternion))
     {

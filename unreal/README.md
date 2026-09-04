@@ -45,10 +45,19 @@ run, and capture commands.
 
 ## M2 canonical kinematics
 
-`DeferredTeleopRuntime` contains a strict parser for the generated robot-description subset,
+M2.2 covers the articulated robot-state and model-reference protocol (#14). `DeferredTeleopRuntime`
+contains a schema-scoped parser for the generated description subset, and M2.3 implements
 explicit right-handed metre/radian transforms, generic fixed/revolute tree FK, tool-frame
-propagation, and the single canonical-to-Unreal basis boundary. The API is also exposed to
-Blueprint without moving the mathematical core into Blueprint graphs.
+propagation, and the single canonical-to-Unreal basis boundary (#15). The parser checks source
+metadata structurally and only checks visual entries as JSON objects; neither is retained or used
+by FK. The API is also exposed to Blueprint without moving the mathematical core into Blueprint
+graphs.
+
+The generated SO-101 integration test checks the committed artifact's identity and structure,
+without asserting FK coordinates. It does not implement the M2.2 articulated-state protocol or
+the cross-language numerical oracle in M2.4 (#16). Linux and Win64 UE 5.8.2 build and Automation
+evidence is recorded in the M2 guide; both targets pass the 11-test M1/M2 run, which validates
+the M2.3 math core and supports closing #15.
 
 See the [M2 canonical kinematics guide](../docs/m2/CANONICAL_KINEMATICS.md) for the contract,
 headless build and Automation Test commands, and the capabilities deliberately left for later

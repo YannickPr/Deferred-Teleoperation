@@ -30,7 +30,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | Unreal Engine plugin | M1 Mission view, strict client and reconciliation scene; verified with UE 5.8.2 on Windows |
 | Delay-tolerant dummy | Runnable M1 Mission / Field / dummy-Robot development slice |
 | M1 release gate | Passed: golden replay, adversarial matrix, portable CI, and Windows UE 5.8.2 evidence |
-| SO-101 twin | M2.2 canonical transforms and generic FK; SO-101 golden fixtures, Unreal articulation and IK remain planned |
+| SO-101 twin | M2.3 canonical transforms/generic FK code (#15) complete with Linux and Win64 UE 5.8.2 evidence; M2.2 articulated-state protocol (#14), M2.4 numerical oracle (#16), Jacobian and IK remain pending |
 | Autonomous delayed button press | Planned for M3 |
 | Hardware control | Disabled by default; not implemented publicly |
 
@@ -105,9 +105,13 @@ adversarial test matrix and records the evidence required for `v0.1.0`.
 The runtime authority and recovery boundaries are recorded in
 [ADR 0005](docs/adr/0005-m1-delayed-dummy-runtime.md).
 
-M2 starts from a pinned SO-101 structural source and a deterministic canonical description. The
-[canonical Unreal kinematics guide](docs/m2/CANONICAL_KINEMATICS.md) documents the generic C++
-fixed/revolute tree, its Blueprint boundary, and the remaining limits of this increment.
+M2 starts from a pinned SO-101 structural source and a deterministic canonical description. M2.2
+covers the articulated robot-state and model-reference protocol (#14), while M2.3 provides the
+generic C++ fixed/revolute tree and canonical/Unreal boundary (#15). The [canonical Unreal
+kinematics guide](docs/m2/CANONICAL_KINEMATICS.md)
+documents the schema-scoped parser, its Blueprint boundary, and the remaining limits of this
+increment. M2.4 will provide the numerical cross-language oracle (#16); no SO-101 FK golden
+result is claimed before that work and its Unreal validation are evidenced.
 
 Verify the portable gate in CI-compatible mode:
 

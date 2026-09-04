@@ -258,9 +258,14 @@ namespace DeferredTeleop::RobotModel
 /**
  * Load the committed dtt.robot-description/0 JSON representation.
  *
- * This is intentionally a small strict reader for the generated canonical
- * description; it is not a runtime URDF importer.  The caller owns the JSON
- * text, which keeps file/network policy outside the runtime model core.
+ * This is intentionally a small schema-scoped reader for the generated
+ * canonical description; it is not a runtime URDF importer or a global JSON
+ * validator. Fields consumed by the kinematics model are checked for their
+ * required shape and values. Source metadata is checked structurally for
+ * traceability, while visual entries are only checked to be JSON objects;
+ * neither is retained in FDttRobotDescription or used by FK. The caller owns
+ * the JSON text, which keeps file/network policy outside the runtime model
+ * core.
  */
 DEFERREDTELEOPRUNTIME_API bool ParseRobotDescriptionJson(
     const FString& Json,

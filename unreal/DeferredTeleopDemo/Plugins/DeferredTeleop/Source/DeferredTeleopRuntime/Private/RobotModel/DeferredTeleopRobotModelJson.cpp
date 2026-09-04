@@ -233,7 +233,7 @@ bool ReadCanonicalTransform(
     OutTransform.Rotation.Y = QuaternionComponents[1];
     OutTransform.Rotation.Z = QuaternionComponents[2];
     OutTransform.Rotation.W = QuaternionComponents[3];
-    if (!OutTransform.IsRigid(1.0e-5))
+    if (!OutTransform.IsRigid(1.0e-6))
     {
         return Fail(
             OutError,
@@ -374,6 +374,9 @@ bool ParseRobotDescriptionJson(
         return false;
     }
 
+    // Source metadata is checked for the fields and scalar types required by
+    // the generated contract, but it is deliberately not retained in
+    // FDttRobotDescription or used by FK.
     bool bVendorModified = false;
     FString SourceMetadata;
     if (!ReadString(Source, TEXT("repository"), TEXT("$.source"), SourceMetadata, OutError)
@@ -450,6 +453,9 @@ bool ParseRobotDescriptionJson(
             return false;
         }
         const TArray<FJsonValuePtr>* VisualValues = nullptr;
+        // Visual metadata is deliberately bounded to an array of JSON
+        // objects.  Its fields are not part of this kinematics slice and are
+        // neither retained nor used by FK.
         if (!ReadArrayField(
                 Link,
                 TEXT("visuals"),

@@ -144,18 +144,24 @@ No hardware-control path is introduced by this increment.
 
 ## M2 — Mathematical SO-101 twin in Unreal
 
-Status: **implementation in progress; M2.1 structural description complete**
+Status: **M2.3 math core complete; M2.2 protocol, M2.4 oracle, Jacobian and IK remain open**
 Target release: **`v0.2.0`**
 
-- textual robot description;
-- forward kinematics, Jacobian and constrained damped-least-squares IK in C++;
+- M2.2 articulated robot-state and model-reference protocol (#14);
+- M2.3 canonical transforms and generic fixed/revolute forward kinematics in C++ (#15),
+  validated on Linux and Win64 with Unreal Engine 5.8.2;
+- M2.4 cross-language numerical oracle (#16);
+- Jacobian and constrained damped-least-squares IK;
 - separate rigid link meshes, without a skeletal mesh;
 - Blueprint-accessible target authoring and debugging;
 - confirmed, arrival and target representations with causal provenance;
 - trajectory lines and temporal markers;
 - a `KinematicPreview` that remains a local candidate, not an execution command.
 
-M2 is a mathematical and visualization milestone. `v0.2.0` requires no physical robot, hardware
+M2.3's recorded Linux and Win64 runs each pass 11 Automation tests (4 M1 and 7 M2) with build
+and headless-editor exit code 0. The generated SO-101 check validates model identity and structure;
+it is not the M2.4 numerical oracle and does not provide an FK golden result. M2 remains a
+mathematical and visualization milestone. `v0.2.0` requires no physical robot, hardware
 calibration or hardware-control path. M2 must preserve the distinction between an operator goal,
 a local kinematic preview, a Field admission and a Robot result. See the [M2 design](docs/design/M2_SO101_MATHEMATICAL_TWIN.md)
 and the [delayed-intent validation design](docs/design/DELAYED_INTENT_VALIDATION.md).

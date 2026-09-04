@@ -80,6 +80,10 @@ On 4 September 2026, a fresh `--check` produced the same committed artifact with
 ## Current status
 
 M2.1 contains the pinned source, source lock, deterministic generator, canonical generated
-description, third-party notice and drift checks. M2.2 adds strict Unreal-side parsing and generic
-fixed/revolute tree FK. Shared SO-101 golden fixtures, articulated rendering, IK and hardware
-calibration remain separate later increments.
+description, third-party notice and drift checks. M2.2 covers the articulated robot-state and
+model-reference protocol (#14). M2.3 implements schema-scoped Unreal-side parsing and generic
+fixed/revolute tree FK (#15): source metadata is checked structurally and visual entries are only
+checked as JSON objects, with neither used by FK. The generated-description test checks identity
+and structure only. M2.3 is validated on Linux and Win64 with Unreal Engine 5.8.2; the numerical
+cross-language oracle (M2.4, #16), shared SO-101 FK golden fixtures, articulated rendering, IK and
+hardware calibration remain separate later increments.
