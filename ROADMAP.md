@@ -144,7 +144,7 @@ No hardware-control path is introduced by this increment.
 
 ## M2 — Mathematical SO-101 twin in Unreal
 
-Status: **M2.2 protocol, M2.3 math core and M2.4 oracle complete; Jacobian and IK remain open**
+Status: **M2.2 protocol, M2.3 math core, M2.4 oracle and M2.5 kinematic actor complete; Jacobian, IK, preview and VR remain open**
 Target release: **`v0.2.0`**
 
 - M2.2 articulated robot-state and model-reference protocol (#14), complete with strict Python and
@@ -155,8 +155,9 @@ Target release: **`v0.2.0`**
 - M2.4 cross-language numerical oracle (#16), complete with nine SO-101 cases, six Python
   reference tests and three Unreal Automation tests; its final version-2 validation passes the
   eight-test `DeferredTeleop.M2.Kinematics` selector on Linux and Win64;
+- M2.5 generic rigid-link kinematic actor and debug primitives without a skeletal mesh (#17),
+  with an explicit Blueprint boundary and independent Confirmed/Arrival/Target layers;
 - Jacobian and constrained damped-least-squares IK;
-- separate rigid link meshes, without a skeletal mesh;
 - Blueprint-accessible target authoring and debugging;
 - confirmed, arrival and target representations with causal provenance;
 - trajectory lines and temporal markers;
@@ -175,8 +176,15 @@ tests; the integrated oracle snapshot reports 121 Python tests. The post-rebase 
 validation passes 141 tests; the M2.2 record retains its historical 135/20 context. Its [platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
 retains the earlier full 14-test run as context. The raw articulated feed preserves a model
 reference but does not validate geometry; an FK consumer must call the explicit description-backed
-validator. M2 remains a mathematical and visualization milestone. `v0.2.0` requires no physical
-robot, hardware calibration or hardware-control path. M2 must preserve the distinction between an
+validator. The recorded M2.5 Linux and Win64 runs pass their full Automation reports with build and
+headless-editor exit code 0: 19 successful tests on Linux and 22 on Win64. Each report contains
+the five `DeferredTeleop.M2.KinematicRobotActor.*` tests; the remaining tests are contextual M1/M2
+coverage from the same platform run. The [actor guide](docs/m2/KINEMATIC_ROBOT_ACTOR.md) and
+[platform evidence](docs/m2/evidence/kinematic-actor-platform-validation.json) record the exact
+subset and hashes. The public PNG is a synthetic visual demonstration, not FK proof, measured
+telemetry, an operational UI, or VR evidence. M2 remains a mathematical and visualization
+milestone. `v0.2.0` requires no physical robot, hardware calibration or hardware-control path. M2
+must preserve the distinction between an
 operator goal, a local kinematic preview, a Field admission and a Robot result. See the [M2 design](docs/design/M2_SO101_MATHEMATICAL_TWIN.md)
 and the [delayed-intent validation design](docs/design/DELAYED_INTENT_VALIDATION.md).
 
@@ -255,9 +263,9 @@ replanning policies must retain explicit authorization, effect identity and caus
 ## Version and evidence boundaries
 
 `v0.1.0` remains the historical M1 release. The M1.7a, M1.7, M1.8, M3a and M3b design increments do not
-retroactively add capabilities or evidence to that tag. `v0.2.0` remains the M2 target and is
-closed by mathematical, cross-language and visualization evidence. It does not require a physical
-SO-101 or claim hardware control.
+retroactively add capabilities or evidence to that tag. `v0.2.0` remains the M2 target; the M2.2,
+M2.3, M2.4 and bounded M2.5 slices are evidenced, while the remaining Jacobian, IK, preview and VR
+gates stay open. The target does not require a physical SO-101 or claim hardware control.
 
 Every status claim in this roadmap distinguishes an implemented increment from planned or
 in-progress work. A design document, fixture or proposed oracle is not reported as an

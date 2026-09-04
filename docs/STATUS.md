@@ -12,7 +12,7 @@ progress. The [roadmap](../ROADMAP.md) defines the corresponding evidence gates.
 | M1.7a | **Implemented; PR #30** | Bounded correlation selection and compatible Mission-view layer filtering |
 | M1.7 | **Planned after M1.7a** | Full causal coherence for concurrent operations and reordered Mission-view data |
 | M1.8 | **In progress; M1.8b combined proof implemented** | External device runs through delayed Mission/Field domain; durable budget and cross-revision identity remain open |
-| M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.2 articulated-state protocol, M2.3 FK math core and M2.4 oracle are complete with Linux/Win64 UE evidence; Jacobian, IK and authoring remain |
+| M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.2 articulated-state protocol, M2.3 FK math core, M2.4 oracle, and the bounded M2.5 actor are complete with Linux/Win64 UE evidence; Jacobian, IK, preview and VR authoring remain |
 | M3 | **Planned; M3a + M3b required** | Simulation oracle gate plus calibrated physical-fixture gate |
 | M4/M5 | **Planned** | Broader robot-agnostic assignment, context acquisition and replanning |
 
@@ -95,18 +95,30 @@ independent external effect, or concurrent-operation causal coherence.
   reference tests and three Unreal Automation tests added to the 11-test baseline;
 - generator version 2's explicit left-to-right reductions, with byte-identical Python 3.11/3.12
   output and final native validation of the eight-test `DeferredTeleop.M2.Kinematics` selector on
-  Linux and Win64.
+  Linux and Win64;
+- M2.5 generic rigid-link kinematic actor with explicit Confirmed/Arrival/Target layers,
+  all-or-nothing invalid-input preservation, reusable flat link topology, and debug primitives
+  without robot mesh assets (#17);
+- M2.5 Linux and Win64 Unreal Engine 5.8.2 validation: full reports with 19 successful tests on
+  Linux and 22 on Win64, including the same five actor tests on each target, with final build and
+  headless-editor exit code 0.
 
 The [M2.4 fixture contract](m2/KINEMATICS_FIXTURES.md) documents the numerical oracle and the
 mandatory Python `--check` gate. The [M2.4 platform summary](m2/evidence/fk-oracle-platform-validation.json)
 records the machine-readable eight-test native results and retains the earlier full 14-test run as
-context. The generated SO-101 check covers model identity and structure, while the M2.4 fixture
-contract supplies the numerical FK oracle. Wire parsing and the live Mission view preserve the
+context. The generated SO-101 structural check and the M2.4 fixture contract have distinct roles:
+the latter supplies the numerical FK oracle. Wire parsing and the live Mission view preserve the
 articulated model reference without validating SO-101 geometry; an FK consumer must call the
 explicit description-backed validator. The post-rebase integrated Python validation passes 141
 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
-historical 135/20 context. Remaining M2 work is described in the [M2 design](design/M2_SO101_MATHEMATICAL_TWIN.md). Its target is `v0.2.0`; it remains a mathematical
-and visualization milestone and does not require a physical robot.
+historical 135/20 context. Remaining M2 work is described in the [M2 design](design/M2_SO101_MATHEMATICAL_TWIN.md).
+
+The public [M2.5 actor guide](m2/KINEMATIC_ROBOT_ACTOR.md) describes the manual same-process scene
+recipe, and the [platform evidence](m2/evidence/kinematic-actor-platform-validation.json) records
+the five-test subset, report hashes, source hashes, and synthetic PNG provenance. The PNG is a
+visual demonstration only: it does not establish FK correctness, measured telemetry, an operational
+UI, or VR authoring. M2 remains a mathematical and visualization milestone and does not require a
+physical robot.
 
 ## Implemented in M1.7a
 
@@ -158,7 +170,6 @@ The remaining full M1.8 gate requires:
 
 - Jacobian in C++;
 - constrained damped-least-squares IK with explicit status and residuals;
-- articulated Unreal link visualization and cross-language golden evidence;
 - desktop/VR target authoring and time-sampled `KinematicPreview`;
 - available provenance connecting confirmed, arrival and target branches, with missing references
   shown explicitly and without treating a preview as an execution command; complete multi-operation
@@ -198,12 +209,13 @@ M3 remains incomplete until both M3a and M3b pass. Neither gate is currently imp
 
 ## Evidence boundary
 
-This documentation update introduces no additional runtime implementation or hardware path. M1.7a has the
-separate implementation and validation cited above; the bounded M1.8b proof is implemented while
-the full M1.8 gate remains open. M2.2 and M2.4 have their implementation and machine-readable
-Linux/Win64 platform records; Jacobian, IK and the remaining M2 visualization work are open. A
-milestone is complete only after its deterministic replay, machine-readable artifacts and visible
-result satisfy the gate in the [roadmap](../ROADMAP.md).
+The M2.5 runtime actor, public scene recipe, platform reports, and synthetic PNG are implemented
+in this bounded tranche; they introduce no hardware path. M1.7a has the separate implementation
+and validation cited above; the bounded M1.8b proof is implemented while the full M1.8 gate remains
+open. M2.2, M2.3, M2.4, and M2.5 have their implementation and machine-readable Linux/Win64
+platform records; Jacobian, IK, preview, and VR authoring remain open. A milestone is complete
+only after its deterministic replay, machine-readable artifacts and visible result satisfy the gate
+in the [roadmap](../ROADMAP.md).
 
 This documentation change does not close M1.7 or M3. M3a remains a future simulation gate, and
 M3b's physical-fixture evidence is not present.
@@ -216,5 +228,5 @@ M3b's physical-fixture evidence is not present.
 No public hardware-control path exists. Nothing in the current repository should command a
 physical robot. The M1 release gate operates entirely on the public dummy path. Unreal Engine
 5.8.2 is verified on the reference Windows platform for `v0.1.0` and on Linux/Win64 for the M2.2
-protocol, M2.3 math-core and M2.4 oracle evidence; `v0.1.0` does not claim Unreal support on
-Linux.
+protocol, M2.3 math-core, M2.4 oracle, and M2.5 actor evidence; `v0.1.0` does not claim Unreal
+support on Linux.
