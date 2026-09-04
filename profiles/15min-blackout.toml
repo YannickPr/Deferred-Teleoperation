@@ -1,0 +1,10 @@
+[profile]
+one_way_delay_seconds = 2.0
+jitter_distribution = "uniform"
+jitter_seconds = 0.5
+duplicate_probability = 0.1
+reorder_window_seconds = 1.0
+blackout_intervals = [[60.0, 960.0]]
+bandwidth_bytes_per_second = 4096.0
+queue_capacity = 1000
+seed = 1500

@@ -27,7 +27,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | Architecture and authority model | Defined, still experimental |
 | Public Python package | M0 foundation complete |
 | Unreal Engine plugin | M0 skeleton; locally verified with UE 5.8.2 on Windows |
-| Delay-tolerant dummy | Planned for M1 |
+| Delay-tolerant dummy | M1 in progress: protocol, durable store and link emulator implemented |
 | SO-101 twin | Planned for M2 |
 | Autonomous delayed button press | Planned for M3 |
 | Hardware control | Disabled by default; not implemented publicly |
@@ -59,7 +59,8 @@ M0 does not freeze all of these messages. It establishes the vocabulary, trust b
 
 ## Development quickstart
 
-The Python package currently exposes only project metadata and protocol-fixture tests.
+The Python package exposes the experimental `dtt/0` models, durable endpoint storage and a
+deterministic development-link emulator.
 
 ```bash
 python -m venv .venv
@@ -68,6 +69,18 @@ python -m pip install -e ".[dev]"
 pytest
 ruff check .
 ```
+
+Run the local two-sided WebSocket link with a reproducible fault profile:
+
+```bash
+dtt-link --mission-listen 127.0.0.1:8765 --field-listen 127.0.0.1:8766 \
+  --profile profiles/15min-blackout.toml
+```
+
+The emulator queue is intentionally volatile and never acknowledges on behalf of a receiver.
+Durable endpoint outboxes retain messages for retry until a receiver persists the envelope and
+its ACK returns.
+See [ADR 0004](docs/adr/0004-deterministic-development-link.md).
 
 The Unreal host project and plugin skeleton live under `unreal/DeferredTeleopDemo`. See [the Unreal bootstrap notes](unreal/README.md). GitHub CI does not compile Unreal; the M0 skeleton was therefore verified locally with Unreal Engine 5.8.2 on Windows.
 

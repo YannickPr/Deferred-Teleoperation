@@ -26,12 +26,18 @@ Completed on 4 September 2026 on the primary Windows development platform with U
 
 The exact commands, environment and visible evidence are recorded on bootstrap pull request #2.
 
+## Implemented toward M1
+
+- strict Python wire models and JSON schemas for the constrained `dtt/0` dummy path;
+- durable SQLite inbox, outbox, execution journal and crash recovery primitives;
+- deterministic in-memory and two-sided WebSocket link emulator;
+- seeded delay, jitter, duplication, reordering, blackout, bandwidth and capacity profiles;
+- transport-level ACK frames, observability metrics and virtual-time fault tests.
+
 ## Planned, not implemented
 
-- Mission, Field or Robot processes;
-- persistent inbox/outbox;
-- delay and failure emulator;
-- `OperationIntent`, `OperationPlan`, `TaskAssignment` or `ExecutionContract` runtime models;
+- runnable Mission, Field and dummy Robot process orchestration;
+- end-to-end delayed dummy execution and reconciliation;
 - Unreal VR visualization;
 - SO-101 geometry, kinematics or hardware integration;
 - Simulation Worker;
