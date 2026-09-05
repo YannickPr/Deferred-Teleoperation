@@ -1,0 +1,10 @@
+[
+  "DeferredTeleop.M2.GoalAuthoring.ConfigureAndPreview",
+  "DeferredTeleop.M2.GoalAuthoring.LatestWinsAndRateLimit",
+  "DeferredTeleop.M2.GoalAuthoring.InvalidAndFailedGoalRetainsDrawing",
+  "DeferredTeleop.M2.GoalAuthoring.SourceRebaseAndIdentityGuards",
+  "DeferredTeleop.M2.GoalAuthoring.UnrealFrameAndScaleBoundary",
+  "DeferredTeleop.M2.GoalAuthoring.WarmStartKeepsOriginalSource",
+  "DeferredTeleop.M2.GoalAuthoring.CopyClearAndSettings",
+  "DeferredTeleop.M2.GoalAuthoring.ClockRollbackAndMissingSource"
+]
