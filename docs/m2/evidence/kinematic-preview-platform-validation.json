@@ -1,0 +1,307 @@
+{
+  "schema": "deferred-teleoperation/m2.8a-kinematic-preview-platform-validation.v1",
+  "status": "complete_for_bounded_core",
+  "scope": "Pure time-sampled joint/tool preview generation and validation; eight preview tests within each 43-test contextual report.",
+  "related_issue": 20,
+  "closes_related_issue": false,
+  "integration_base_commit": "c8992a253ab6aa1586a527b7cbff7df568cf603b",
+  "source_identity_note": "The selected compiled sources and fixture bytes are identified by these hashes; this core does not implement goal-authoring interactions or visualization.",
+  "selected_source_count": 43,
+  "sources": [
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/DeferredTeleopRuntime.Build.cs",
+      "sha256": "94cce8c400553ffb84b8a34ebe419276c8d9c86b868df8eddf51fe7479d25f3f"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedViewParser.cpp",
+      "sha256": "83d5a66e3d7047cdbef5080b8324764b55b84bb40b11d41f920d7eb2f52b73ad"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedViewParser.h",
+      "sha256": "6803ec5686544aa6f40f0af52979262bc9c5f921fc275216c911ed46962579e9"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopMissionClientComponent.cpp",
+      "sha256": "fbda6aab08076de4dbc02216c263a7aa75d8bbc2db7c20ed68e73cbac821532d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopMissionViewParser.cpp",
+      "sha256": "e7a26dc0306c317070aab990731f037a144fc8494133fcedd197d951553e4ab5"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopMissionViewParser.h",
+      "sha256": "7a00e323cf9a27a07e0af16833d71746b7ec20b72e865b6d17b880a35bc0f38d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopRuntime.cpp",
+      "sha256": "c3e3c943960d18a1d9a34742aae5fe9770061191187b39bc5517c5d9b90ae887"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopStateVisualizationActor.cpp",
+      "sha256": "e6bf490426bfe6a8610a64747d12d2dc1d5bfa00e047daa37b41d67aea576235"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopVersionLibrary.cpp",
+      "sha256": "cbb763125de0ae7830795d16860140a1e0bc18038ec7f2fdf15ab3b6dfdbeeef"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopVisualizationLibrary.cpp",
+      "sha256": "e88d55a276d4de67d09969db610049732ff6a17b9476846b1e08ddc6ec1e4a3c"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopIKLibrary.cpp",
+      "sha256": "1074e64b7dabe1a637e057381388b3bc923a550c3a8ad7ca87e4f24acd3a749a"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopIKTestBridge.h",
+      "sha256": "89b216145d9eb9cd8cbfe945b356eab21e5339798b58b3ca4ec42b7fb880e254"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopKinematicPreviewLibrary.cpp",
+      "sha256": "43c24aa92a94666b258c4b1ee387086e605fc945840e9f54f2b8bec7c1624178"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopKinematicsLibrary.cpp",
+      "sha256": "17e07edf30e6bda519da3c0415f0f0cf0563403ac33b9ae0c0ad32a079900773"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/RobotModel/DeferredTeleopRobotModelJson.cpp",
+      "sha256": "1de65b1bac4359120f668ec146dada0016c1b6809c1e9c50adb757bbe30083cd"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/RobotModel/DeferredTeleopRobotModelTypes.cpp",
+      "sha256": "ca9693125f9ff761105c67cf165b5c16bbc2ee43dc6b8fd58fee4cacbd8a74e0"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopArticulatedViewTests.cpp",
+      "sha256": "2ff481a948507c5f0008132c5fe7b7a71245bc5adc870818f02e7d370c95c488"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopFrameConversionContractTests.cpp",
+      "sha256": "9aa5cf021b6839fa54165630d9e3915d82d91c41ae1b359955f9832eb49e1fbc"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopIKTests.cpp",
+      "sha256": "2ce22c575d5495a62f449a16c9844b0c079eb59a23849d23a2b064bc98d6b84e"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicPreviewTests.cpp",
+      "sha256": "b7f6cd404af78819cb77b45da4b78c6a838dba56d39a833a74de8052c970d395"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicRobotActorTests.cpp",
+      "sha256": "3a65cb8b94521c0b7d4d76b6b59d033c3f788c41bc6581cee14fed3580e3742e"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicsFixtureTests.cpp",
+      "sha256": "489c209cba968cf198750cf7228844092ad7c1d93613e1208f5c499f5248300b"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicsTests.cpp",
+      "sha256": "d2a96bbba4dde2d677918c29d02a90dea085660534f4b64a47b1f547fc827da9"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopMissionViewTests.cpp",
+      "sha256": "40a56f91054898732a26a9b1958c06a9279bc2e07a94ce374fda27fe7bd152e2"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Visualization/DeferredTeleopKinematicRobotActor.cpp",
+      "sha256": "8d5012779aba60b2a369f4c79e003a87eb72c18a953f5b4c7afdd6191d0b76bd"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Articulated/DeferredTeleopArticulatedViewTypes.h",
+      "sha256": "4ded7520fb560d9d4d42f8d76fef53cbbd1fc1e9e9b6c9e3b0a45e8991ba6c3d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopMissionClientComponent.h",
+      "sha256": "9323d041d73879e54feee96ffd21d2e7e7ca242981157ef370a2b597ea164c9c"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopMissionViewTypes.h",
+      "sha256": "a6ab1e5b9b9d23d8693b99b59ae3ed20eee71e6dd71742f43189e329467378ce"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopRuntime.h",
+      "sha256": "5ab43d0e84c526acd869d73a2ea98391de5635e7fd75e10663a532051c0a128d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopStateVisualizationActor.h",
+      "sha256": "4c7123a741f1108cdb1f5abfcc502b125ebe5d19f338b352bdce6169df8eb734"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopVersionLibrary.h",
+      "sha256": "903971ea5a3b55d07a45751acbad2fbf9114a8865d5490d4a286756a19d54f04"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopVisualizationLibrary.h",
+      "sha256": "0669fd5f9123f8eafc8e7bca5913822a6c3f8cb1efae1da459d8f75eb40fd93c"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopIKLibrary.h",
+      "sha256": "e7e0444ffa6400a8c68098c1487dd234989c7e8083b6945a4c69e6e4fa454b2d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopIKTypes.h",
+      "sha256": "637ab3db0b187ea8eb046e24668dd79d0e21b4dc6e947f7592e932d034610035"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopKinematicPreviewLibrary.h",
+      "sha256": "08bfa2b6e9caed7dada7cbb412094f18875bbaf568c771d41164ce6a7325e7e5"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopKinematicPreviewTypes.h",
+      "sha256": "e3e41dd5faaef980b1e8f9a5cad6d2a6d65df27ddef68ff9b3b4d83160c4b1cf"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopKinematicsLibrary.h",
+      "sha256": "697f41e5611ba0f35c564d779e5e5a3d8ec447dc258afd428725c3bfeb5ec705"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/RobotModel/DeferredTeleopRobotModelTypes.h",
+      "sha256": "b10aea77aac60a5b8d539d4c00c481250ca465564cf7f83a118d7e287e8939d4"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Visualization/DeferredTeleopKinematicRobotActor.h",
+      "sha256": "18a41f6569c8ba405214adf8690932ef5bf2f2387741bf5ab7fe61c4d989901b"
+    },
+    {
+      "path": "robots/so101/generated/so101.kinematics.json",
+      "sha256": "36ce321332248351f5304630a9ccc4887d6665666e17b6933e3302874735e5f2"
+    },
+    {
+      "path": "fixtures/m2/kinematics/so101-fk.json",
+      "sha256": "2fd05f90c8f0344d8687b06d11086d8ba4bc1e43b0fc248869b19369bfa8c3b8"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/DeferredTeleopDemo.uproject",
+      "sha256": "86ba4cc0c07997bdf0b8083b43236a7b79ea642144105aa6263e6bfba24e1b39"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/DeferredTeleop.uplugin",
+      "sha256": "5587a5d087cf44eabdea70e2d9de4edc157c20989ba75d9c7cc6221d8c0b6427"
+    }
+  ],
+  "platforms": {
+    "linux": {
+      "platform": "LinuxEditor",
+      "engine": "Unreal Engine 5.8.2",
+      "toolchain": {
+        "compiler": "Clang 20.1.8",
+        "engine_commit": "ff8421f2b8cb4feb76fff57965a1effc53a6eb7b"
+      },
+      "build_exit_code": 0,
+      "editor_exit_code": 0,
+      "build_result_sha256": "465190d34bf518ba9a8672e62b1243cb93755c54b471c6b03f77ce20840e100b",
+      "editor_result_sha256": "9e0da659c08e5e675432f134ea78f22630c06a654f3c16f729aceb61569350f1",
+      "report_sha256": "a1224db46694821ea3cbdcebb1cf942289eae1894a938622d0f811597af69dc4",
+      "full_suite_counts": {
+        "succeeded": 43,
+        "succeededWithWarnings": 0,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0
+      },
+      "scope_test_count": 8,
+      "tests": [
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.CapsSamplesAndPreservesEndpoints",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ConvergedSnapshotAndFK",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.DurationUsesMaxJointTime",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.RejectsForgedOrMismatchedIK",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.RejectsInvalidSettings",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ValidatesJointsAndStatuses",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ValidatesSourceEvidence",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ZeroDuration",
+          "state": "Success"
+        }
+      ],
+      "source_hashes_verified": true
+    },
+    "windows": {
+      "platform": "WindowsEditor",
+      "engine": "Unreal Engine 5.8.2",
+      "toolchain": {
+        "compiler": "MSVC 19.50.35737.0",
+        "windows_sdk": "10.0.26100.0",
+        "engine_commit": null,
+        "engine_commit_note": "The guest engine source commit was not independently verified."
+      },
+      "build_exit_code": 0,
+      "editor_exit_code": 0,
+      "build_result_sha256": "3fa8ef6c211eb292ec4a3c2b3ac33f1ccadb0becb7d34fd1ebf20362d1a28ac3",
+      "editor_result_sha256": "c5c2df605f259ff47656f5ab323945cc1a1db7142413c880901c51f37ddbc526",
+      "report_sha256": "7727b227d5ef800576bbbc6f02c0e656bb956abab418beecbc7b48d816501f35",
+      "full_suite_counts": {
+        "succeeded": 43,
+        "succeededWithWarnings": 0,
+        "failed": 0,
+        "notRun": 0,
+        "inProcess": 0
+      },
+      "scope_test_count": 8,
+      "tests": [
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.CapsSamplesAndPreservesEndpoints",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ConvergedSnapshotAndFK",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.DurationUsesMaxJointTime",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.RejectsForgedOrMismatchedIK",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.RejectsInvalidSettings",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ValidatesJointsAndStatuses",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ValidatesSourceEvidence",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ZeroDuration",
+          "state": "Success"
+        }
+      ],
+      "source_hashes_verified": true
+    }
+  },
+  "limits": [
+    "Joint-linear samples and tool FK are local kinematic candidates, not executable or collision-safe motion plans.",
+    "The declared source reference and model digest are validated as data; this pure API does not authenticate an observation or load and hash a model file.",
+    "Inactive IK goal joints must equal the supplied start exactly; partial IK results require explicit opt-in.",
+    "At most 128 samples and 30 seconds under explicit preview velocity limits; no dynamics, controller, or wall-clock feasibility claim.",
+    "Desktop/VR goal authoring, trajectory rendering, profiling and the M2 release gate remain outside this core."
+  ]
+}

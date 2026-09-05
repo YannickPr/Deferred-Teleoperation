@@ -12,7 +12,7 @@ progress. The [roadmap](../ROADMAP.md) defines the corresponding evidence gates.
 | M1.7a | **Implemented; PR #30** | Bounded correlation selection and compatible Mission-view layer filtering |
 | M1.7 | **Planned after M1.7a** | Full causal coherence for concurrent operations and reordered Mission-view data |
 | M1.8 | **In progress; M1.8b combined proof implemented** | External device runs through delayed Mission/Field domain; durable budget and cross-revision identity remain open |
-| M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.2 articulated-state protocol, M2.3 FK math core, M2.4 oracle, and the bounded M2.5 actor are complete with Linux/Win64 UE evidence; M2.7 constrained IK is complete with Linux/Win64 UE evidence; preview and VR authoring remain |
+| M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.2 articulated-state protocol, M2.3 FK math core, M2.4 oracle, M2.5 actor, and M2.8a local preview math core are complete with Linux/Win64 UE evidence; M2.7 constrained IK is complete with Linux/Win64 UE evidence; desktop/VR authoring and #20/#21 remain |
 | M3 | **Planned; M3a + M3b required** | Simulation oracle gate plus calibrated physical-fixture gate |
 | M4/M5 | **Planned** | Broader robot-agnostic assignment, context acquisition and replanning |
 
@@ -108,6 +108,13 @@ independent external effect, or concurrent-operation causal coherence.
   the acceptance selector contains 13 automation tests. Linux and Win64 each record 35 contextual
   successes (13 IK plus 22 contextual tests), no warnings, failures or not-run tests in process,
   and build/editor exit code 0. See the [M2.7 platform record](m2/evidence/constrained-ik-platform-validation.json).
+- M2.8a bounded local time-sampled `KinematicPreview` math core: pure C++/Blueprint
+  `BuildPreview`, explicit provenance values, partial-result opt-in, exact inactive-joint
+  rejection, preview velocity limits in radians per second, FK recomputation for every tool
+  sample, exact endpoints, and bounds of 128 samples and 30 seconds. Its eight-test selector
+  passes within the 43-test contextual Linux and Win64 Unreal Engine 5.8.2 reports, with build
+  and editor exit code 0 and no warnings, failures, or not-run tests. See the [preview guide](m2/KINEMATIC_PREVIEW.md)
+  and the [platform record](m2/evidence/kinematic-preview-platform-validation.json).
 
 The [M2.4 fixture contract](m2/KINEMATICS_FIXTURES.md) documents the numerical oracle and the
 mandatory Python `--check` gate. The [M2.4 platform summary](m2/evidence/fk-oracle-platform-validation.json)
@@ -135,6 +142,29 @@ successes on both Linux and Win64 (13 IK plus 22 contextual tests), with no warn
 not-run tests in process and build/editor exit code 0. The slice is a local kinematic preview aid
 and does not add hardware, collision or motion-control behavior. The [platform record](m2/evidence/constrained-ik-platform-validation.json)
 binds the report hashes and source details.
+
+### M2.8a local kinematic preview
+
+The bounded #20 support slice converts one explicit articulated start state and a validated
+converged or opt-in partial IK result into deterministic joint-space samples. It computes
+`T = max(abs(goal-start) / preview_velocity)` in radians, rejects non-finite or over-30-second
+durations, returns one sample for zero duration, and caps non-zero previews at 128 samples.
+Endpoints use the copied start and goal values exactly. Every sample recomputes canonical FK for
+the requested IK tool frame; tool poses are never interpolated. Preview velocity limits only bound
+presentation timing and do not model dynamics or authorize motion.
+
+The goal uses active IK joints. Every inactive revolute IK value must equal its start value exactly;
+an inactive gripper mismatch is rejected before goal FK and sampling. `Partial` and `IterationLimit`
+results require explicit opt-in and `bSuccess=false`. Source and evidence identifiers, provenance,
+frame, calibration and declared model hash shape are carried as values; the hash is not authenticated.
+The builder resets failed output and leaves retention of the last valid preview to its caller.
+
+The selector contains eight production `DeferredTeleop.M2.KinematicPreview` tests. Linux and Win64
+UE 5.8.2 each report 43/43 contextual successes (35 existing M2 tests plus the eight preview tests),
+zero warnings/failures/not-run tests in process, and build/editor exit code 0. The
+[machine-readable record](m2/evidence/kinematic-preview-platform-validation.json) binds the
+platform reports and selected source hashes. This is the M2.8a math core only; desktop/VR authoring,
+trajectory visualization, and the full M2 integration gates in #20/#21 remain open.
 
 ## Implemented in M1.7a
 
@@ -184,7 +214,7 @@ The remaining full M1.8 gate requires:
 
 ### Remaining M2 work
 
-- desktop/VR target authoring and time-sampled `KinematicPreview`;
+- desktop/VR target authoring and consumption of the time-sampled `KinematicPreview`;
 - available provenance connecting confirmed, arrival and target branches, with missing references
   shown explicitly and without treating a preview as an execution command; complete multi-operation
   lineage remains the later M1.7 gate.
@@ -227,8 +257,9 @@ The M2.5 runtime actor, public scene recipe, platform reports, and synthetic PNG
 in this bounded tranche; they introduce no hardware path. M1.7a has the separate implementation
 and validation cited above; the bounded M1.8b proof is implemented while the full M1.8 gate remains
 open. M2.2, M2.3, M2.4, and M2.5 have their implementation and machine-readable Linux/Win64
-platform records. M2.7 is complete with machine-readable Linux/Win64 platform records; preview
-and VR authoring remain open. A milestone is complete
+platform records. M2.7 and the M2.8a preview math core are complete with machine-readable
+Linux/Win64 platform records; desktop/VR authoring and the full #20/#21 integration gates remain
+open. A milestone is complete
 only after its deterministic replay, machine-readable artifacts and visible result satisfy the gate
 in the [roadmap](../ROADMAP.md).
 
@@ -243,6 +274,6 @@ M3b's physical-fixture evidence is not present.
 No public hardware-control path exists. Nothing in the current repository should command a
 physical robot. The M1 release gate operates entirely on the public dummy path. Unreal Engine
 5.8.2 is verified on the reference Windows platform for `v0.1.0` and on Linux/Win64 for the M2.2
-protocol, M2.3 math-core, M2.4 oracle, and M2.5 actor evidence; `v0.1.0` does not claim Unreal
-support on Linux. M2.7 has Linux/Win64 platform evidence, and the IK slice introduces no
-hardware-control path.
+protocol, M2.3 math-core, M2.4 oracle, M2.5 actor, M2.7 IK, and M2.8a preview evidence;
+`v0.1.0` does not claim Unreal support on Linux. M2.7 and M2.8a introduce no hardware-control
+path.
