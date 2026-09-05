@@ -13,6 +13,11 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 
 ### Fixed
 
+- Robot handle/recovery now holds an exclusive local owner lock through external I/O and
+  durable resolution. A competing service on the same canonical database path fails before
+  mutating work; process death permits observe-only recovery. See the
+  [scope and subprocess tests](docs/m1/EXCLUSIVE_ROBOT_OWNERSHIP.md).
+
 - exact model-reference and protocol-literal comparisons in the M2 articulated view,
   robot-description parser, preview and actor topology reuse. Case-only mutations are covered
   by strengthened assertions in the existing 43-test Unreal suite, passing on Linux and Win64;
@@ -38,7 +43,7 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
   duplicate-contract recovery and receiving-site expiry boundaries;
 - bounded M1.8c Robot-local external-action budget for one revision-1 reservation per operation,
   a finite service-clock window, atomic dispatch/device binding, durable pre-dispatch holds, and
-  conservative v3-to-v4 legacy classification; cross-revision identity and multiprocess fencing
+  conservative v3-to-v4 legacy classification; cross-revision identity
   remain open;
 - pinned SO-101 structural source, canonical generated description and cross-platform drift gate.
 - strict M2.2 articulated robot-state/model-reference protocol (#14), including finite canonical
@@ -87,12 +92,12 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 ### Status
 
 - M1.8 remains in progress after the bounded M1.8c budget slice: stable effect identity across
-  contract revisions and multiprocess fencing remain open, and no physical hardware validation is
+  contract revisions remains open, and no physical hardware validation is
   claimed.
 - M2.4 is complete, including the cross-version reference check and native Linux/Win64 Kinematics
   validation.
 - M2.2 is complete. Its raw articulated feed does not validate model geometry; an FK consumer must
-  call the explicit description-backed validator. The integrated Python suite passes 175 tests;
+  call the explicit description-backed validator. The integrated Python suite passes 185 tests;
   the historical M2.2 135/20 snapshot remains identified in its platform record.
 - M2.5 is complete for the bounded kinematic-actor slice. M2.7 constrained IK and the M2.8a
   preview math core are complete with Linux/Win64 evidence. The bounded M2.9a articulated-scene

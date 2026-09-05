@@ -116,10 +116,12 @@ adds one local attempt/action reservation for each revision-1 operation, a confi
 service-clock window (60 seconds by default), atomic reservation/dispatch/device binding, and
 durable pre-dispatch holds with v3-to-v4 legacy classification.
 
-M1.8c assumes one active Robot instance per SQLite database and external adapter. SQLite serializes
-the durable reservation, but it does not fence external I/O after that commit; two active workers
-can still produce an observe-versus-press race. Fencing or an exclusive process lock and a
-multiprocess oracle remain future work ([issue #45](https://github.com/YannickPr/Deferred-Teleoperation/issues/45)).
+An [exclusive local Robot owner lock](docs/m1/EXCLUSIVE_ROBOT_OWNERSHIP.md) now covers the
+complete handle/recovery operation, including external I/O and its durable resolution. A competing
+service on the same canonical SQLite path fails before claim, recovery reset, or adapter I/O;
+process death releases the lock for observe-only recovery. This closes the local race in
+[issue #45](https://github.com/YannickPr/Deferred-Teleoperation/issues/45), not multi-host fencing
+or independent databases addressing the same device.
 
 M1.8 adds the smallest deterministic proof that a recorded execution event is not itself proof
 of an external effect. A fake button device keeps an effect counter or state in storage separate
@@ -134,7 +136,7 @@ validity so that admission, execution and expiry are evaluated at the receiving 
 inferred from a link profile name.
 
 The M1.8b bounded combined slice is implemented and covered by six focused tests. M1.8c adds
-eleven persistent budget cases; the current Python suite passes 175 tests. These slices do not
+eleven persistent budget cases; the current Python suite passes 185 tests. These slices do not
 validate physical hardware, a real network, or a whole-OS restart.
 Positive and ambiguous observation recovery are covered under long delay; absent external
 evidence remains covered by the separate M1.8a recovery proof. It covers contract revision 1;
@@ -150,7 +152,7 @@ M1.8 closes when deterministic evidence shows that:
 - restart and retransmission do not reset the effect identity or autonomy budget.
 
 The bounded budget portion satisfies the one-reservation invariant for revision 1. Full M1.8
-remains open for stable effect identity across plan revisions, multiprocess fencing, and the
+remains open for stable effect identity across plan revisions and the
 machine-readable evidence that joins those decisions to the independent effect record.
 
 No hardware-control path is introduced by this increment.
@@ -199,7 +201,7 @@ Python 3.11 and 3.12 produce identical bytes, and its final native validation pa
 `DeferredTeleop.M2.Kinematics` selector on both targets. The [M2.4 fixture contract](docs/m2/KINEMATICS_FIXTURES.md)
 defines nine SO-101 cases, six independent Python reference tests, and three Unreal Automation
 tests; the integrated oracle snapshot reports 121 Python tests. The post-rebase integrated Python
-validation passes 175 tests; the M2.2 record retains its historical 135/20 context. Its [platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
+validation passes 185 tests; the M2.2 record retains its historical 135/20 context. Its [platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
 retains the earlier full 14-test run as context. The raw articulated feed preserves a model
 reference but does not validate geometry; an FK consumer must call the explicit description-backed
 validator. The recorded M2.5 Linux and Win64 runs pass their full Automation reports with build and
@@ -274,7 +276,7 @@ proof. Missing or inconsistent command evidence resolves to explicit UNKNOWN rat
 attributed contact. This slice does not close the full S0–S10 matrix or physical M3b.
 
 Next, extend the same independent oracles to the remaining matrix rows before broadening the
-policy. Cross-revision effect identity and causal lineage, multiprocess fencing (#45), and the
+policy. Cross-revision effect identity and causal lineage, and the
 separate M2 parser/authoring/integration issues (#47, #20 and #21) remain open. Future 2D/VR
 comparisons retain the same controller and local autonomy.
 

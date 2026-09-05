@@ -44,11 +44,12 @@ zero. The counter belongs only to the historical database dummy path. The
 fixture's persistent press record is the independent evidence used by
 `observe`; the runtime never reads a test counter.
 
-The bounded M1.8c budget assumes one active Robot instance per SQLite database
-and external adapter. SQLite serializes the reservation commit, but it cannot
-fence external I/O after that commit; two active workers can still race between
-one worker's observation and another worker's press. Multiprocess fencing or an
-exclusive process lock remains future work.
+SQLite serializes the reservation commit, but that transaction alone cannot
+fence external I/O. The [exclusive local owner lock](EXCLUSIVE_ROBOT_OWNERSHIP.md)
+now covers Robot handling and recovery through adapter I/O and terminal commit.
+Competing services on the same canonical database path receive a retryable busy
+error before claiming or resetting work. Multiple databases addressing the same
+device and cross-host fencing remain outside this guarantee.
 
 The Field only emits a reconciled site snapshot for `SUCCEEDED` when it has a
 compatible measured or fused `RobotState` with the same correlation and robot

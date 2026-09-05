@@ -16,12 +16,13 @@ action; recovery observes the addressed device and never presses again.
 The focused proof covers crashes before adapter I/O and after the device effect;
 both paths reopen and observe without a second press.
 
-The scope assumes one active Robot instance per SQLite database and external
-adapter. `BEGIN IMMEDIATE` serializes the durable reservation, but it cannot
-fence an external I/O call after the commit. Two active workers can therefore
-still race between one worker's observe and another worker's press; fencing or
-an exclusive process lock and a multiprocess oracle remain outside M1.8c.
-The follow-up is tracked in [issue #45](https://github.com/YannickPr/Deferred-Teleoperation/issues/45).
+The original M1.8c proof assumed one active Robot instance: `BEGIN IMMEDIATE`
+serializes a reservation but cannot fence external I/O after its commit.
+The follow-up [exclusive local owner lock](EXCLUSIVE_ROBOT_OWNERSHIP.md) now
+covers this gap for cooperating services on the same canonical database path,
+including owner death and observe-only recovery. The original budget proof
+remains a record of its earlier source snapshot; the new subprocess tests
+supply the concurrency evidence.
 
 The policy is compared only before a new press. A changed restart configuration
 holds an unreserved accepted contract with `BUDGET_POLICY_CONFLICT`; it cannot
