@@ -20,12 +20,12 @@ robot-description parser applies the same rule to its schema literal and the
 coordinate-convention and `fixed`/`revolute` joint type literals. This keeps
 wire vocabulary distinct from free-form identifiers.
 
-This correction applies to field values. Unreal's JSON object lookup still
-accepts case-only aliases in field names, unlike the Python wire models, and
-can collapse those keys before validation. Exact key validation and shared
-parser-conformance cases are tracked in
-[issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47).
-The final parsed model-reference values still undergo the exact comparisons above.
+This correction applies to field values. The subsequent
+[JSON field conformance correction](JSON_FIELD_CONFORMANCE.md) addresses field
+names separately: raw token validation rejects case-only collisions before
+Unreal can collapse them, and exact comparisons reject aliases of required
+fields. Exact duplicate keys retain their existing last-wins behavior.
+The original 43-test evidence below remains a snapshot before that follow-up.
 
 Model topology names stored as `FName` retain Unreal's case-insensitive lookup
 semantics. Consumers needing exact joint-name matching must compare the wire

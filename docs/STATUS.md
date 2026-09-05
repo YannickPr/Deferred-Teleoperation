@@ -123,7 +123,7 @@ records the machine-readable eight-test native results and retains the earlier f
 context. The generated SO-101 structural check and the M2.4 fixture contract have distinct roles:
 the latter supplies the numerical FK oracle. Wire parsing and the live Mission view preserve the
 articulated model reference without validating SO-101 geometry; an FK consumer must call the
-explicit description-backed validator. The post-rebase integrated Python validation passes 185
+explicit description-backed validator. The post-rebase integrated Python validation passes 200
 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
 historical 135/20 context. Remaining M2 work is described in the [M2 design](design/M2_SO101_MATHEMATICAL_TWIN.md).
 
@@ -186,8 +186,8 @@ and records build, editor, and automation exit code `0` on Linux and Win64. Each
 50 tests: 48 `Success`, 2 expected `SuccessWithWarnings` for the missing-model and
 duplicate-sequence negative cases, and zero failures. The identity correction makes protocol and
 robot-description literals exact in the two existing C++ parsers while preserving the standalone
-client's `LegacyView` default and M1 behavior. JSON field-name exactness remains a separate
-parser-conformance concern tracked by [issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47).
+client's `LegacyView` default and M1 behavior. The [JSON field conformance correction](m2/JSON_FIELD_CONFORMANCE.md)
+closes #47 with token-level collision rejection and exact field-name checks.
 
 The final desktop capture is a 1920x1080 `RenderOffscreenVulkan` render labelled
 `SYNTHETIC FIXTURE REPLAY`; it is an illustration of the three layers using labels from the
@@ -248,7 +248,7 @@ durably; recovery observes without blind replay and rejects a missing or substit
 unknown outcome remains held, and a terminal event alone does not manufacture measured completion
 telemetry in the normal Field.
 
-The integrated Python suite passes 185 tests, including six M1.8b scenarios, eleven persistent
+The integrated Python suite passes 200 tests, including six M1.8b scenarios, eleven persistent
 M1.8c budget cases, and ten local ownership cases. The historical golden session and its six committed files remain unchanged,
 and the release gate remains unchanged. Its explicit dummy fixture compatibility is documented;
 it is not an external observation guarantee. The [exclusive local Robot owner lock](m1/EXCLUSIVE_ROBOT_OWNERSHIP.md)

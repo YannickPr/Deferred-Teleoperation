@@ -1,0 +1,180 @@
+{
+  "schema_version": "dtt.json-field-exactness/0",
+  "description": "Shared raw JSON mutations for exact field-name and duplicate-key conformance.",
+  "cases": [
+    {
+      "name": "mission-root-case-only",
+      "parser": "mission_view",
+      "fixture": "fixtures/m1/golden-session/expected-mission-view.json",
+      "before": "\"protocol_version\": \"dtt/0\",",
+      "after": "\"PROTOCOL_VERSION\": \"dtt/0\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "mission-nested-case-only",
+      "parser": "mission_view",
+      "fixture": "fixtures/m1/golden-session/expected-mission-view.json",
+      "before": "\"mission_to_field\": \"CONNECTED\"",
+      "after": "\"MISSION_TO_FIELD\": \"CONNECTED\"",
+      "expected": "REJECT"
+    },
+    {
+      "name": "mission-nested-collision-canonical-first",
+      "parser": "mission_view",
+      "fixture": "fixtures/m1/golden-session/expected-mission-view.json",
+      "before": "\"robot_id\": \"dummy-robot-1\",\n    \"site_id\": \"dummy-site-1\"",
+      "after": "\"robot_id\": \"dummy-robot-1\",\n    \"site_id\": \"canonical-site\",\n    \"SITE_ID\": \"alias-site\"",
+      "expected": "REJECT"
+    },
+    {
+      "name": "mission-nested-collision-alias-first",
+      "parser": "mission_view",
+      "fixture": "fixtures/m1/golden-session/expected-mission-view.json",
+      "before": "\"robot_id\": \"dummy-robot-1\",\n    \"site_id\": \"dummy-site-1\"",
+      "after": "\"robot_id\": \"dummy-robot-1\",\n    \"SITE_ID\": \"alias-site\",\n    \"site_id\": \"canonical-site\"",
+      "expected": "REJECT"
+    },
+    {
+      "name": "mission-root-collision-canonical-first",
+      "parser": "mission_view",
+      "fixture": "fixtures/m1/golden-session/expected-mission-view.json",
+      "before": "\"source_id\": \"mission-1\",",
+      "after": "\"source_id\": \"canonical-source\",\n  \"SOURCE_ID\": \"alias-source\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "mission-root-collision-alias-first",
+      "parser": "mission_view",
+      "fixture": "fixtures/m1/golden-session/expected-mission-view.json",
+      "before": "\"source_id\": \"mission-1\",",
+      "after": "\"SOURCE_ID\": \"alias-source\",\n  \"source_id\": \"canonical-source\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "mission-root-exact-duplicate-last-wins",
+      "parser": "mission_view",
+      "fixture": "fixtures/m1/golden-session/expected-mission-view.json",
+      "before": "\"source_id\": \"mission-1\",",
+      "after": "\"source_id\": \"first-source\",\n  \"source_id\": \"last-source\",",
+      "expected": "ACCEPT",
+      "value_path": "source_id",
+      "value": "last-source"
+    },
+    {
+      "name": "robot-root-case-only",
+      "parser": "robot_model",
+      "fixture": "robots/so101/generated/so101.kinematics.json",
+      "before": "\"schema_version\": \"dtt.robot-description/0\",",
+      "after": "\"SCHEMA_VERSION\": \"dtt.robot-description/0\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "robot-nested-case-only",
+      "parser": "robot_model",
+      "fixture": "robots/so101/generated/so101.kinematics.json",
+      "before": "\"repository\": \"https://github.com/TheRobotStudio/SO-ARM100\",",
+      "after": "\"REPOSITORY\": \"https://github.com/TheRobotStudio/SO-ARM100\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "robot-nested-collision-canonical-first",
+      "parser": "robot_model",
+      "fixture": "robots/so101/generated/so101.kinematics.json",
+      "before": "\"repository\": \"https://github.com/TheRobotStudio/SO-ARM100\",",
+      "after": "\"repository\": \"https://github.com/TheRobotStudio/SO-ARM100\",\n    \"REPOSITORY\": \"https://example.invalid/alias\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "robot-nested-collision-alias-first",
+      "parser": "robot_model",
+      "fixture": "robots/so101/generated/so101.kinematics.json",
+      "before": "\"repository\": \"https://github.com/TheRobotStudio/SO-ARM100\",",
+      "after": "\"REPOSITORY\": \"https://example.invalid/alias\",\n    \"repository\": \"https://github.com/TheRobotStudio/SO-ARM100\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "robot-root-collision-canonical-first",
+      "parser": "robot_model",
+      "fixture": "robots/so101/generated/so101.kinematics.json",
+      "before": "\"model_id\": \"so101_new_calib\",",
+      "after": "\"model_id\": \"canonical-model\",\n  \"MODEL_ID\": \"alias-model\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "robot-root-collision-alias-first",
+      "parser": "robot_model",
+      "fixture": "robots/so101/generated/so101.kinematics.json",
+      "before": "\"model_id\": \"so101_new_calib\",",
+      "after": "\"MODEL_ID\": \"alias-model\",\n  \"model_id\": \"canonical-model\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "robot-root-exact-duplicate-last-wins",
+      "parser": "robot_model",
+      "fixture": "robots/so101/generated/so101.kinematics.json",
+      "before": "\"model_id\": \"so101_new_calib\",",
+      "after": "\"model_id\": \"first-model\",\n  \"model_id\": \"so101_new_calib\",",
+      "expected": "ACCEPT",
+      "value_path": "model_id",
+      "value": "so101_new_calib"
+    },
+    {
+      "name": "articulated-root-case-only",
+      "parser": "articulated_view",
+      "fixture": "fixtures/m2/articulated-state/valid-articulated-view.json",
+      "before": "\"protocol_version\": \"dtt/0\",",
+      "after": "\"PROTOCOL_VERSION\": \"dtt/0\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "articulated-nested-case-only",
+      "parser": "articulated_view",
+      "fixture": "fixtures/m2/articulated-state/valid-articulated-view.json",
+      "before": "\"confirmed_robot_state\": {\n    \"robot_id\": \"so101-follower-1\",\n    \"model_reference\": {\n      \"model_id\": \"so101_new_calib\",",
+      "after": "\"confirmed_robot_state\": {\n    \"robot_id\": \"so101-follower-1\",\n    \"model_reference\": {\n      \"MODEL_ID\": \"so101_new_calib\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "articulated-nested-collision-canonical-first",
+      "parser": "articulated_view",
+      "fixture": "fixtures/m2/articulated-state/valid-articulated-view.json",
+      "before": "\"confirmed_robot_state\": {\n    \"robot_id\": \"so101-follower-1\",\n    \"model_reference\": {\n      \"model_id\": \"so101_new_calib\",",
+      "after": "\"confirmed_robot_state\": {\n    \"robot_id\": \"so101-follower-1\",\n    \"model_reference\": {\n      \"model_id\": \"so101_new_calib\",\n      \"MODEL_ID\": \"so101_new_calib\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "articulated-nested-collision-alias-first",
+      "parser": "articulated_view",
+      "fixture": "fixtures/m2/articulated-state/valid-articulated-view.json",
+      "before": "\"confirmed_robot_state\": {\n    \"robot_id\": \"so101-follower-1\",\n    \"model_reference\": {\n      \"model_id\": \"so101_new_calib\",",
+      "after": "\"confirmed_robot_state\": {\n    \"robot_id\": \"so101-follower-1\",\n    \"model_reference\": {\n      \"MODEL_ID\": \"so101_new_calib\",\n      \"model_id\": \"so101_new_calib\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "articulated-root-collision-canonical-first",
+      "parser": "articulated_view",
+      "fixture": "fixtures/m2/articulated-state/valid-articulated-view.json",
+      "before": "\"source_id\": \"mission-1\",",
+      "after": "\"source_id\": \"canonical-source\",\n  \"SOURCE_ID\": \"alias-source\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "articulated-root-collision-alias-first",
+      "parser": "articulated_view",
+      "fixture": "fixtures/m2/articulated-state/valid-articulated-view.json",
+      "before": "\"source_id\": \"mission-1\",",
+      "after": "\"SOURCE_ID\": \"alias-source\",\n  \"source_id\": \"canonical-source\",",
+      "expected": "REJECT"
+    },
+    {
+      "name": "articulated-nested-exact-duplicate-last-wins",
+      "parser": "articulated_view",
+      "fixture": "fixtures/m2/articulated-state/valid-articulated-view.json",
+      "before": "\"confirmed_robot_state\": {\n    \"robot_id\": \"so101-follower-1\",\n    \"model_reference\": {\n      \"model_id\": \"so101_new_calib\",",
+      "after": "\"confirmed_robot_state\": {\n    \"robot_id\": \"so101-follower-1\",\n    \"model_reference\": {\n      \"model_id\": \"first-model\",\n      \"model_id\": \"last-model\",",
+      "expected": "ACCEPT",
+      "value_path": "confirmed_robot_state.model_reference.model_id",
+      "value": "last-model"
+    }
+  ]
+}

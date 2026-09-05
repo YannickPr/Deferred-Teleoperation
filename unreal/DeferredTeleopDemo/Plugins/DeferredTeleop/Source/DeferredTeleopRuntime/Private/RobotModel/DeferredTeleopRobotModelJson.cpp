@@ -1,6 +1,7 @@
 #include "RobotModel/DeferredTeleopRobotModelTypes.h"
 
 #include "Kinematics/DeferredTeleopKinematicsLibrary.h"
+#include "DeferredTeleopStrictJsonFields.h"
 #include "Dom/JsonObject.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
@@ -37,7 +38,16 @@ bool RequireExactFields(
     }
     for (const TCHAR* Name : Names)
     {
-        if (!Object->HasField(FStringView(Name)))
+        bool bFoundCaseSensitive = false;
+        for (const auto& Entry : Object->Values)
+        {
+            if (Entry.Key.ToView().Equals(FStringView(Name), ESearchCase::CaseSensitive))
+            {
+                bFoundCaseSensitive = true;
+                break;
+            }
+        }
+        if (!bFoundCaseSensitive)
         {
             return Fail(OutError, Path, FString::Printf(TEXT("missing field '%s'"), Name));
         }
@@ -291,6 +301,10 @@ bool ParseRobotDescriptionJson(
     FString& OutError)
 {
     OutError.Reset();
+    if (!DeferredTeleop::Json::ValidateFieldNameSpelling(Json, OutError))
+    {
+        return false;
+    }
     TSharedPtr<FJsonObject> Root;
     const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Json);
     if (!FJsonSerializer::Deserialize(Reader, Root) || !Root.IsValid())
