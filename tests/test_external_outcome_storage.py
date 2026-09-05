@@ -13,6 +13,7 @@ from deferred_teleop.external_effect import (
 from deferred_teleop.protocol import ContractState, ExecutionEvent
 from deferred_teleop.runtime import EnvelopeFactory
 from deferred_teleop.storage import (
+    CURRENT_SCHEMA_VERSION,
     InvalidStateTransitionError,
     NodeStore,
     RecordConflictError,
@@ -329,7 +330,7 @@ def test_v2_dispatch_without_device_migrates_and_preserves_legacy_dummy_recovery
     connection.close()
 
     with NodeStore(path) as store:
-        assert store.schema_version == 3
+        assert store.schema_version == CURRENT_SCHEMA_VERSION
         journal = store.inspect_execution_journal()[0]
         assert journal["state"] == ContractState.DISPATCH_RECORDED.value
         assert journal["dispatch_device_id"] is None

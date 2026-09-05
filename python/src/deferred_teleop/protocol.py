@@ -173,7 +173,9 @@ class ExecutionContract(WireModel):
 
 CONTRACT_TRANSITIONS: dict[ContractState, frozenset[ContractState]] = {
     ContractState.RECEIVED: frozenset({ContractState.ACCEPTED, ContractState.HELD}),
-    ContractState.ACCEPTED: frozenset({ContractState.DISPATCH_RECORDED, ContractState.CANCELLED}),
+    ContractState.ACCEPTED: frozenset(
+        {ContractState.DISPATCH_RECORDED, ContractState.CANCELLED, ContractState.HELD}
+    ),
     ContractState.DISPATCH_RECORDED: frozenset({ContractState.RUNNING}),
     ContractState.RUNNING: frozenset(
         {ContractState.SUCCEEDED, ContractState.FAILED, ContractState.HELD, ContractState.CANCELLED}

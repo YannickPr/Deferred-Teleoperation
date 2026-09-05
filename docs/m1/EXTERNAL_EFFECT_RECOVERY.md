@@ -44,6 +44,12 @@ zero. The counter belongs only to the historical database dummy path. The
 fixture's persistent press record is the independent evidence used by
 `observe`; the runtime never reads a test counter.
 
+The bounded M1.8c budget assumes one active Robot instance per SQLite database
+and external adapter. SQLite serializes the reservation commit, but it cannot
+fence external I/O after that commit; two active workers can still race between
+one worker's observation and another worker's press. Multiprocess fencing or an
+exclusive process lock remains future work.
+
 The Field only emits a reconciled site snapshot for `SUCCEEDED` when it has a
 compatible measured or fused `RobotState` with the same correlation and robot
 identifier. A `HELD` result or telemetry from a different operation does not

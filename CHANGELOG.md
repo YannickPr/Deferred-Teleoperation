@@ -14,6 +14,10 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 - combined M1.8b virtual-time proof that drives the independent non-idempotent device through
   symmetric 1200-second and asymmetric 900-second outbound / 1200-second return delays, including
   duplicate-contract recovery and receiving-site expiry boundaries;
+- bounded M1.8c Robot-local external-action budget for one revision-1 reservation per operation,
+  a finite service-clock window, atomic dispatch/device binding, durable pre-dispatch holds, and
+  conservative v3-to-v4 legacy classification; cross-revision identity and multiprocess fencing
+  remain open;
 - pinned SO-101 structural source, canonical generated description and cross-platform drift gate.
 - strict M2.2 articulated robot-state/model-reference protocol (#14), including finite canonical
   pose/joint values, provenance-preserving Field relay, the opt-in Mission articulated view, and
@@ -51,14 +55,14 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 
 ### Status
 
-- M1.8 remains in progress after M1.8b: durable autonomy-budget accounting and stable effect
-  identity across contract revisions are not implemented, and no physical hardware validation is
+- M1.8 remains in progress after the bounded M1.8c budget slice: stable effect identity across
+  contract revisions and multiprocess fencing remain open, and no physical hardware validation is
   claimed.
 - M2.4 is complete, including the cross-version reference check and native Linux/Win64 Kinematics
   validation.
 - M2.2 is complete. Its raw articulated feed does not validate model geometry; an FK consumer must
-  call the explicit description-backed validator. The post-rebase integrated validation passes
-  141 Python tests; the historical M2.2 135/20 snapshot remains identified in its platform record.
+  call the explicit description-backed validator. The integrated Python suite passes 152 tests;
+  the historical M2.2 135/20 snapshot remains identified in its platform record.
 - M2.5 is complete for the bounded kinematic-actor slice. M2.7 constrained IK and the M2.8a
   preview math core are complete with Linux/Win64 evidence; desktop/VR authoring and the full
   #20/#21 integration gates remain open, and no physical or hardware-control path is claimed.

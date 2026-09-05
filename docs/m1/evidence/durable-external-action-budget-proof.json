@@ -1,0 +1,46 @@
+{
+  "evidence_version": 1,
+  "slice": "M1.8c",
+  "status": "bounded_implementation",
+  "scope": {
+    "external_adapter_only": true,
+    "contract_revision": 1,
+    "attempt_limit": 1,
+    "action_limit": 1,
+    "default_max_elapsed_seconds": 60.0,
+    "one_active_robot_instance_per_database_and_adapter": true,
+    "cross_revision_effect_identity": "open",
+    "multiprocess_fencing": "open"
+  },
+  "migration": {
+    "from_schema": 3,
+    "to_schema": 4,
+    "dispatch_with_device": "LEGACY_OBSERVE_ONLY",
+    "accepted_without_budget": "LEGACY_UNBUDGETED_HOLD"
+  },
+  "validation": {
+    "focused_budget_tests": {
+      "command": "PYTHONPATH=python/src python -m pytest -q tests/test_autonomy_budget.py",
+      "passed": 11
+    },
+    "full_python_tests": {
+      "command": "PYTHONPATH=python/src python -m pytest -q",
+      "passed": 152
+    },
+    "ruff": "passed",
+    "schema_check": "passed",
+    "so101_check": "passed",
+    "kinematics_reference_check": "passed",
+    "release_gate_ci_skip_pytest": "passed",
+    "golden_files_byte_identical": 6,
+    "golden_files_changed": 0
+  },
+  "open_follow_up": {
+    "issue": "https://github.com/YannickPr/Deferred-Teleoperation/issues/45",
+    "items": [
+      "exclusive owner or fencing for concurrent Robot processes",
+      "multiprocess Linux and Windows oracle",
+      "stable effect identity across contract revisions"
+    ]
+  }
+}
