@@ -30,6 +30,23 @@ const TCHAR* ValidEmptyView = TEXT(
     "\"terminal_state\":null,"
     "\"terminal_contract_id\":null,"
     "\"received_message_count\":0}}" );
+
+void ExpectCaseRejected(
+    FAutomationTestBase& Test,
+    const FString& Json,
+    const TCHAR* Before,
+    const TCHAR* After,
+    const TCHAR* Label,
+    const TCHAR* DiagnosticPath)
+{
+    const FString Mutated = Json.Replace(Before, After);
+    FDeferredTeleopMissionViewState State;
+    FString Error;
+    Test.TestFalse(Label, DeferredTeleop::MissionView::Parse(Mutated, State, Error));
+    Test.TestTrue(
+        *FString::Printf(TEXT("%s reports the rejection"), Label),
+        Error.Contains(DiagnosticPath));
+}
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -49,6 +66,13 @@ bool FDeferredTeleopMissionViewValidTest::RunTest(const FString& Parameters)
         TEXT("connection metadata is exposed"),
         State.MissionToField,
         EDeferredTeleopConnectionState::Connected);
+    ExpectCaseRejected(
+        *this,
+        FString(ValidEmptyView),
+        TEXT("mission.view_state"),
+        TEXT("MISSION.VIEW_STATE"),
+        TEXT("message-type casing is exact"),
+        TEXT("message_type"));
     return true;
 }
 
@@ -72,6 +96,28 @@ bool FDeferredTeleopMissionViewRejectTest::RunTest(const FString& Parameters)
         TEXT("rejection does not overwrite caller state"),
         State.SourceId,
         FString(TEXT("last-valid-state")));
+
+    ExpectCaseRejected(
+        *this,
+        FString(ValidEmptyView),
+        TEXT("dtt/0"),
+        TEXT("DTT/0"),
+        TEXT("protocol-version casing is exact"),
+        TEXT("protocol_version"));
+    ExpectCaseRejected(
+        *this,
+        FString(ValidEmptyView),
+        TEXT("CONNECTED"),
+        TEXT("connected"),
+        TEXT("connection-state casing is exact"),
+        TEXT("mission_to_field"));
+    ExpectCaseRejected(
+        *this,
+        FString(ValidEmptyView),
+        TEXT("\"terminal_state\":null"),
+        TEXT("\"terminal_state\":\"succeeded\""),
+        TEXT("terminal-state casing is exact"),
+        TEXT("terminal_state"));
 
     Error.Reset();
     TestFalse(
@@ -131,6 +177,56 @@ bool FDeferredTeleopGoldenMissionViewTest::RunTest(const FString& Parameters)
         FString(TEXT("SUCCEEDED")));
     TestTrue(TEXT("timed trajectory is present"), State.TrajectoryForecasts.Num() >= 2);
     TestTrue(TEXT("prediction manifest is present"), State.PredictionManifests.Num() >= 1);
+
+    ExpectCaseRejected(
+        *this,
+        Json,
+        TEXT("\"provenance\": \"MEASURED\""),
+        TEXT("\"provenance\": \"measured\""),
+        TEXT("provenance casing is exact"),
+        TEXT("provenance"));
+    ExpectCaseRejected(
+        *this,
+        Json,
+        TEXT("\"requested_state\": \"PRESSED\""),
+        TEXT("\"requested_state\": \"pressed\""),
+        TEXT("requested-state casing is exact"),
+        TEXT("unsupported target branch"));
+    ExpectCaseRejected(
+        *this,
+        Json,
+        TEXT("\"condition\": \"button effect succeeds\""),
+        TEXT("\"condition\": \"BUTTON EFFECT SUCCEEDS\""),
+        TEXT("target-condition casing is exact"),
+        TEXT("unsupported target branch"));
+    ExpectCaseRejected(
+        *this,
+        Json,
+        TEXT("\"timestamp_basis\": \"WALL_CLOCK_UTC\""),
+        TEXT("\"timestamp_basis\": \"wall_clock_utc\""),
+        TEXT("timestamp-basis casing is exact"),
+        TEXT("unsupported trajectory sample"));
+    ExpectCaseRejected(
+        *this,
+        Json,
+        TEXT("\"source\": \"CONFIRMED_STATE\""),
+        TEXT("\"source\": \"confirmed_state\""),
+        TEXT("trajectory-source casing is exact"),
+        TEXT("source"));
+    ExpectCaseRejected(
+        *this,
+        Json,
+        TEXT("\"mission_to_field\": \"CONNECTED\""),
+        TEXT("\"mission_to_field\": \"connected\""),
+        TEXT("golden connection-state casing is exact"),
+        TEXT("mission_to_field"));
+    ExpectCaseRejected(
+        *this,
+        Json,
+        TEXT("\"terminal_state\": \"SUCCEEDED\""),
+        TEXT("\"terminal_state\": \"succeeded\""),
+        TEXT("golden terminal-state casing is exact"),
+        TEXT("terminal_state"));
     return true;
 }
 

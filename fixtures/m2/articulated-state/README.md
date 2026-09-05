@@ -8,8 +8,11 @@ structural positions in different JSON orders. `valid-articulated-view.json` dem
 three layer contract and provenance rules. `invalid-articulated-view-duplicate-joint.json`
 keeps the same outer view shape while making the confirmed state invalid for the Unreal
 last-valid-state parser test. `invalid-articulated-view-nonunit-quaternion.json` exercises the
-canonical quaternion tolerance in that parser. `live-articulated-view.json` is the current live
-shape: confirmed may be populated while arrival and target are explicit `null`.
+canonical quaternion tolerance in that parser. `live-articulated-view.json` is the checked-in
+idle/disconnected live envelope: all three layer keys are explicit `null`. The scene test uses
+that envelope without changing it, and separately constructs the documented connected shape
+with the fixture `Confirmed` state plus explicit `null` Arrival and Target layers through the
+production C++ apply path.
 
 The invalid state records cover duplicate, unknown, fixed, and missing names, non-finite values,
 model identity mismatch, and a normalized gripper value of `100`. The generated SO-101

@@ -60,6 +60,15 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
   bounded preview timing. The eight-test selector passes inside 43-test contextual Linux and Win64
   Unreal Engine 5.8.2 reports with build/editor exit code 0. See the [preview guide](docs/m2/KINEMATIC_PREVIEW.md)
   and [platform record](docs/m2/evidence/kinematic-preview-platform-validation.json).
+- bounded M2.9a opt-in articulated-scene tranche with persistent Confirmed, Arrival and Target
+  kinematic actors, exact local description-byte hashing, strict provenance/model/FK validation,
+  per-connection wire ordering, last-good transactional rollback, and an editor fixture replay
+  labelled `SYNTHETIC FIXTURE REPLAY`. Its seven grouped production Automation tests are included
+  in the final Linux and Win64 receipts: each platform records build/editor exit code 0 and 50
+  tests (48 `Success` plus two expected `SuccessWithWarnings` for missing-model and
+  duplicate-sequence negative cases), with zero failures. The final desktop image is a 1920x1080
+  `RenderOffscreenVulkan` capture; JSON field-name exactness remains tracked by [issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47),
+  and full M2.9/#20/#21 remain open.
 
 ### Status
 
@@ -72,8 +81,10 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
   call the explicit description-backed validator. The integrated Python suite passes 152 tests;
   the historical M2.2 135/20 snapshot remains identified in its platform record.
 - M2.5 is complete for the bounded kinematic-actor slice. M2.7 constrained IK and the M2.8a
-  preview math core are complete with Linux/Win64 evidence; desktop/VR authoring and the full
-  #20/#21 integration gates remain open, and no physical or hardware-control path is claimed.
+  preview math core are complete with Linux/Win64 evidence. The bounded M2.9a articulated-scene
+  tranche is complete with Linux/Win64 native evidence and a synthetic desktop capture; full M2.9,
+  desktop/VR authoring and the #20/#21 integration gates remain open, and no physical or
+  hardware-control path is claimed.
 
 ## 0.1.0 - 2026-09-04
 

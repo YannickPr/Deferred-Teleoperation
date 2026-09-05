@@ -14,6 +14,11 @@ bool Fail(FString& OutError, const FString& Path, const FString& Detail)
     return false;
 }
 
+bool EqualsCaseSensitive(const FString& Value, const TCHAR* Expected)
+{
+    return Value.Equals(FString(Expected), ESearchCase::CaseSensitive);
+}
+
 bool RequireExactFields(
     const FJsonObjectPtr& Object,
     const std::initializer_list<const TCHAR*>& Names,
@@ -64,7 +69,7 @@ bool ReadLiteral(
     {
         return false;
     }
-    if (Value != Expected)
+    if (!EqualsCaseSensitive(Value, Expected))
     {
         return Fail(
             OutError,
@@ -254,27 +259,27 @@ bool ParseProvenance(
     const FString& Path,
     FString& OutError)
 {
-    if (Value == TEXT("MEASURED"))
+    if (EqualsCaseSensitive(Value, TEXT("MEASURED")))
     {
         OutValue = EDeferredTeleopProvenance::Measured;
     }
-    else if (Value == TEXT("FUSED"))
+    else if (EqualsCaseSensitive(Value, TEXT("FUSED")))
     {
         OutValue = EDeferredTeleopProvenance::Fused;
     }
-    else if (Value == TEXT("OPERATOR_ASSERTED"))
+    else if (EqualsCaseSensitive(Value, TEXT("OPERATOR_ASSERTED")))
     {
         OutValue = EDeferredTeleopProvenance::OperatorAsserted;
     }
-    else if (Value == TEXT("INFERRED"))
+    else if (EqualsCaseSensitive(Value, TEXT("INFERRED")))
     {
         OutValue = EDeferredTeleopProvenance::Inferred;
     }
-    else if (Value == TEXT("PREDICTED"))
+    else if (EqualsCaseSensitive(Value, TEXT("PREDICTED")))
     {
         OutValue = EDeferredTeleopProvenance::Predicted;
     }
-    else if (Value == TEXT("SIMULATED"))
+    else if (EqualsCaseSensitive(Value, TEXT("SIMULATED")))
     {
         OutValue = EDeferredTeleopProvenance::Simulated;
     }
@@ -544,9 +549,9 @@ bool ParseTarget(
     FJsonObjectPtr Evidence;
     if (!ReadString(Object, TEXT("entity_id"), Path, OutState.EntityId, OutError)
         || !ReadString(Object, TEXT("requested_state"), Path, OutState.RequestedState, OutError)
-        || OutState.RequestedState != TEXT("PRESSED")
+        || !EqualsCaseSensitive(OutState.RequestedState, TEXT("PRESSED"))
         || !ReadString(Object, TEXT("condition"), Path, OutState.Condition, OutError)
-        || OutState.Condition != TEXT("button effect succeeds")
+        || !EqualsCaseSensitive(OutState.Condition, TEXT("button effect succeeds"))
         || !ReadObject(Object, TEXT("pose"), Path, Pose, OutError)
         || !ReadObject(Object, TEXT("evidence"), Path, Evidence, OutError)
         || !ParsePose(Pose, OutState.Pose, Path + TEXT(".pose"), OutError)
@@ -594,7 +599,7 @@ bool ParseTrajectorySample(
     FString Provenance;
     if (!ReadDateTime(Object, TEXT("sample_time"), Path, OutSample.SampleTime, OutError)
         || !ReadString(Object, TEXT("timestamp_basis"), Path, OutSample.TimestampBasis, OutError)
-        || OutSample.TimestampBasis != TEXT("WALL_CLOCK_UTC")
+        || !EqualsCaseSensitive(OutSample.TimestampBasis, TEXT("WALL_CLOCK_UTC"))
         || !ReadObject(Object, TEXT("pose"), Path, Pose, OutError)
         || !ParsePose(Pose, OutSample.Pose, Path + TEXT(".pose"), OutError)
         || !ReadString(Object, TEXT("source"), Path, Source, OutError)
@@ -607,11 +612,11 @@ bool ParseTrajectorySample(
         }
         return false;
     }
-    if (Source == TEXT("CONFIRMED_STATE"))
+    if (EqualsCaseSensitive(Source, TEXT("CONFIRMED_STATE")))
     {
         OutSample.Source = EDeferredTeleopTrajectorySource::ConfirmedState;
     }
-    else if (Source == TEXT("ARRIVAL_BELIEF"))
+    else if (EqualsCaseSensitive(Source, TEXT("ARRIVAL_BELIEF")))
     {
         OutSample.Source = EDeferredTeleopTrajectorySource::ArrivalBelief;
     }
@@ -709,15 +714,15 @@ bool ParseConnection(
     {
         return false;
     }
-    if (State == TEXT("DISCONNECTED"))
+    if (EqualsCaseSensitive(State, TEXT("DISCONNECTED")))
     {
         OutState.MissionToField = EDeferredTeleopConnectionState::Disconnected;
     }
-    else if (State == TEXT("CONNECTING"))
+    else if (EqualsCaseSensitive(State, TEXT("CONNECTING")))
     {
         OutState.MissionToField = EDeferredTeleopConnectionState::Connecting;
     }
-    else if (State == TEXT("CONNECTED"))
+    else if (EqualsCaseSensitive(State, TEXT("CONNECTED")))
     {
         OutState.MissionToField = EDeferredTeleopConnectionState::Connected;
     }
@@ -765,10 +770,10 @@ bool ParseStatus(
         return false;
     }
     if (!OutStatus.TerminalState.IsEmpty()
-        && OutStatus.TerminalState != TEXT("SUCCEEDED")
-        && OutStatus.TerminalState != TEXT("FAILED")
-        && OutStatus.TerminalState != TEXT("HELD")
-        && OutStatus.TerminalState != TEXT("CANCELLED"))
+        && !EqualsCaseSensitive(OutStatus.TerminalState, TEXT("SUCCEEDED"))
+        && !EqualsCaseSensitive(OutStatus.TerminalState, TEXT("FAILED"))
+        && !EqualsCaseSensitive(OutStatus.TerminalState, TEXT("HELD"))
+        && !EqualsCaseSensitive(OutStatus.TerminalState, TEXT("CANCELLED")))
     {
         return Fail(OutError, Path + TEXT(".terminal_state"), TEXT("unsupported terminal state"));
     }

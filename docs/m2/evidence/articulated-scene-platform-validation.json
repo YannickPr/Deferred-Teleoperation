@@ -1,0 +1,584 @@
+{
+  "affected_test_groups": {
+    "M2.ArticulatedScene": [
+      {
+        "name": "DeferredTeleop.M2.ArticulatedScene.InvalidAndDisconnectedKeepEvidence",
+        "state": "Success",
+        "warnings": 0
+      },
+      {
+        "name": "DeferredTeleop.M2.ArticulatedScene.InvalidModelPreservesLastGood",
+        "state": "Success",
+        "warnings": 1
+      },
+      {
+        "name": "DeferredTeleop.M2.ArticulatedScene.ReferenceAndCaseValidation",
+        "state": "Success",
+        "warnings": 0
+      },
+      {
+        "name": "DeferredTeleop.M2.ArticulatedScene.RootRollbackRestoresLastGood",
+        "state": "Success",
+        "warnings": 0
+      },
+      {
+        "name": "DeferredTeleop.M2.ArticulatedScene.Sha256RawBytes",
+        "state": "Success",
+        "warnings": 0
+      },
+      {
+        "name": "DeferredTeleop.M2.ArticulatedScene.SourceSequenceAndConnectionGeneration",
+        "state": "Success",
+        "warnings": 1
+      },
+      {
+        "name": "DeferredTeleop.M2.ArticulatedScene.ThreeLayersNullAndOutlier",
+        "state": "Success",
+        "warnings": 0
+      }
+    ]
+  },
+  "automation_arguments": [
+    "-unattended",
+    "-nop4",
+    "-nosplash",
+    "-NullRHI",
+    "-ExecCmds=\"Automation RunTests DeferredTeleop.; SoftQuit\"",
+    "-ReportExportPath=<REPORT_DIR>"
+  ],
+  "build_scope": "Existing UnrealEditor Development project/runtime module; not an engine build or packaged-plugin build",
+  "capture": {
+    "capture_result_sha256": "727ee08bd0df291a1fd4d2f16f49f81d27c8e4062f48daaad01ed6989b5f4255",
+    "completed_at": "2026-09-05T01:50:23Z",
+    "editor_exit_code": 0,
+    "editor_log_sha256": "c1d3df0f0e9dcc70122b2aaf5ee67a91f82e93e2127327070be1955776a8439b",
+    "engine": "Unreal Engine 5.8.2",
+    "executed_public_generator": {
+      "path": "unreal/Scripts/generate_articulated_scene.py",
+      "sha256": "295000d390212e028e6ef4071b83b5640834327a340862a1e347dc9816bf43f1"
+    },
+    "fixture_sha256": "ca7e5582ae7f668b96f410f5112c656b02dbff25fcb06201b0d21ae9d375b884",
+    "image": {
+      "bytes": 789624,
+      "path": "docs/m2/evidence/m2-9a-articulated-scene.png",
+      "sha256": "690ca1f5b0fb2233e5e4dc8a56d8b8bce5976284a4b91cf7c15a69cce9a79b3a"
+    },
+    "kind": "Synthetic fixture replay rendered by Unreal Editor on Linux; separate from NullRHI automation",
+    "limits": [
+      "The image is an illustrative desktop arrangement, not an oracle of canonical root positions or physical geometry.",
+      "The public generator builds the fixture scene; the archived private wrapper supplies capture framing and labels, so pixel-identical reproduction from the generator alone is not claimed.",
+      "No live telemetry, VR/headset capture, hardware motion, performance or operational UI validation is claimed."
+    ],
+    "model_sha256": "36ce321332248351f5304630a9ccc4887d6665666e17b6933e3302874735e5f2",
+    "null_rhi": false,
+    "presentation_adjustments": [
+      "After applying and validating the fixture, the capture wrapper separates visual components of the three layers for readability.",
+      "Status labels are read from the actual C++ status objects; editor billboards are hidden and a review camera frames the scene."
+    ],
+    "private_capture_wrapper_sha256": "ae2959d33df598ace8206b1d0e574171afa96378d4e7556436b332bc6844b864",
+    "renderer": "RenderOffscreenVulkan",
+    "replay_api": "ApplyArticulatedViewJson",
+    "resolution": [
+      1920,
+      1080
+    ],
+    "status": "complete",
+    "validated_layer_statuses": {
+      "arrival": "VALID / PREDICTED / so101-predictor-1",
+      "confirmed": "VALID / MEASURED / so101-sensor-1",
+      "target": "VALID / OPERATOR_ASSERTED / operator-1"
+    },
+    "visible_label": "FIXTURE REPLAY / SYNTHETIC DEMONSTRATION"
+  },
+  "closes_related_issues": false,
+  "evidence_date": "2026-09-05",
+  "evidence_kind": "Normalized compact record of the Linux and Windows native articulated-scene validation receipts",
+  "files": [
+    {
+      "path": "fixtures/m2/articulated-state/invalid-articulated-view-duplicate-joint.json",
+      "sha256": "da9dcb96313cd61c32513408168f67d63d8df4a36b85706625f1827222f401ca"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-articulated-view-nonunit-quaternion.json",
+      "sha256": "318678662f13d9696ee918a813267fa4d0be69e033cfcbabaf8b0b2a4eca84c0"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-duplicate-joint.json",
+      "sha256": "08af914bfb74b9b21272f699b527d97c66387e5f71973f23387c97bb078a9e21"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-fixed-joint.json",
+      "sha256": "ec2843364e48aeefeb5c26c45bcbc70376a55806bf8c486f2d980e44f4958f3a"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-gripper-100.json",
+      "sha256": "7cab7b64d3cdd089354a8c2cf776dabf77b8dc46a51501fa2f013040f9a587dd"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-missing-joint.json",
+      "sha256": "6c41a0c573a5a5fb44dbe03da230d7525fe895ffba8f3635690066875f72f729"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-model-reference.json",
+      "sha256": "7bace857da96aaa6a2db7c0614f322ae7bbeada6ba3462ba7548bb09ddb78f22"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-nonfinite.json",
+      "sha256": "2e568eecb54ed9c7d01043bd3ea7dc7d47acc1fc46f1d7006a0321ba2db6a5e9"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-unknown-joint.json",
+      "sha256": "c88987e2a16ce053b805cf8c158f849b78c5456dd14db7edc42d269a6bc7c488"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/live-articulated-view.json",
+      "sha256": "a810abeb1de31c6e53c8c2f66d2fb547fe2668a23f45d321719510e862bd5367"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/reordered-articulated-state.json",
+      "sha256": "c60c6de55b531430546033a17e0b276714377281fc6c3c935170caea2b0611ff"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/valid-articulated-envelope.json",
+      "sha256": "3830e8d86af96d5fbe93e8700378b3b386f8314dfb4c862985aff52c2eb48ff2"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/valid-articulated-state.json",
+      "sha256": "706258ba04457dbd22e2c1a66cce530221d4debeeb3bce43ec3f0fcc8ae4a30c"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/valid-articulated-view.json",
+      "sha256": "ca7e5582ae7f668b96f410f5112c656b02dbff25fcb06201b0d21ae9d375b884"
+    },
+    {
+      "path": "fixtures/m2/kinematics/so101-fk.json",
+      "sha256": "2fd05f90c8f0344d8687b06d11086d8ba4bc1e43b0fc248869b19369bfa8c3b8"
+    },
+    {
+      "path": "robots/so101/generated/so101.kinematics.json",
+      "sha256": "36ce321332248351f5304630a9ccc4887d6665666e17b6933e3302874735e5f2"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/DeferredTeleopDemo.uproject",
+      "sha256": "86ba4cc0c07997bdf0b8083b43236a7b79ea642144105aa6263e6bfba24e1b39"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/DeferredTeleop.uplugin",
+      "sha256": "5587a5d087cf44eabdea70e2d9de4edc157c20989ba75d9c7cc6221d8c0b6427"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/DeferredTeleopRuntime.Build.cs",
+      "sha256": "bd82250e7eeb6aa8e50870ae98c2fd7f0d444e094d474aadb0023f7da502152e"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedSceneActor.cpp",
+      "sha256": "0e2a96345764d54a83374f7cf6185e74e76359ad1aed56b65d739afc2c44ea8d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedSceneValidation.cpp",
+      "sha256": "f41c95736eb2431b9cac3499d1924372dff1a60e9e811ade1a0e98897cd3530a"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedSceneValidation.h",
+      "sha256": "a4c8d675fa4fe021f3541420d1ca8c5b12e6d979c06b989a0424e8d1760f7fd4"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedViewParser.cpp",
+      "sha256": "126ee2df8adabcfd4a8e4b3b8f62d18d582af5baffdfcfe39e714d3ef670a6c3"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedViewParser.h",
+      "sha256": "6803ec5686544aa6f40f0af52979262bc9c5f921fc275216c911ed46962579e9"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopMissionClientComponent.cpp",
+      "sha256": "19c388acc73be63c5e59224d99d44695166566dbf9155761b49dbd0fa577da1a"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopMissionViewParser.cpp",
+      "sha256": "1b26790e2c6a1253a5891fdca490c9b151c2b74cabcabbaf950a14320bb66dc2"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopMissionViewParser.h",
+      "sha256": "7a00e323cf9a27a07e0af16833d71746b7ec20b72e865b6d17b880a35bc0f38d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopRuntime.cpp",
+      "sha256": "c3e3c943960d18a1d9a34742aae5fe9770061191187b39bc5517c5d9b90ae887"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopStateVisualizationActor.cpp",
+      "sha256": "e6bf490426bfe6a8610a64747d12d2dc1d5bfa00e047daa37b41d67aea576235"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopVersionLibrary.cpp",
+      "sha256": "cbb763125de0ae7830795d16860140a1e0bc18038ec7f2fdf15ab3b6dfdbeeef"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopVisualizationLibrary.cpp",
+      "sha256": "e88d55a276d4de67d09969db610049732ff6a17b9476846b1e08ddc6ec1e4a3c"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopIKLibrary.cpp",
+      "sha256": "1074e64b7dabe1a637e057381388b3bc923a550c3a8ad7ca87e4f24acd3a749a"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopIKTestBridge.h",
+      "sha256": "89b216145d9eb9cd8cbfe945b356eab21e5339798b58b3ca4ec42b7fb880e254"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopKinematicPreviewLibrary.cpp",
+      "sha256": "2da9d58615ee840a2767a2838ac9420e0a85bec8abf9443e9a97fa475e809934"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopKinematicsLibrary.cpp",
+      "sha256": "17e07edf30e6bda519da3c0415f0f0cf0563403ac33b9ae0c0ad32a079900773"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/RobotModel/DeferredTeleopRobotModelJson.cpp",
+      "sha256": "df40adb1d7ce84d87e6cb460714b7e7396f1e6f4093801d27e38e3f3609d6b28"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/RobotModel/DeferredTeleopRobotModelTypes.cpp",
+      "sha256": "ca9693125f9ff761105c67cf165b5c16bbc2ee43dc6b8fd58fee4cacbd8a74e0"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopArticulatedSceneTests.cpp",
+      "sha256": "dc8413b238cff17c01315b881bb118bdbe60bb61218ff62063e613afe6f87e17"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopArticulatedViewTests.cpp",
+      "sha256": "3c304ecb1949d93c2c04639341ea1dd5befb795d7c18871385ab495d39df3cea"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopFrameConversionContractTests.cpp",
+      "sha256": "9aa5cf021b6839fa54165630d9e3915d82d91c41ae1b359955f9832eb49e1fbc"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopIKTests.cpp",
+      "sha256": "2ce22c575d5495a62f449a16c9844b0c079eb59a23849d23a2b064bc98d6b84e"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicPreviewTests.cpp",
+      "sha256": "ae94d23c9f02bd558a1048bf5982c66e8066236413cf16ee55cc920c725a1539"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicRobotActorTests.cpp",
+      "sha256": "53e578c3d9f3fa9b26e38b14dd4dce66190e61b8fc0844ebb71af35688118284"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicsFixtureTests.cpp",
+      "sha256": "489c209cba968cf198750cf7228844092ad7c1d93613e1208f5c499f5248300b"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicsTests.cpp",
+      "sha256": "88a28057b19d46d4c1b17ad861f1c26ff57132e97ce2132bee9dbd55cb2c02b4"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopMissionViewTests.cpp",
+      "sha256": "e06ef5cdd7e2a0282f5770006f201a7e374992b436ceb702711e1b22c7f9d1ac"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Visualization/DeferredTeleopKinematicRobotActor.cpp",
+      "sha256": "dd6b2d8debde8545b7b82ea3dcc767ec4068bab7d2446fa4600e62844a6816e4"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Articulated/DeferredTeleopArticulatedSceneActor.h",
+      "sha256": "5093d8c1f926f2e5dbda84bf80e7c400c6f2024ea6fd7995444442f6b6d3b50b"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Articulated/DeferredTeleopArticulatedSceneTypes.h",
+      "sha256": "e8cef3edf3508021031126b1b32b3b26137057ea4955c11f0a15f006d096f849"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Articulated/DeferredTeleopArticulatedViewTypes.h",
+      "sha256": "4ded7520fb560d9d4d42f8d76fef53cbbd1fc1e9e9b6c9e3b0a45e8991ba6c3d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopMissionClientComponent.h",
+      "sha256": "fc11bb0efd07e318fcd52f674552551eac8098b5f34ac904e3b40209369f7d75"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopMissionViewTypes.h",
+      "sha256": "a6ab1e5b9b9d23d8693b99b59ae3ed20eee71e6dd71742f43189e329467378ce"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopRuntime.h",
+      "sha256": "5ab43d0e84c526acd869d73a2ea98391de5635e7fd75e10663a532051c0a128d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopStateVisualizationActor.h",
+      "sha256": "4c7123a741f1108cdb1f5abfcc502b125ebe5d19f338b352bdce6169df8eb734"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopVersionLibrary.h",
+      "sha256": "903971ea5a3b55d07a45751acbad2fbf9114a8865d5490d4a286756a19d54f04"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopVisualizationLibrary.h",
+      "sha256": "0669fd5f9123f8eafc8e7bca5913822a6c3f8cb1efae1da459d8f75eb40fd93c"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopIKLibrary.h",
+      "sha256": "e7e0444ffa6400a8c68098c1487dd234989c7e8083b6945a4c69e6e4fa454b2d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopIKTypes.h",
+      "sha256": "637ab3db0b187ea8eb046e24668dd79d0e21b4dc6e947f7592e932d034610035"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopKinematicPreviewLibrary.h",
+      "sha256": "08bfa2b6e9caed7dada7cbb412094f18875bbaf568c771d41164ce6a7325e7e5"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopKinematicPreviewTypes.h",
+      "sha256": "e3e41dd5faaef980b1e8f9a5cad6d2a6d65df27ddef68ff9b3b4d83160c4b1cf"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopKinematicsLibrary.h",
+      "sha256": "697f41e5611ba0f35c564d779e5e5a3d8ec447dc258afd428725c3bfeb5ec705"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/RobotModel/DeferredTeleopRobotModelTypes.h",
+      "sha256": "b10aea77aac60a5b8d539d4c00c481250ca465564cf7f83a118d7e287e8939d4"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Visualization/DeferredTeleopKinematicRobotActor.h",
+      "sha256": "18a41f6569c8ba405214adf8690932ef5bf2f2387741bf5ab7fe61c4d989901b"
+    }
+  ],
+  "full_suite": {
+    "baseline_43_test_names_preserved": true,
+    "failed": 0,
+    "inProcess": 0,
+    "notRun": 0,
+    "scene_test_count": 7,
+    "scene_test_registration_additions": 7,
+    "succeeded": 48,
+    "succeededWithWarnings": 2,
+    "test_count": 50
+  },
+  "integration_base_commit": "e5555fbf9bef2bbc104c3862c44f72e9d54b6f7c",
+  "limits": [
+    "The proof binds exactly the 63 selected source, fixture, robot-model, and project files; it makes no whole-checkout or 110-file base claim.",
+    "This is a bounded simulation/fixture presentation seam; the checked-in fixture does not represent live telemetry or operational readiness.",
+    "Issues #20 and #21 remain open: no live Target authoring, command path, teleoperation control, hardware loop, IK, collision model, or release claim is included.",
+    "JSON field-name parity remains open in issue #47; FName topology keeps native Unreal case-insensitive lookup semantics, and this proof does not claim complete parser parity.",
+    "Native automation used headless NullRHI desktop execution. The separate capture section records a rendered synthetic illustration; neither establishes physical-hardware, motion, performance or VR validity.",
+    "Raw logs remain in private receipts; this public record contains normalized results and hashes only."
+  ],
+  "milestone": "M2.9a",
+  "platforms": [
+    {
+      "affected_test_count": 7,
+      "automation_exit_code": 0,
+      "automation_log_sha256": "2eb4859bf73297951b0e909d1a613ba1fd1ad9e1cf35fd68f15a776d7987bccc",
+      "automation_result_sha256": "4a7536aa7ecce9d7988f79be6d83bb1e4178a983840912efc539428549a80897",
+      "baseline_43_test_names_preserved": true,
+      "build_exit_code": 0,
+      "build_log_sha256": "47328bd326d34199527fd027838005008617cdbe0742308f70f1bc571a033c85",
+      "build_result_sha256": "5c577cd7124daaf9afce40cb596757124a1441b214d71fc91d256f0d8f474eca",
+      "editor_exit_code": 0,
+      "editor_platform": "LinuxEditor",
+      "editor_result_sha256": "4a7536aa7ecce9d7988f79be6d83bb1e4178a983840912efc539428549a80897",
+      "environment": {
+        "compiler": "Clang 20.1.8",
+        "engine_source_commit": "ff8421f2b8cb4feb76fff57965a1effc53a6eb7b",
+        "engine_version": "5.8.2"
+      },
+      "full_suite_counts": {
+        "failed": 0,
+        "inProcess": 0,
+        "notRun": 0,
+        "succeeded": 48,
+        "succeededWithWarnings": 2
+      },
+      "platform": "Linux",
+      "raw_automation_report_sha256": "ac06666e3511315212d0ca9800247d1b7b475ddb1a5722c5eb71f10456d6158a",
+      "report_created_on_utc": "2026.09.05-01.09.49Z",
+      "scope_note": "The 50-test report includes seven ArticulatedScene tests and the existing 43-test contextual baseline.",
+      "scope_test_count": 7,
+      "tests": [
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.InvalidAndDisconnectedKeepEvidence",
+          "state": "Success",
+          "warnings": 0
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.InvalidModelPreservesLastGood",
+          "state": "Success",
+          "warnings": 1
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.ReferenceAndCaseValidation",
+          "state": "Success",
+          "warnings": 0
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.RootRollbackRestoresLastGood",
+          "state": "Success",
+          "warnings": 0
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.Sha256RawBytes",
+          "state": "Success",
+          "warnings": 0
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.SourceSequenceAndConnectionGeneration",
+          "state": "Success",
+          "warnings": 1
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.ThreeLayersNullAndOutlier",
+          "state": "Success",
+          "warnings": 0
+        }
+      ],
+      "toolchain_verified": true
+    },
+    {
+      "affected_test_count": 7,
+      "automation_exit_code": 0,
+      "automation_log_sha256": "7749cfb1bbc075fcfaf3105dcb16095ff2b018456dde76a4252cd5dfbb14dfac",
+      "automation_result_sha256": "461cdcfd970c71766d024d4de027ac22bdb3e8e1ddc79f1639cc46402d70d1ad",
+      "baseline_43_test_names_preserved": true,
+      "build_exit_code": 0,
+      "build_log_sha256": "d058d4f63410eaadcd31a10af399be76a4003bfd58a890a53d9296e37c203f2c",
+      "build_result_sha256": "d379905fd13d101aee8cf505cc362d1eefe578710b4c7c3a04b5ca3225b9754c",
+      "editor_exit_code": 0,
+      "editor_platform": "WindowsEditor",
+      "editor_result_sha256": "461cdcfd970c71766d024d4de027ac22bdb3e8e1ddc79f1639cc46402d70d1ad",
+      "environment": {
+        "compiler": "MSVC 19.50.35737.0",
+        "engine_source_commit": null,
+        "engine_source_commit_status": "Not independently verifiable in this engine installation",
+        "engine_version": "5.8.2",
+        "toolchain_reported_by_ubt": "14.50.35737",
+        "windows_sdk": "10.0.26100.0"
+      },
+      "full_suite_counts": {
+        "failed": 0,
+        "inProcess": 0,
+        "notRun": 0,
+        "succeeded": 48,
+        "succeededWithWarnings": 2
+      },
+      "platform": "Win64",
+      "raw_automation_report_sha256": "11855483c3436ae7d248de12b87fc17a8e6467fbebcafbeda65048218fd0be3f",
+      "report_created_on_utc": "2026.09.05-01.35.02Z",
+      "scope_note": "The 50-test report includes seven ArticulatedScene tests and the existing 43-test contextual baseline.",
+      "scope_test_count": 7,
+      "tests": [
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.InvalidAndDisconnectedKeepEvidence",
+          "state": "Success",
+          "warnings": 0
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.InvalidModelPreservesLastGood",
+          "state": "Success",
+          "warnings": 1
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.ReferenceAndCaseValidation",
+          "state": "Success",
+          "warnings": 0
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.RootRollbackRestoresLastGood",
+          "state": "Success",
+          "warnings": 0
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.Sha256RawBytes",
+          "state": "Success",
+          "warnings": 0
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.SourceSequenceAndConnectionGeneration",
+          "state": "Success",
+          "warnings": 1
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedScene.ThreeLayersNullAndOutlier",
+          "state": "Success",
+          "warnings": 0
+        }
+      ],
+      "toolchain_verified": true
+    }
+  ],
+  "related_issues": [
+    20,
+    21,
+    47
+  ],
+  "reproduction_recipe": "docs/m2/ARTICULATED_SCENE.md",
+  "schema": "deferred-teleoperation/m2.9a-articulated-scene-platform-validation.v1",
+  "scope": "Opt-in articulated scene presentation and validation; seven Scene tests within the existing 50-test contextual suite.",
+  "selected_source_count": 63,
+  "source_file_counts": {
+    "fixtures_articulated_state": 14,
+    "fixtures_fk": 1,
+    "fixtures_m2_json": 15,
+    "identity_scope": 57,
+    "plugin_source": 45,
+    "project_files": 2,
+    "robot_model": 1,
+    "scene_additions_vs_identity": 6,
+    "scene_or_legacy_delta_files_vs_identity": 11,
+    "scene_overridden_identity_files": 5,
+    "total": 63
+  },
+  "source_files_hash_encoding": "UTF-8 JSON array of {path,sha256}, sorted object keys and path order, compact separators, no trailing newline",
+  "source_files_sha256": "6448556e5632de4c2103d27b943a9c7985ac8b85b9a022c2b82e7f75bb332c4a",
+  "source_hash_verification": {
+    "all_files_match": true,
+    "linux_identity_snapshot_manifest_sha256": "001be68b86b91d6f1dec7f9c79de2b9a31fa49262f5cbf2e807c5b14406a3cfb",
+    "linux_scene_snapshot_comparison_sha256": "8ad0306d5ef8b4483e005c0bfb9a2268241687ee15f1bbca1869d49affb6a676",
+    "linux_scene_target_manifest_sha256": "b4c9bd9c74891437f914cc773b1b1285b26fc6d24448487c1bae770008e212bb",
+    "public_vs_linux_identity_snapshot_for_unchanged_files": true,
+    "public_vs_linux_scene_source": true,
+    "public_vs_windows_sequential_receipts": true,
+    "scene_overlay_delta_file_count": 11,
+    "scene_overlay_hashes_match": true,
+    "windows_receipts_composed_in_order": [
+      "baseline-11",
+      "baseline-14",
+      "baseline-22",
+      "baseline-oracle-v2",
+      "baseline-ik35",
+      "baseline-preview43",
+      "identity43",
+      "scene50"
+    ]
+  },
+  "source_identity_note": "The files below identify exactly the 63 selected Scene sources, fixtures, robot model, and project descriptors used by this bounded proof.",
+  "status": "complete_for_bounded_articulated_scene_scope",
+  "validation_command": {
+    "automation": "Automation RunTests DeferredTeleop.; SoftQuit",
+    "editor": "UnrealEditor-Cmd",
+    "headless": "NullRHI",
+    "module": "DeferredTeleopRuntime",
+    "project": "unreal/DeferredTeleopDemo/DeferredTeleopDemo.uproject",
+    "scene_test_filter": "DeferredTeleop.M2.ArticulatedScene"
+  },
+  "warning_review": {
+    "all_warnings_attributable_to_explicit_negative_cases": true,
+    "cases": [
+      {
+        "explanation": "The intentionally missing local model fixture exercises last-good preservation and emits the reviewed warning.",
+        "test": "DeferredTeleop.M2.ArticulatedScene.InvalidModelPreservesLastGood",
+        "warning_count": 1
+      },
+      {
+        "explanation": "The intentionally repeated source sequence exercises ordering rejection and emits the reviewed warning.",
+        "test": "DeferredTeleop.M2.ArticulatedScene.SourceSequenceAndConnectionGeneration",
+        "warning_count": 1
+      }
+    ],
+    "expected_warning_count": 2,
+    "receipt_sha256": "eda34d47f7709268cd8742aada596383b67430e49bb7cb813b26c5d17fc1cd69"
+  }
+}
