@@ -134,7 +134,7 @@ validity so that admission, execution and expiry are evaluated at the receiving 
 inferred from a link profile name.
 
 The M1.8b bounded combined slice is implemented and covered by six focused tests. M1.8c adds
-eleven persistent budget cases; the current Python suite passes 152 tests. These slices do not
+eleven persistent budget cases; the current Python suite passes 175 tests. These slices do not
 validate physical hardware, a real network, or a whole-OS restart.
 Positive and ambiguous observation recovery are covered under long delay; absent external
 evidence remains covered by the separate M1.8a recovery proof. It covers contract revision 1;
@@ -199,7 +199,7 @@ Python 3.11 and 3.12 produce identical bytes, and its final native validation pa
 `DeferredTeleop.M2.Kinematics` selector on both targets. The [M2.4 fixture contract](docs/m2/KINEMATICS_FIXTURES.md)
 defines nine SO-101 cases, six independent Python reference tests, and three Unreal Automation
 tests; the integrated oracle snapshot reports 121 Python tests. The post-rebase integrated Python
-validation passes 152 tests; the M2.2 record retains its historical 135/20 context. Its [platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
+validation passes 175 tests; the M2.2 record retains its historical 135/20 context. Its [platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
 retains the earlier full 14-test run as context. The raw articulated feed preserves a model
 reference but does not validate geometry; an FK consumer must call the explicit description-backed
 validator. The recorded M2.5 Linux and Win64 runs pass their full Automation reports with build and
@@ -250,11 +250,33 @@ The tranche does not close full M2.9, #20 or #21.
 
 ## M3 — Autonomous delayed button press with bounded re-anchoring
 
-Status: **planned; complete only after M3a and M3b**
+Status: **in progress; bounded M3a.1 implemented; complete only after full M3a and M3b**
 
 M3 is the next behavioral boundary. It brings a deliberately bounded slice of the later M4/M5
 ideas into the first button experiment so that delay changes the knowledge available to the local
 decision. It does not attempt robot-agnostic generalization or open-ended autonomy.
+
+### M3a.1 — Delayed two-button service slice
+
+Status: **implemented for the bounded simulation scope**
+
+The [guide](docs/m3/M3A_TWO_BUTTON.md) and [service proof](docs/m3/evidence/two-button-service-proof.json)
+cover one immutable revision-1 `EnsureButtonLatched` intent through Mission, 1200 seconds of
+virtual transit, Field-local observation after the delay, Robot admission/reservation, an
+independent device journal, and the final Mission snapshot. The service classes run in one
+process with separate stores; failures are injected and stores/devices are reopened.
+
+S0 establishes actual A/B contacts. S1 permits same-identity re-anchoring at the declared bound
+and holds beyond it; S2 holds on ambiguous identity while the fixed-reference ablation contacts
+the other button. S4 recognizes an already-latched target without a new impulse or budget
+admission. Recovery preserves one reservation and one impulse, and replay preserves the accepted
+proof. Missing or inconsistent command evidence resolves to explicit UNKNOWN rather than an
+attributed contact. This slice does not close the full S0–S10 matrix or physical M3b.
+
+Next, extend the same independent oracles to the remaining matrix rows before broadening the
+policy. Cross-revision effect identity and causal lineage, multiprocess fencing (#45), and the
+separate M2 parser/authoring/integration issues (#47, #20 and #21) remain open. Future 2D/VR
+comparisons retain the same controller and local autonomy.
 
 ### M3a — Deterministic simulation gate
 

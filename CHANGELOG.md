@@ -15,6 +15,14 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 
 ### Added
 
+- bounded M3a.1 two-button simulation using the Mission/Field/Robot service classes, 1200 seconds
+  of virtual intent transit, Field-local observation, one durable Robot reservation and an
+  independent spatial device journal. Same-identity re-anchoring, ambiguity/over-tolerance holds,
+  already-latched recognition and recovery are checked against actual simulated contacts.
+  Attributed post-action evidence reaches the separate programmatic Mission view; missing or
+  inconsistent command evidence remains explicit UNKNOWN. See the [guide and limits](docs/m3/M3A_TWO_BUTTON.md)
+  and [service proof](docs/m3/evidence/two-button-service-proof.json). Full M3a/M3b, physical and
+  VR gates remain open.
 - experimental external-effect recovery with a separate persistent simulated button, durable
   device binding, observe-only recovery after uncertain dispatch, and immutable outcome evidence;
 - explicit historical dummy-fixture compatibility; normal Field reconciliation requires compatible
@@ -78,7 +86,7 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 - M2.4 is complete, including the cross-version reference check and native Linux/Win64 Kinematics
   validation.
 - M2.2 is complete. Its raw articulated feed does not validate model geometry; an FK consumer must
-  call the explicit description-backed validator. The integrated Python suite passes 152 tests;
+  call the explicit description-backed validator. The integrated Python suite passes 175 tests;
   the historical M2.2 135/20 snapshot remains identified in its platform record.
 - M2.5 is complete for the bounded kinematic-actor slice. M2.7 constrained IK and the M2.8a
   preview math core are complete with Linux/Win64 evidence. The bounded M2.9a articulated-scene

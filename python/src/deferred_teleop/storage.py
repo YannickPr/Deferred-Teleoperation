@@ -7,8 +7,10 @@ make a future external physical action exactly-once.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
+import re
 import sqlite3
 from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
@@ -24,9 +26,18 @@ from deferred_teleop.external_effect import (
     ExternalOutcome,
     coerce_observation,
 )
-from deferred_teleop.protocol import ContractState, ExecutionEvent, MessageEnvelope
+from deferred_teleop.protocol import (
+    ContractState,
+    ExecutionEvent,
+    LocalTwoButtonDecision,
+    M3aSpatialExecutionContext,
+    MessageEnvelope,
+    SpatialPressCommand,
+    TwoButtonEffectEvidence,
+    TwoButtonLevelEvidence,
+)
 
-CURRENT_SCHEMA_VERSION = 4
+CURRENT_SCHEMA_VERSION = 9
 DEFAULT_BUSY_TIMEOUT_MS = 5_000
 TERMINAL_STATES = frozenset(
     {
@@ -136,6 +147,22 @@ def _envelope_json(envelope: MessageEnvelope) -> str:
     return _canonical_json(envelope.model_dump(mode="json"))
 
 
+def _m3a_payload_json(payload: object) -> str:
+    model_dump = getattr(payload, "model_dump", None)
+    if not callable(model_dump):
+        raise ValueError("M3a payload must expose model_dump")
+    return json.dumps(
+        model_dump(mode="json"),
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+
+def _m3a_payload_digest(payload_json: str) -> str:
+    return "sha256:" + hashlib.sha256(payload_json.encode("utf-8")).hexdigest()
+
+
 def _result_json(result: Mapping[str, Any]) -> str:
     try:
         encoded = _canonical_json(result)
@@ -167,6 +194,17 @@ def _validate_budget_policy(
     if not math.isfinite(value) or value <= 0.0:
         raise ValueError("max_elapsed_seconds must be a finite positive float")
     return value
+
+
+def _validate_command_digest(command_digest: str | None) -> str | None:
+    if command_digest is None:
+        return None
+    if (
+        not isinstance(command_digest, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", command_digest) is None
+    ):
+        raise ValueError("command_digest must be sha256:<64 lowercase hexadecimal digits>")
+    return command_digest
 
 
 def _configure(connection: sqlite3.Connection, busy_timeout_ms: int) -> None:
@@ -374,7 +412,203 @@ def _migration_4(connection: sqlite3.Connection) -> None:
     )
 
 
-MIGRATIONS = {1: _migration_1, 2: _migration_2, 3: _migration_3, 4: _migration_4}
+def _migration_5(connection: sqlite3.Connection) -> None:
+    """Bind an M3a canonical spatial command to its external budget."""
+
+    connection.execute(
+        """
+        ALTER TABLE autonomy_budget ADD COLUMN command_digest TEXT
+            CHECK (command_digest IS NULL OR length(trim(command_digest)) > 0)
+        """
+    )
+    connection.execute(
+        """
+        CREATE TABLE m3a_intent_binding (
+            operation_id TEXT NOT NULL,
+            intent_revision INTEGER NOT NULL CHECK (intent_revision = 1),
+            canonical_intent_digest TEXT NOT NULL,
+            source_id TEXT NOT NULL,
+            correlation_id TEXT NOT NULL,
+            semantic_json TEXT NOT NULL,
+            bound_at TEXT NOT NULL,
+            PRIMARY KEY (operation_id, intent_revision)
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE TABLE m3a_intent_conflict (
+            conflict_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            operation_id TEXT NOT NULL,
+            intent_revision INTEGER NOT NULL,
+            canonical_intent_digest TEXT NOT NULL,
+            source_id TEXT NOT NULL,
+            correlation_id TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            semantic_json TEXT NOT NULL,
+            recorded_at TEXT NOT NULL
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE TABLE m3a_decision (
+            contract_id TEXT NOT NULL,
+            contract_revision INTEGER NOT NULL CHECK (contract_revision = 1),
+            operation_id TEXT NOT NULL,
+            decision_envelope_json TEXT NOT NULL,
+            level_envelope_json TEXT NOT NULL,
+            held_event_json TEXT,
+            business_result TEXT NOT NULL,
+            recorded_at TEXT NOT NULL,
+            PRIMARY KEY (contract_id, contract_revision)
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE INDEX m3a_intent_conflict_operation_idx
+            ON m3a_intent_conflict (operation_id, intent_revision, recorded_at)
+        """
+    )
+
+
+def _migration_6(connection: sqlite3.Connection) -> None:
+    """Retain the canonical execute command beside its immutable decision."""
+
+    connection.execute(
+        """
+        ALTER TABLE m3a_decision ADD COLUMN command_envelope_json TEXT
+        """
+    )
+
+
+def _migration_7(connection: sqlite3.Connection) -> None:
+    """Bind one canonical execution context before Robot policy admission."""
+
+    connection.execute(
+        """
+        CREATE TABLE m3a_context_binding (
+            contract_id TEXT NOT NULL,
+            contract_revision INTEGER NOT NULL CHECK (contract_revision = 1),
+            operation_id TEXT NOT NULL,
+            intent_revision INTEGER NOT NULL CHECK (intent_revision = 1),
+            task_id TEXT NOT NULL,
+            context_digest TEXT NOT NULL,
+            context_json TEXT NOT NULL,
+            source_id TEXT NOT NULL,
+            correlation_id TEXT NOT NULL,
+            bound_at TEXT NOT NULL,
+            PRIMARY KEY (contract_id, contract_revision)
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE TABLE m3a_context_conflict (
+            conflict_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            contract_id TEXT NOT NULL,
+            contract_revision INTEGER NOT NULL,
+            operation_id TEXT NOT NULL,
+            context_digest TEXT NOT NULL,
+            source_id TEXT NOT NULL,
+            correlation_id TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            context_json TEXT NOT NULL,
+            recorded_at TEXT NOT NULL
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE INDEX m3a_context_conflict_contract_idx
+            ON m3a_context_conflict (contract_id, contract_revision, recorded_at)
+        """
+    )
+
+
+def _migration_8(connection: sqlite3.Connection) -> None:
+    """Bind the first attributable M3a effect proof at each service boundary."""
+
+    connection.execute(
+        """
+        CREATE TABLE m3a_effect_binding (
+            contract_id TEXT NOT NULL,
+            contract_revision INTEGER NOT NULL CHECK (contract_revision = 1),
+            operation_id TEXT NOT NULL,
+            intent_revision INTEGER NOT NULL CHECK (intent_revision = 1),
+            effect_digest TEXT NOT NULL,
+            effect_json TEXT NOT NULL,
+            effect_envelope_json TEXT NOT NULL,
+            source_id TEXT NOT NULL,
+            destination_id TEXT NOT NULL,
+            correlation_id TEXT NOT NULL,
+            bound_at TEXT NOT NULL,
+            PRIMARY KEY (contract_id, contract_revision)
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE TABLE m3a_effect_conflict (
+            conflict_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            contract_id TEXT NOT NULL,
+            contract_revision INTEGER NOT NULL,
+            operation_id TEXT NOT NULL,
+            intent_revision INTEGER NOT NULL,
+            effect_digest TEXT NOT NULL,
+            effect_json TEXT NOT NULL,
+            effect_envelope_json TEXT NOT NULL,
+            source_id TEXT NOT NULL,
+            destination_id TEXT NOT NULL,
+            correlation_id TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            recorded_at TEXT NOT NULL
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE INDEX m3a_effect_conflict_contract_idx
+            ON m3a_effect_conflict (contract_id, contract_revision, recorded_at)
+        """
+    )
+
+
+def _migration_9(connection: sqlite3.Connection) -> None:
+    """Retain one unverified UNKNOWN diagnostic without making it attributable."""
+
+    connection.execute(
+        """
+        CREATE TABLE m3a_effect_diagnostic (
+            contract_id TEXT NOT NULL,
+            contract_revision INTEGER NOT NULL CHECK (contract_revision = 1),
+            operation_id TEXT NOT NULL,
+            intent_revision INTEGER NOT NULL CHECK (intent_revision = 1),
+            effect_digest TEXT NOT NULL,
+            effect_json TEXT NOT NULL,
+            effect_envelope_json TEXT NOT NULL,
+            source_id TEXT NOT NULL,
+            destination_id TEXT NOT NULL,
+            correlation_id TEXT NOT NULL,
+            recorded_at TEXT NOT NULL,
+            PRIMARY KEY (contract_id, contract_revision)
+        )
+        """
+    )
+
+
+MIGRATIONS = {
+    1: _migration_1,
+    2: _migration_2,
+    3: _migration_3,
+    4: _migration_4,
+    5: _migration_5,
+    6: _migration_6,
+    7: _migration_7,
+    8: _migration_8,
+    9: _migration_9,
+}
 
 
 def initialize_database(
@@ -599,9 +833,7 @@ class NodeStore:
         with self._transaction() as connection:
             return self._insert_outbox(connection, envelope)
 
-    def _insert_outbox(
-        self, connection: sqlite3.Connection, envelope: MessageEnvelope
-    ) -> bool:
+    def _insert_outbox(self, connection: sqlite3.Connection, envelope: MessageEnvelope) -> bool:
         encoded = _envelope_json(envelope)
         existing = connection.execute(
             "SELECT payload_json FROM outbox WHERE message_id = ?", (str(envelope.message_id),)
@@ -642,8 +874,7 @@ class NodeStore:
             (_utc_text(now), _utc_text(now)),
         ).fetchall()
         return [
-            self._decode_envelope("outbox", row["message_id"], row["payload_json"])
-            for row in rows
+            self._decode_envelope("outbox", row["message_id"], row["payload_json"]) for row in rows
         ]
 
     def record_attempt(self, message_id: UUID, *, next_attempt_at: datetime) -> int:
@@ -691,9 +922,7 @@ class NodeStore:
         ).fetchone()
         return dict(row) if row is not None else None
 
-    def budget_legacy_classification(
-        self, contract_id: UUID, contract_revision: int
-    ) -> str | None:
+    def budget_legacy_classification(self, contract_id: UUID, contract_revision: int) -> str | None:
         row = self._connection.execute(
             """
             SELECT classification FROM autonomy_budget_legacy
@@ -717,6 +946,626 @@ class NodeStore:
         ).fetchone()
         return dict(row) if row is not None else None
 
+    def find_m3a_intent_binding(
+        self, operation_id: UUID, intent_revision: int = 1
+    ) -> dict[str, Any] | None:
+        """Return the immutable M3a root binding, if Field has created one."""
+
+        row = self._connection.execute(
+            """
+            SELECT * FROM m3a_intent_binding
+            WHERE operation_id = ? AND intent_revision = ?
+            """,
+            (str(operation_id), intent_revision),
+        ).fetchone()
+        return dict(row) if row is not None else None
+
+    def bind_m3a_intent(
+        self,
+        *,
+        operation_id: UUID,
+        intent_revision: int,
+        canonical_intent_digest: str,
+        source_id: str,
+        correlation_id: UUID,
+        semantic_fields: Mapping[str, Any],
+        bound_at: datetime,
+    ) -> bool:
+        """Atomically bind an operation/revision before Field creates a bundle.
+
+        ``False`` denotes an exact fresh duplicate.  Any changed claim, root
+        source, or correlation is durable as ``M3A_INTENT_CONFLICT`` and raises
+        before an operation plan, assignment, or contract can be emitted.
+        """
+
+        if intent_revision != 1:
+            raise ValueError("M3a intent binding supports revision 1 only")
+        canonical_intent_digest = _validate_command_digest(canonical_intent_digest)
+        assert canonical_intent_digest is not None
+        if not isinstance(source_id, str) or not source_id.strip():
+            raise ValueError("source_id must not be empty")
+        semantic_json = _result_json(semantic_fields)
+        operation_text = str(operation_id)
+        correlation_text = str(correlation_id)
+        conflict = False
+        with self._transaction() as connection:
+            existing = connection.execute(
+                """
+                SELECT * FROM m3a_intent_binding
+                WHERE operation_id = ? AND intent_revision = ?
+                """,
+                (operation_text, intent_revision),
+            ).fetchone()
+            if existing is not None:
+                exact = (
+                    existing["canonical_intent_digest"] == canonical_intent_digest
+                    and existing["source_id"] == source_id
+                    and existing["correlation_id"] == correlation_text
+                    and existing["semantic_json"] == semantic_json
+                )
+                if exact:
+                    return False
+                connection.execute(
+                    """
+                    INSERT INTO m3a_intent_conflict (
+                        operation_id, intent_revision, canonical_intent_digest,
+                        source_id, correlation_id, reason, semantic_json, recorded_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        operation_text,
+                        intent_revision,
+                        canonical_intent_digest,
+                        source_id,
+                        correlation_text,
+                        "M3A_INTENT_CONFLICT",
+                        semantic_json,
+                        _utc_text(bound_at),
+                    ),
+                )
+                # Do not raise inside ``_transaction``: its rollback is
+                # correct for ordinary handler failures, but would erase the
+                # durable conflict evidence required by the M3a oracle.
+                conflict = True
+            if not conflict:
+                connection.execute(
+                    """
+                    INSERT INTO m3a_intent_binding (
+                        operation_id, intent_revision, canonical_intent_digest,
+                        source_id, correlation_id, semantic_json, bound_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        operation_text,
+                        intent_revision,
+                        canonical_intent_digest,
+                        source_id,
+                        correlation_text,
+                        semantic_json,
+                        _utc_text(bound_at),
+                    ),
+                )
+        if conflict:
+            raise RecordConflictError("M3A_INTENT_CONFLICT")
+        return True
+
+    def record_m3a_decision(
+        self,
+        *,
+        contract_id: UUID,
+        contract_revision: int,
+        operation_id: UUID,
+        decision_envelope: MessageEnvelope,
+        level_envelope: MessageEnvelope,
+        held_event: MessageEnvelope | None,
+        business_result: str,
+        recorded_at: datetime,
+        command_envelope: MessageEnvelope | None = None,
+        outgoing: Sequence[MessageEnvelope] = (),
+    ) -> bool:
+        """Persist one immutable Robot decision and its exact consequences.
+
+        Execute decisions pass the canonical command envelope and all three
+        M3a evidence envelopes in ``outgoing``.  They are committed in the
+        same SQLite transaction as the decision, so a crash cannot leave a
+        durable dispatch without the command needed for exact replay.
+        """
+
+        if contract_revision != 1:
+            raise ValueError("M3a decision storage supports contract revision 1 only")
+        if not isinstance(decision_envelope, MessageEnvelope):
+            raise ValueError("decision_envelope is required")
+        if not isinstance(level_envelope, MessageEnvelope):
+            raise ValueError("level_envelope is required")
+        if held_event is not None and not isinstance(held_event.payload, ExecutionEvent):
+            raise ValueError("held_event must contain ExecutionEvent")
+        if command_envelope is not None and not isinstance(
+            command_envelope.payload, SpatialPressCommand
+        ):
+            raise ValueError("command_envelope must contain SpatialPressCommand")
+        if any(not isinstance(value, MessageEnvelope) for value in outgoing):
+            raise ValueError("outgoing must contain MessageEnvelope values")
+        if not isinstance(business_result, str) or not business_result.strip():
+            raise ValueError("business_result must not be empty")
+        decision_json = _envelope_json(decision_envelope)
+        level_json = _envelope_json(level_envelope)
+        held_json = _envelope_json(held_event) if held_event is not None else None
+        command_json = _envelope_json(command_envelope) if command_envelope is not None else None
+        recorded_text = _utc_text(recorded_at)
+        with self._transaction() as connection:
+            existing = connection.execute(
+                """
+                SELECT * FROM m3a_decision
+                WHERE contract_id = ? AND contract_revision = ?
+                """,
+                (str(contract_id), contract_revision),
+            ).fetchone()
+            if existing is not None:
+                if (
+                    existing["operation_id"] == str(operation_id)
+                    and existing["decision_envelope_json"] == decision_json
+                    and existing["level_envelope_json"] == level_json
+                    and existing["held_event_json"] == held_json
+                    and existing["command_envelope_json"] == command_json
+                    and existing["business_result"] == business_result
+                ):
+                    for consequence in outgoing:
+                        self._insert_outbox(connection, consequence)
+                    return False
+                raise RecordConflictError("M3a decision is immutable")
+            connection.execute(
+                """
+                INSERT INTO m3a_decision (
+                    contract_id, contract_revision, operation_id,
+                    decision_envelope_json, level_envelope_json, held_event_json,
+                    command_envelope_json, business_result, recorded_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(contract_id),
+                    contract_revision,
+                    str(operation_id),
+                    decision_json,
+                    level_json,
+                    held_json,
+                    command_json,
+                    business_result,
+                    recorded_text,
+                ),
+            )
+            for consequence in outgoing:
+                self._insert_outbox(connection, consequence)
+        return True
+
+    def find_m3a_decision(
+        self, contract_id: UUID, contract_revision: int = 1
+    ) -> dict[str, Any] | None:
+        """Return one persisted M3a decision with validated envelope objects."""
+
+        row = self._connection.execute(
+            """
+            SELECT * FROM m3a_decision
+            WHERE contract_id = ? AND contract_revision = ?
+            """,
+            (str(contract_id), contract_revision),
+        ).fetchone()
+        if row is None:
+            return None
+        result = dict(row)
+        result["decision_envelope"] = self._decode_envelope(
+            "m3a_decision",
+            f"{contract_id}:{contract_revision}:decision",
+            row["decision_envelope_json"],
+        )
+        result["level_envelope"] = self._decode_envelope(
+            "m3a_decision", f"{contract_id}:{contract_revision}:level", row["level_envelope_json"]
+        )
+        result["held_event"] = (
+            self._decode_envelope(
+                "m3a_decision", f"{contract_id}:{contract_revision}:held", row["held_event_json"]
+            )
+            if row["held_event_json"] is not None
+            else None
+        )
+        result["command_envelope"] = (
+            self._decode_envelope(
+                "m3a_decision",
+                f"{contract_id}:{contract_revision}:command",
+                row["command_envelope_json"],
+            )
+            if row["command_envelope_json"] is not None
+            else None
+        )
+        return result
+
+    def find_m3a_context_binding(
+        self, contract_id: UUID, contract_revision: int = 1
+    ) -> dict[str, Any] | None:
+        """Return the first immutable context bound to a contract."""
+
+        row = self._connection.execute(
+            """
+            SELECT * FROM m3a_context_binding
+            WHERE contract_id = ? AND contract_revision = ?
+            """,
+            (str(contract_id), contract_revision),
+        ).fetchone()
+        return dict(row) if row is not None else None
+
+    def find_m3a_effect_binding(
+        self, contract_id: UUID, contract_revision: int = 1
+    ) -> dict[str, Any] | None:
+        """Return the first attributable effect proof bound to a contract."""
+
+        row = self._connection.execute(
+            """
+            SELECT * FROM m3a_effect_binding
+            WHERE contract_id = ? AND contract_revision = ?
+            """,
+            (str(contract_id), contract_revision),
+        ).fetchone()
+        if row is None:
+            return None
+        result = dict(row)
+        result["effect_envelope"] = self._decode_envelope(
+            "m3a_effect_binding",
+            f"{contract_id}:{contract_revision}",
+            row["effect_envelope_json"],
+        )
+        result["effect"] = result["effect_envelope"].payload
+        return result
+
+    def find_m3a_effect_diagnostic(
+        self, contract_id: UUID, contract_revision: int = 1
+    ) -> dict[str, Any] | None:
+        """Return the first unverified UNKNOWN diagnostic for a contract."""
+
+        row = self._connection.execute(
+            """
+            SELECT * FROM m3a_effect_diagnostic
+            WHERE contract_id = ? AND contract_revision = ?
+            """,
+            (str(contract_id), contract_revision),
+        ).fetchone()
+        if row is None:
+            return None
+        result = dict(row)
+        result["effect_envelope"] = self._decode_envelope(
+            "m3a_effect_diagnostic",
+            f"{contract_id}:{contract_revision}",
+            row["effect_envelope_json"],
+        )
+        result["effect"] = result["effect_envelope"].payload
+        return result
+
+    def bind_m3a_effect_diagnostic(
+        self, envelope: MessageEnvelope, *, recorded_at: datetime
+    ) -> bool:
+        """Retain one digest-unverified UNKNOWN without attributing its facts."""
+
+        if not isinstance(envelope.payload, TwoButtonEffectEvidence):
+            raise ValueError("M3a effect diagnostic requires m3a.spatial.effect")
+        effect = envelope.payload
+        if effect.command_digest_verified or effect.outcome != "UNKNOWN":
+            raise ValueError("only digest-unverified UNKNOWN effects are diagnostics")
+        effect_json = _m3a_payload_json(effect)
+        effect_digest = _m3a_payload_digest(effect_json)
+        envelope_json = _envelope_json(envelope)
+        contract_text = str(effect.contract_id)
+        operation_text = str(effect.operation_id)
+        conflict = False
+        with self._transaction() as connection:
+            existing = connection.execute(
+                """
+                SELECT * FROM m3a_effect_diagnostic
+                WHERE contract_id = ? AND contract_revision = ?
+                """,
+                (contract_text, effect.contract_revision),
+            ).fetchone()
+            if existing is not None:
+                if (
+                    existing["operation_id"] == operation_text
+                    and existing["intent_revision"] == effect.intent_revision
+                    and existing["effect_digest"] == effect_digest
+                    and existing["effect_json"] == effect_json
+                    and existing["source_id"] == envelope.source_id
+                    and existing["destination_id"] == envelope.destination_id
+                    and existing["correlation_id"] == str(envelope.correlation_id)
+                ):
+                    return False
+                connection.execute(
+                    """
+                    INSERT INTO m3a_effect_conflict (
+                        contract_id, contract_revision, operation_id,
+                        intent_revision, effect_digest, effect_json,
+                        effect_envelope_json, source_id, destination_id,
+                        correlation_id, reason, recorded_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        contract_text,
+                        effect.contract_revision,
+                        operation_text,
+                        effect.intent_revision,
+                        effect_digest,
+                        effect_json,
+                        envelope_json,
+                        envelope.source_id,
+                        envelope.destination_id,
+                        str(envelope.correlation_id),
+                        "M3A_EFFECT_DIAGNOSTIC_CONFLICT",
+                        _utc_text(recorded_at),
+                    ),
+                )
+                conflict = True
+            else:
+                connection.execute(
+                    """
+                    INSERT INTO m3a_effect_diagnostic (
+                        contract_id, contract_revision, operation_id,
+                        intent_revision, effect_digest, effect_json,
+                        effect_envelope_json, source_id, destination_id,
+                        correlation_id, recorded_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        contract_text,
+                        effect.contract_revision,
+                        operation_text,
+                        effect.intent_revision,
+                        effect_digest,
+                        effect_json,
+                        envelope_json,
+                        envelope.source_id,
+                        envelope.destination_id,
+                        str(envelope.correlation_id),
+                        _utc_text(recorded_at),
+                    ),
+                )
+        if conflict:
+            raise RecordConflictError("M3A_EFFECT_DIAGNOSTIC_CONFLICT")
+        return True
+
+    def bind_m3a_effect(self, envelope: MessageEnvelope, *, bound_at: datetime) -> bool:
+        """Persist the first verified effect and reject changed semantic duplicates.
+
+        Message IDs, source boots, sequence numbers, and timestamps describe a
+        transport attempt and may change on a retry.  The persisted binding
+        compares the complete canonical effect payload and the semantic
+        source/destination/correlation tuple, so a replay of the same proof is
+        harmless while a changed proof is durably recorded as a conflict.
+        Digest-unverified UNKNOWN observations are diagnostics rather than an
+        attributable first proof and therefore do not create the binding.
+        """
+
+        if not isinstance(envelope.payload, TwoButtonEffectEvidence):
+            raise ValueError("M3a effect binding requires m3a.spatial.effect")
+        effect = envelope.payload
+        if effect.intent_revision != 1 or effect.contract_revision != 1:
+            raise ValueError("M3a effect binding supports revision 1 only")
+        effect_json = _m3a_payload_json(effect)
+        effect_digest = _m3a_payload_digest(effect_json)
+        envelope_json = _envelope_json(envelope)
+        contract_text = str(effect.contract_id)
+        operation_text = str(effect.operation_id)
+        conflict = False
+        with self._transaction() as connection:
+            existing = connection.execute(
+                """
+                SELECT * FROM m3a_effect_binding
+                WHERE contract_id = ? AND contract_revision = ?
+                """,
+                (contract_text, effect.contract_revision),
+            ).fetchone()
+            if existing is not None:
+                if (
+                    existing["operation_id"] == operation_text
+                    and existing["intent_revision"] == effect.intent_revision
+                    and existing["effect_digest"] == effect_digest
+                    and existing["effect_json"] == effect_json
+                    and existing["source_id"] == envelope.source_id
+                    and existing["destination_id"] == envelope.destination_id
+                    and existing["correlation_id"] == str(envelope.correlation_id)
+                ):
+                    return False
+                connection.execute(
+                    """
+                    INSERT INTO m3a_effect_conflict (
+                        contract_id, contract_revision, operation_id,
+                        intent_revision, effect_digest, effect_json,
+                        effect_envelope_json, source_id, destination_id,
+                        correlation_id, reason, recorded_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        contract_text,
+                        effect.contract_revision,
+                        operation_text,
+                        effect.intent_revision,
+                        effect_digest,
+                        effect_json,
+                        envelope_json,
+                        envelope.source_id,
+                        envelope.destination_id,
+                        str(envelope.correlation_id),
+                        "M3A_EFFECT_CONFLICT",
+                        _utc_text(bound_at),
+                    ),
+                )
+                conflict = True
+            elif effect.command_digest_verified:
+                connection.execute(
+                    """
+                    INSERT INTO m3a_effect_binding (
+                        contract_id, contract_revision, operation_id,
+                        intent_revision, effect_digest, effect_json,
+                        effect_envelope_json, source_id, destination_id,
+                        correlation_id, bound_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        contract_text,
+                        effect.contract_revision,
+                        operation_text,
+                        effect.intent_revision,
+                        effect_digest,
+                        effect_json,
+                        envelope_json,
+                        envelope.source_id,
+                        envelope.destination_id,
+                        str(envelope.correlation_id),
+                        _utc_text(bound_at),
+                    ),
+                )
+            else:
+                # An UNKNOWN result whose command digest was not reported is
+                # retained in the normal inbox/outbox audit trail, but cannot
+                # become the immutable first attributable proof.
+                return False
+        if conflict:
+            raise RecordConflictError("M3A_EFFECT_CONFLICT")
+        return True
+
+    def record_m3a_effect_conflict(
+        self,
+        envelope: MessageEnvelope,
+        *,
+        reason: str,
+        recorded_at: datetime,
+    ) -> None:
+        """Record a validated effect divergence without changing its binding."""
+
+        if not isinstance(envelope.payload, TwoButtonEffectEvidence):
+            raise ValueError("M3a effect conflict requires m3a.spatial.effect")
+        if not reason or not reason.strip():
+            raise ValueError("effect conflict reason must not be empty")
+        effect = envelope.payload
+        effect_json = _m3a_payload_json(effect)
+        with self._transaction() as connection:
+            connection.execute(
+                """
+                INSERT INTO m3a_effect_conflict (
+                    contract_id, contract_revision, operation_id,
+                    intent_revision, effect_digest, effect_json,
+                    effect_envelope_json, source_id, destination_id,
+                    correlation_id, reason, recorded_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(effect.contract_id),
+                    effect.contract_revision,
+                    str(effect.operation_id),
+                    effect.intent_revision,
+                    _m3a_payload_digest(effect_json),
+                    effect_json,
+                    _envelope_json(envelope),
+                    envelope.source_id,
+                    envelope.destination_id,
+                    str(envelope.correlation_id),
+                    reason,
+                    _utc_text(recorded_at),
+                ),
+            )
+
+    def bind_m3a_context(self, envelope: MessageEnvelope, *, bound_at: datetime) -> bool:
+        """Bind one canonical context and durably reject changed duplicates."""
+
+        if not isinstance(envelope.payload, M3aSpatialExecutionContext):
+            raise ValueError("M3a context binding requires m3a.spatial.context")
+        context = envelope.payload
+        if context.intent_revision != 1 or context.contract_revision != 1:
+            raise ValueError("M3a context binding supports revision 1 only")
+        context_json = _m3a_payload_json(context)
+        context_digest = _m3a_payload_digest(context_json)
+        contract_text = str(context.contract_id)
+        operation_text = str(context.operation_id)
+        task_text = str(context.task_id)
+        conflict = False
+        with self._transaction() as connection:
+            existing = connection.execute(
+                """
+                SELECT * FROM m3a_context_binding
+                WHERE contract_id = ? AND contract_revision = ?
+                """,
+                (contract_text, context.contract_revision),
+            ).fetchone()
+            if existing is not None:
+                if (
+                    existing["context_digest"] == context_digest
+                    and existing["context_json"] == context_json
+                ):
+                    return False
+                connection.execute(
+                    """
+                    INSERT INTO m3a_context_conflict (
+                        contract_id, contract_revision, operation_id,
+                        context_digest, source_id, correlation_id, reason,
+                        context_json, recorded_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        contract_text,
+                        context.contract_revision,
+                        operation_text,
+                        context_digest,
+                        envelope.source_id,
+                        str(envelope.correlation_id),
+                        "M3A_CONTEXT_CONFLICT",
+                        context_json,
+                        _utc_text(bound_at),
+                    ),
+                )
+                conflict = True
+            if not conflict:
+                connection.execute(
+                    """
+                    INSERT INTO m3a_context_binding (
+                        contract_id, contract_revision, operation_id,
+                        intent_revision, task_id, context_digest, context_json,
+                        source_id, correlation_id, bound_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        contract_text,
+                        context.contract_revision,
+                        operation_text,
+                        context.intent_revision,
+                        task_text,
+                        context_digest,
+                        context_json,
+                        envelope.source_id,
+                        str(envelope.correlation_id),
+                        _utc_text(bound_at),
+                    ),
+                )
+        if conflict:
+            raise RecordConflictError("M3A_CONTEXT_CONFLICT")
+        return True
+
+    def inspect_m3a_context_conflicts(
+        self,
+        contract_id: UUID | None = None,
+        contract_revision: int = 1,
+    ) -> list[dict[str, Any]]:
+        if contract_id is None:
+            return self._rows(
+                """
+                SELECT * FROM m3a_context_conflict
+                ORDER BY recorded_at, conflict_id
+                """
+            )
+        return [
+            dict(row)
+            for row in self._connection.execute(
+                """
+                SELECT * FROM m3a_context_conflict
+                WHERE contract_id = ? AND contract_revision = ?
+                ORDER BY recorded_at, conflict_id
+                """,
+                (str(contract_id), contract_revision),
+            ).fetchall()
+        ]
+
     def admit_external_budget_contract(
         self,
         *,
@@ -729,6 +1578,7 @@ class NodeStore:
         max_elapsed_seconds: float,
         attempt_limit: int = 1,
         action_limit: int = 1,
+        command_digest: str | None = None,
     ) -> bool:
         """Admit one rev-1 external contract and snapshot its local policy.
 
@@ -747,11 +1597,10 @@ class NodeStore:
             raise ValueError("external autonomy budget admits contract revision 1 only")
         if not isinstance(effect_key, str) or not effect_key.strip():
             raise ValueError("effect_key must be a non-empty string")
+        command_digest = _validate_command_digest(command_digest)
         accepted_text = _utc_text(accepted_at)
         try:
-            deadline_text = _utc_text(
-                accepted_at + timedelta(seconds=policy_seconds)
-            )
+            deadline_text = _utc_text(accepted_at + timedelta(seconds=policy_seconds))
         except (OverflowError, ValueError) as error:
             raise ValueError("max_elapsed_seconds produces an invalid deadline") from error
         operation_text = str(operation_id)
@@ -783,6 +1632,10 @@ class NodeStore:
                     str(journal["effect_key"]),
                 ) != immutable:
                     raise RecordConflictError("contract revision collision")
+                if command_digest is not None and budget["command_digest"] != command_digest:
+                    raise RecordConflictError(
+                        "external command digest differs from durable budget binding"
+                    )
                 return False
 
             prior_denial = connection.execute(
@@ -883,16 +1736,18 @@ class NodeStore:
                 """
                 INSERT INTO autonomy_budget (
                     operation_id, bound_contract_id, bound_contract_revision, effect_key,
+                    command_digest,
                     attempt_limit, action_limit, max_elapsed_seconds,
                     window_started_at, deadline_at, clock_high_water_at,
                     attempts_reserved, actions_reserved, dispatch_reserved_at, resolution
-                ) VALUES (?, ?, ?, ?, 1, 1, ?, ?, ?, ?, 0, 0, NULL, NULL)
+                ) VALUES (?, ?, ?, ?, ?, 1, 1, ?, ?, ?, ?, 0, 0, NULL, NULL)
                 """,
                 (
                     operation_text,
                     contract_text,
                     contract_revision,
                     effect_key,
+                    command_digest,
                     policy_seconds,
                     accepted_text,
                     deadline_text,
@@ -911,6 +1766,7 @@ class NodeStore:
         max_elapsed_seconds: float,
         attempt_limit: int = 1,
         action_limit: int = 1,
+        command_digest: str | None = None,
     ) -> bool:
         """Reserve the sole external action and record dispatch atomically.
 
@@ -926,6 +1782,7 @@ class NodeStore:
         )
         if not isinstance(device_id, str) or not device_id.strip():
             raise ValueError("device_id must be a non-empty string")
+        command_digest = _validate_command_digest(command_digest)
         recorded_text = _utc_text(recorded_at)
 
         with self._transaction() as connection:
@@ -948,9 +1805,7 @@ class NodeStore:
                 (str(journal["operation_id"]),),
             ).fetchone()
             if budget is None:
-                raise RecordConflictError(
-                    "external contract has no durable autonomy budget"
-                )
+                raise RecordConflictError("external contract has no durable autonomy budget")
             if (
                 budget["bound_contract_id"] != str(contract_id)
                 or int(budget["bound_contract_revision"]) != contract_revision
@@ -961,6 +1816,10 @@ class NodeStore:
                     operation_id=str(journal["operation_id"]),
                     bound_contract_id=str(budget["bound_contract_id"]),
                     bound_contract_revision=int(budget["bound_contract_revision"]),
+                )
+            if command_digest is not None and budget["command_digest"] != command_digest:
+                raise RecordConflictError(
+                    "external command digest differs from durable budget binding"
                 )
             if (
                 int(budget["attempt_limit"]) != attempt_limit
@@ -978,9 +1837,7 @@ class NodeStore:
             high_water_at = _parse_utc_text(
                 budget["clock_high_water_at"], field_name="clock_high_water_at"
             )
-            deadline_at = _parse_utc_text(
-                budget["deadline_at"], field_name="deadline_at"
-            )
+            deadline_at = _parse_utc_text(budget["deadline_at"], field_name="deadline_at")
             if recorded_at < accepted_at or recorded_at < high_water_at:
                 raise BudgetClockRollbackError(
                     BUDGET_CLOCK_ROLLBACK
@@ -988,8 +1845,7 @@ class NodeStore:
                 )
             if recorded_at >= deadline_at:
                 raise BudgetDeadlineError(
-                    BUDGET_DEADLINE_EXPIRED
-                    + ": service-clock budget window has elapsed"
+                    BUDGET_DEADLINE_EXPIRED + ": service-clock budget window has elapsed"
                 )
 
             connection.execute(
@@ -1046,6 +1902,9 @@ class NodeStore:
         held_event: MessageEnvelope,
         inbox_message_id: UUID,
         processed_at: datetime,
+        m3a_decision_envelope: MessageEnvelope | None = None,
+        m3a_level_envelope: MessageEnvelope | None = None,
+        m3a_business_result: str | None = None,
     ) -> bool:
         """Persist a pre-dispatch denial, its stable HELD event, and inbox completion.
 
@@ -1085,10 +1944,33 @@ class NodeStore:
             or event.previous_state not in {ContractState.RECEIVED, ContractState.ACCEPTED}
         ):
             raise RecordConflictError("budget denial event does not match pre-dispatch hold")
+        if (m3a_decision_envelope is None) != (m3a_level_envelope is None):
+            raise ValueError("M3a denial evidence requires both decision and level envelopes")
+        if m3a_decision_envelope is not None:
+            if m3a_decision_envelope.message_type != "m3a.spatial.decision":
+                raise ValueError("M3a denial decision envelope has the wrong message type")
+            if m3a_level_envelope is None or m3a_level_envelope.message_type != "m3a.spatial.level":
+                raise ValueError("M3a denial level envelope has the wrong message type")
+            if not isinstance(m3a_decision_envelope.payload, LocalTwoButtonDecision):
+                raise ValueError("M3a denial decision envelope has the wrong payload")
+            if not isinstance(m3a_level_envelope.payload, TwoButtonLevelEvidence):
+                raise ValueError("M3a denial level envelope has the wrong payload")
+            if not isinstance(m3a_business_result, str) or not m3a_business_result.strip():
+                raise ValueError("M3a denial business result must not be empty")
         operation_text = str(operation_id)
         contract_text = str(contract_id)
         first_encoded = _envelope_json(first_envelope)
         candidate_encoded = _envelope_json(held_event)
+        m3a_decision_encoded = (
+            _envelope_json(m3a_decision_envelope)
+            if m3a_decision_envelope is not None
+            else None
+        )
+        m3a_level_encoded = (
+            _envelope_json(m3a_level_envelope)
+            if m3a_level_envelope is not None
+            else None
+        )
         event_occurred_text = _utc_text(event.occurred_at)
         processed_text = _utc_text(processed_at)
 
@@ -1128,9 +2010,7 @@ class NodeStore:
                     raise InvalidStateTransitionError(
                         "an ACCEPTED journal requires an ACCEPTED -> HELD denial"
                     )
-                accepted_at = _parse_utc_text(
-                    journal["accepted_at"], field_name="accepted_at"
-                )
+                accepted_at = _parse_utc_text(journal["accepted_at"], field_name="accepted_at")
                 if event.occurred_at < accepted_at:
                     raise BudgetClockRollbackError(
                         BUDGET_CLOCK_ROLLBACK
@@ -1138,8 +2018,7 @@ class NodeStore:
                     )
             if processed_at < event.occurred_at:
                 raise BudgetClockRollbackError(
-                    BUDGET_CLOCK_ROLLBACK
-                    + ": inbox completion precedes denial timestamp"
+                    BUDGET_CLOCK_ROLLBACK + ": inbox completion precedes denial timestamp"
                 )
 
             existing = connection.execute(
@@ -1188,9 +2067,7 @@ class NodeStore:
                     or durable_first.payload.model_dump(mode="json")
                     != first_envelope.payload.model_dump(mode="json")
                 ):
-                    raise RecordConflictError(
-                        "budget denial first envelope payload is immutable"
-                    )
+                    raise RecordConflictError("budget denial first envelope payload is immutable")
                 durable_event = self._decode_envelope(
                     "autonomy_budget_denial",
                     f"{contract_text}:{contract_revision}:held",
@@ -1247,6 +2124,46 @@ class NodeStore:
                         contract_revision,
                     ),
                 )
+
+            if m3a_decision_encoded is not None and m3a_level_encoded is not None:
+                decision_row = connection.execute(
+                    """
+                    SELECT * FROM m3a_decision
+                    WHERE contract_id = ? AND contract_revision = ?
+                    """,
+                    (contract_text, contract_revision),
+                ).fetchone()
+                if decision_row is None:
+                    connection.execute(
+                        """
+                        INSERT INTO m3a_decision (
+                            contract_id, contract_revision, operation_id,
+                            decision_envelope_json, level_envelope_json, held_event_json,
+                            command_envelope_json, business_result, recorded_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?)
+                        """,
+                        (
+                            contract_text,
+                            contract_revision,
+                            operation_text,
+                            m3a_decision_encoded,
+                            m3a_level_encoded,
+                            candidate_encoded,
+                            m3a_business_result,
+                            processed_text,
+                        ),
+                    )
+                elif (
+                    str(decision_row["operation_id"]) != operation_text
+                    or decision_row["decision_envelope_json"] != m3a_decision_encoded
+                    or decision_row["level_envelope_json"] != m3a_level_encoded
+                    or decision_row["held_event_json"] != candidate_encoded
+                    or decision_row["command_envelope_json"] is not None
+                    or decision_row["business_result"] != m3a_business_result
+                ):
+                    raise RecordConflictError("M3a denial decision is immutable")
+                self._insert_outbox(connection, m3a_level_envelope)
+                self._insert_outbox(connection, m3a_decision_envelope)
 
             durable_event = self._decode_envelope(
                 "autonomy_budget_denial",
@@ -1320,9 +2237,7 @@ class NodeStore:
         recorded_at: datetime,
         device_id: str | None = None,
     ) -> bool:
-        if device_id is not None and (
-            not isinstance(device_id, str) or not device_id.strip()
-        ):
+        if device_id is not None and (not isinstance(device_id, str) or not device_id.strip()):
             raise ValueError("device_id must be a non-empty string when provided")
         with self._transaction() as connection:
             row = self._journal_row(connection, contract_id, contract_revision)
@@ -1410,10 +2325,11 @@ class NodeStore:
         observation: ExternalEffectObservation | Mapping[str, Any] | object | None = None,
         expected_device_id: str | None = None,
         terminal_state: ContractState | None = None,
-        terminal_result: Mapping[str, Any] | None = None,
-        occurred_at: datetime,
-        terminal_event: MessageEnvelope,
-    ) -> bool:
+    terminal_result: Mapping[str, Any] | None = None,
+    occurred_at: datetime,
+    terminal_event: MessageEnvelope,
+    outgoing: Sequence[MessageEnvelope] = (),
+) -> bool:
         """Atomically resolve an effect performed outside the Robot journal.
 
         The external path deliberately leaves ``effect_count`` at zero.  The
@@ -1429,15 +2345,15 @@ class NodeStore:
 
         if observation is None:
             raise ValueError("external observation proof is required")
+        if any(not isinstance(value, MessageEnvelope) for value in outgoing):
+            raise ValueError("outgoing must contain MessageEnvelope values")
 
         row = self._journal_row(self._connection, contract_id, contract_revision)
         expected_effect_key = str(row["effect_key"])
         occurred_text = _utc_text(occurred_at)
         dispatch_recorded_at = row["dispatch_recorded_at"]
         if dispatch_recorded_at is not None:
-            dispatch_at = _parse_utc_text(
-                dispatch_recorded_at, field_name="dispatch_recorded_at"
-            )
+            dispatch_at = _parse_utc_text(dispatch_recorded_at, field_name="dispatch_recorded_at")
             if occurred_at < dispatch_at:
                 raise RecordConflictError(
                     "external terminal resolution cannot precede durable dispatch_recorded_at"
@@ -1541,6 +2457,8 @@ class NodeStore:
                     "external observation device differs from durable dispatch identity"
                 )
             self._insert_outbox(connection, terminal_event)
+            for consequence in outgoing:
+                self._insert_outbox(connection, consequence)
             connection.execute(
                 """
                 UPDATE execution_journal SET state = ?, terminal_at = ?,
@@ -1623,9 +2541,7 @@ class NodeStore:
         return self._rows("SELECT * FROM outbox ORDER BY created_at, message_id")
 
     def inspect_execution_journal(self) -> list[dict[str, Any]]:
-        return self._rows(
-            "SELECT * FROM execution_journal ORDER BY contract_id, contract_revision"
-        )
+        return self._rows("SELECT * FROM execution_journal ORDER BY contract_id, contract_revision")
 
     def inspect_autonomy_budget(self) -> list[dict[str, Any]]:
         return self._rows("SELECT * FROM autonomy_budget ORDER BY operation_id")
@@ -1646,6 +2562,78 @@ class NodeStore:
             """
         )
 
+    def inspect_m3a_intent_bindings(self) -> list[dict[str, Any]]:
+        return self._rows(
+            """
+            SELECT * FROM m3a_intent_binding
+            ORDER BY operation_id, intent_revision
+            """
+        )
+
+    def inspect_m3a_intent_conflicts(self) -> list[dict[str, Any]]:
+        return self._rows(
+            """
+            SELECT * FROM m3a_intent_conflict
+            ORDER BY recorded_at, conflict_id
+            """
+        )
+
+    def inspect_m3a_decisions(self) -> list[dict[str, Any]]:
+        return self._rows(
+            """
+            SELECT * FROM m3a_decision
+            ORDER BY contract_id, contract_revision
+            """
+        )
+
+    def inspect_m3a_context_bindings(self) -> list[dict[str, Any]]:
+        return self._rows(
+            """
+            SELECT * FROM m3a_context_binding
+            ORDER BY contract_id, contract_revision
+            """
+        )
+
+    def inspect_m3a_effect_bindings(self) -> list[dict[str, Any]]:
+        return self._rows(
+            """
+            SELECT * FROM m3a_effect_binding
+            ORDER BY contract_id, contract_revision
+            """
+        )
+
+    def inspect_m3a_effect_diagnostics(self) -> list[dict[str, Any]]:
+        return self._rows(
+            """
+            SELECT * FROM m3a_effect_diagnostic
+            ORDER BY contract_id, contract_revision
+            """
+        )
+
+    def inspect_m3a_effect_conflicts(
+        self,
+        contract_id: UUID | None = None,
+        contract_revision: int = 1,
+    ) -> list[dict[str, Any]]:
+        if contract_id is None:
+            return self._rows(
+                """
+                SELECT * FROM m3a_effect_conflict
+                ORDER BY recorded_at, conflict_id
+                """
+            )
+        return [
+            dict(row)
+            for row in self._connection.execute(
+                """
+                SELECT * FROM m3a_effect_conflict
+                WHERE contract_id = ? AND contract_revision = ?
+                ORDER BY recorded_at, conflict_id
+                """,
+                (str(contract_id), contract_revision),
+            ).fetchall()
+        ]
+
     def inbox_messages(self) -> list[MessageEnvelope]:
         """Return validated inbox envelopes for recovery and read-model reconstruction."""
 
@@ -1653,8 +2641,7 @@ class NodeStore:
             "SELECT message_id, payload_json FROM inbox ORDER BY received_at, message_id"
         ).fetchall()
         return [
-            self._decode_envelope("inbox", row["message_id"], row["payload_json"])
-            for row in rows
+            self._decode_envelope("inbox", row["message_id"], row["payload_json"]) for row in rows
         ]
 
     def outbox_messages(self) -> list[MessageEnvelope]:
@@ -1664,8 +2651,7 @@ class NodeStore:
             "SELECT message_id, payload_json FROM outbox ORDER BY created_at, message_id"
         ).fetchall()
         return [
-            self._decode_envelope("outbox", row["message_id"], row["payload_json"])
-            for row in rows
+            self._decode_envelope("outbox", row["message_id"], row["payload_json"]) for row in rows
         ]
 
     def causal_history(self, correlation_id: UUID) -> list[dict[str, Any]]:
@@ -1684,9 +2670,7 @@ class NodeStore:
         ).fetchall()
         return [dict(row) for row in rows]
 
-    def contract_history(
-        self, contract_id: UUID, contract_revision: int
-    ) -> dict[str, Any]:
+    def contract_history(self, contract_id: UUID, contract_revision: int) -> dict[str, Any]:
         journal = dict(self._journal_row(self._connection, contract_id, contract_revision))
         audit = self._connection.execute(
             """

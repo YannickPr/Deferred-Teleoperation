@@ -1,0 +1,571 @@
+{
+  "evidence_date_utc": "2026-09-05T03:08:40Z",
+  "integration_base_commit": "1dfc085cef048acf104bc73882b6faa979799111",
+  "limits": [
+    "All services run in one process with separate persistent stores; close/reopen is exercised inside that test process and does not prove an OS process restart, power-loss recovery, or distributed deployment.",
+    "The 1200-second transit is virtual time; no wall-clock or network-latency performance claim follows.",
+    "S4 uses one explicitly recorded seed pulse (seed=1) and zero new pulses; the recognized level is not attributed as a new operation effect.",
+    "The injected post-press failure is a service recovery frontier; this proof does not claim an OS kill, VR, physical hardware, or distributed-network result.",
+    "One active Robot instance per SQLite store/adapter is assumed (#45 remains open); multiprocess fencing and cross-revision identity are outside this slice.",
+    "Services are trusted and the records are integrity evidence, not cryptographic authentication or a network security proof.",
+    "This bounded M3a.1 record covers six scenarios only. Full M3a and M3b remain open; no milestone-completion claim is made.",
+    "The private runner raw JSON, databases, JSONL device journal and logs remain outside the public projection. Public pytest reproduces the checked-in oracles without promising identical UUIDs or capture bytes."
+  ],
+  "reproduction": {
+    "private_runner": "supplementary private service receipt; invoke only from the private run recipe",
+    "public_focused_command": "PYTHONPATH=python/src python -m pytest -q tests/test_m3a_two_button.py",
+    "public_full_command": "PYTHONPATH=python/src python -m pytest -q",
+    "python_path_placeholder": "REPO_ROOT/python/src",
+    "source_root_placeholder": "REPO_ROOT",
+    "uuid_and_capture_reproducibility": false
+  },
+  "scenarios": [
+    {
+      "budget": {
+        "actions_reserved": 1,
+        "autonomy_budget_denials": 0,
+        "autonomy_budget_entries": 1,
+        "execution_journal_entries": 1,
+        "journal_states": [
+          "SUCCEEDED"
+        ]
+      },
+      "clocks": {
+        "clock_now": "2026-09-05T00:20:00Z",
+        "current_observed_at": "2026-09-05T00:20:00Z",
+        "elapsed_seconds": 1200,
+        "reference_observed_at": "2026-09-05T00:00:00Z",
+        "t0": "2026-09-05T00:00:00Z"
+      },
+      "delay_seconds": 1200,
+      "expected": {
+        "action": "EXECUTE",
+        "contact": "A",
+        "new_pulses": 1,
+        "reason": "REFERENCE_STILL_VALID"
+      },
+      "id": "S0_NOMINAL_A_CRASH_AFTER_PRESS",
+      "mission": {
+        "a_counter": 1,
+        "a_latched": true,
+        "b_counter": 0,
+        "b_latched": false,
+        "business_result": "APPLIED",
+        "canonical_effect_bindings": 1,
+        "contract_state": "SUCCEEDED",
+        "physical_contact": "A",
+        "terminal_result": {
+          "a_counter": 1,
+          "a_latched": true,
+          "b_counter": 0,
+          "b_latched": false,
+          "command_digest": "sha256:e526a0d24c597d6bd78f661660f2fefc19ccc9160d9ed0aeb6899892fcc1f5cf",
+          "command_digest_diagnostic": null,
+          "command_digest_verified": true,
+          "command_executed": true,
+          "contract_id": "ae3dbc02-1afd-5341-aa39-faf2448f09dd",
+          "contract_revision": 1,
+          "device_id": "two-button-device-1",
+          "effect_key": "press:d335d685-969e-4d6d-8fbf-1966593558fb:1",
+          "intent_revision": 1,
+          "observation_id": "spatial:6e6ffeb8-d09b-40c6-b4e9-a68898b8d780",
+          "observed_at": "2026-09-05T00:20:00Z",
+          "operation_id": "d335d685-969e-4d6d-8fbf-1966593558fb",
+          "outcome": "APPLIED",
+          "physical_contact": "A",
+          "semantic_effect_id": "ensure-latched:A",
+          "semantic_goal_attained": true,
+          "target_entity_id": "A"
+        }
+      },
+      "observed": {
+        "a_counter": 1,
+        "a_latched": true,
+        "action": "EXECUTE",
+        "b_counter": 0,
+        "b_latched": false,
+        "contact": "A",
+        "new_operation_pulses": 1,
+        "reason": "REFERENCE_STILL_VALID",
+        "seed_pulses": 0,
+        "total_device_pulses": 1
+      },
+      "raw_scenario_id": "S0_NOMINAL_A_CRASH_AFTER_PRESS",
+      "recovery": {
+        "interrupted_rows_recovered": 1,
+        "post_press_failure_injected": true,
+        "reopened_before_recovery": true,
+        "second_pulse": false
+      },
+      "target": "A"
+    },
+    {
+      "budget": {
+        "actions_reserved": 1,
+        "autonomy_budget_denials": 0,
+        "autonomy_budget_entries": 1,
+        "execution_journal_entries": 1,
+        "journal_states": [
+          "SUCCEEDED"
+        ]
+      },
+      "clocks": {
+        "clock_now": "2026-09-05T00:20:00Z",
+        "current_observed_at": "2026-09-05T00:20:00Z",
+        "elapsed_seconds": 1200,
+        "reference_observed_at": "2026-09-05T00:00:00Z",
+        "t0": "2026-09-05T00:00:00Z"
+      },
+      "delay_seconds": 1200,
+      "expected": {
+        "action": "REANCHOR_EXECUTE",
+        "contact": "A",
+        "new_pulses": 1,
+        "reason": "SAME_ID_REANCHORED"
+      },
+      "id": "S1_BOUNDARY",
+      "mission": {
+        "a_counter": 1,
+        "a_latched": true,
+        "b_counter": 0,
+        "b_latched": false,
+        "business_result": "APPLIED",
+        "canonical_effect_bindings": 1,
+        "contract_state": "SUCCEEDED",
+        "physical_contact": "A",
+        "terminal_result": {
+          "a_counter": 1,
+          "a_latched": true,
+          "b_counter": 0,
+          "b_latched": false,
+          "command_digest": "sha256:0d7d83ba28c2851e0d90930ea6770f41e096a595d4ae758e6d5bf20c7c3bc30c",
+          "command_digest_diagnostic": null,
+          "command_digest_verified": true,
+          "command_executed": true,
+          "contract_id": "fa62f8b5-4f3f-53cb-bdbe-69330bc540d9",
+          "contract_revision": 1,
+          "device_id": "two-button-device-1",
+          "effect_key": "press:92a4b903-d046-438a-b084-138600d1297e:1",
+          "intent_revision": 1,
+          "observation_id": "spatial:6dfbc36e-3666-46a0-8044-0bee1a68b87b",
+          "observed_at": "2026-09-05T00:20:00Z",
+          "operation_id": "92a4b903-d046-438a-b084-138600d1297e",
+          "outcome": "APPLIED",
+          "physical_contact": "A",
+          "semantic_effect_id": "ensure-latched:A",
+          "semantic_goal_attained": true,
+          "target_entity_id": "A"
+        }
+      },
+      "observed": {
+        "a_counter": 1,
+        "a_latched": true,
+        "action": "REANCHOR_EXECUTE",
+        "b_counter": 0,
+        "b_latched": false,
+        "contact": "A",
+        "new_operation_pulses": 1,
+        "reason": "SAME_ID_REANCHORED",
+        "seed_pulses": 0,
+        "total_device_pulses": 1
+      },
+      "raw_scenario_id": "S1_BOUNDARY",
+      "target": "A"
+    },
+    {
+      "budget": {
+        "actions_reserved": 0,
+        "autonomy_budget_denials": 0,
+        "autonomy_budget_entries": 0,
+        "execution_journal_entries": 0,
+        "journal_states": []
+      },
+      "clocks": {
+        "clock_now": "2026-09-05T00:20:00Z",
+        "current_observed_at": "2026-09-05T00:20:00Z",
+        "elapsed_seconds": 1200,
+        "reference_observed_at": "2026-09-05T00:00:00Z",
+        "t0": "2026-09-05T00:00:00Z"
+      },
+      "delay_seconds": 1200,
+      "expected": {
+        "action": "HOLD_AMBIGUOUS",
+        "contact": null,
+        "new_pulses": 0,
+        "reason": "DISPLACEMENT_EXCEEDS_TOLERANCE"
+      },
+      "id": "S1_EPSILON",
+      "mission": {
+        "a_counter": null,
+        "a_latched": null,
+        "b_counter": null,
+        "b_latched": null,
+        "business_result": null,
+        "canonical_effect_bindings": 0,
+        "contract_state": "HELD",
+        "physical_contact": null,
+        "terminal_result": null
+      },
+      "observed": {
+        "a_counter": 0,
+        "a_latched": false,
+        "action": "HOLD_AMBIGUOUS",
+        "b_counter": 0,
+        "b_latched": false,
+        "contact": null,
+        "new_operation_pulses": 0,
+        "reason": "DISPLACEMENT_EXCEEDS_TOLERANCE",
+        "seed_pulses": 0,
+        "total_device_pulses": 0
+      },
+      "raw_scenario_id": "S1_EPSILON",
+      "target": "A"
+    },
+    {
+      "budget": {
+        "actions_reserved": 0,
+        "autonomy_budget_denials": 0,
+        "autonomy_budget_entries": 0,
+        "execution_journal_entries": 0,
+        "journal_states": []
+      },
+      "clocks": {
+        "clock_now": "2026-09-05T00:20:00Z",
+        "current_observed_at": "2026-09-05T00:20:00Z",
+        "elapsed_seconds": 1200,
+        "reference_observed_at": "2026-09-05T00:00:00Z",
+        "t0": "2026-09-05T00:00:00Z"
+      },
+      "delay_seconds": 1200,
+      "expected": {
+        "action": "HOLD_AMBIGUOUS",
+        "contact": null,
+        "new_pulses": 0,
+        "reason": "TARGET_CANDIDATE_SET_AMBIGUOUS"
+      },
+      "id": "S2_SWAP",
+      "mission": {
+        "a_counter": null,
+        "a_latched": null,
+        "b_counter": null,
+        "b_latched": null,
+        "business_result": null,
+        "canonical_effect_bindings": 0,
+        "contract_state": "HELD",
+        "physical_contact": null,
+        "terminal_result": null
+      },
+      "observed": {
+        "a_counter": 0,
+        "a_latched": false,
+        "action": "HOLD_AMBIGUOUS",
+        "b_counter": 0,
+        "b_latched": false,
+        "contact": null,
+        "new_operation_pulses": 0,
+        "reason": "TARGET_CANDIDATE_SET_AMBIGUOUS",
+        "seed_pulses": 0,
+        "total_device_pulses": 0
+      },
+      "raw_scenario_id": "S2_SWAP",
+      "target": "A"
+    },
+    {
+      "budget": {
+        "actions_reserved": 0,
+        "autonomy_budget_denials": 0,
+        "autonomy_budget_entries": 0,
+        "execution_journal_entries": 0,
+        "journal_states": []
+      },
+      "clocks": {
+        "clock_now": "2026-09-05T00:20:00Z",
+        "current_observed_at": "2026-09-05T00:20:00Z",
+        "elapsed_seconds": 1200,
+        "reference_observed_at": "2026-09-05T00:00:00Z",
+        "t0": "2026-09-05T00:00:00Z"
+      },
+      "delay_seconds": 1200,
+      "expected": {
+        "action": "RECOGNIZE_EFFECT",
+        "contact": null,
+        "new_pulses": 0,
+        "reason": "ALREADY_LATCHED",
+        "seed_pulses": 1
+      },
+      "id": "S4_ALREADY_LATCHED_REOPEN_DUPLICATE",
+      "mission": {
+        "a_counter": null,
+        "a_latched": null,
+        "b_counter": null,
+        "b_latched": null,
+        "business_result": "RECOGNIZED_ALREADY_EFFECTIVE",
+        "canonical_effect_bindings": 0,
+        "contract_state": "HELD",
+        "physical_contact": null,
+        "terminal_result": null
+      },
+      "observed": {
+        "a_counter": 1,
+        "a_latched": true,
+        "action": "RECOGNIZE_EFFECT",
+        "b_counter": 0,
+        "b_latched": false,
+        "contact": null,
+        "new_operation_pulses": 0,
+        "reason": "ALREADY_LATCHED",
+        "seed_pulses": 1,
+        "total_device_pulses": 1
+      },
+      "raw_scenario_id": "S4_ALREADY_LATCHED_REOPEN_DUPLICATE",
+      "replay": {
+        "decision_bytes_identical": true,
+        "device_unchanged": true,
+        "held_event_bytes_identical": true,
+        "new_pulses": 0,
+        "reopened": true
+      },
+      "target": "A"
+    },
+    {
+      "budget": {
+        "actions_reserved": 1,
+        "autonomy_budget_denials": 0,
+        "autonomy_budget_entries": 1,
+        "execution_journal_entries": 1,
+        "journal_states": [
+          "SUCCEEDED"
+        ]
+      },
+      "clocks": {
+        "clock_now": "2026-09-05T00:20:00Z",
+        "current_observed_at": "2026-09-05T00:20:00Z",
+        "elapsed_seconds": 1200,
+        "reference_observed_at": "2026-09-05T00:00:00Z",
+        "t0": "2026-09-05T00:00:00Z"
+      },
+      "delay_seconds": 1200,
+      "expected": {
+        "action": "EXECUTE",
+        "contact": "B",
+        "new_pulses": 1,
+        "reason": "REFERENCE_STILL_VALID"
+      },
+      "id": "S0_NOMINAL_B",
+      "mission": {
+        "a_counter": 0,
+        "a_latched": false,
+        "b_counter": 1,
+        "b_latched": true,
+        "business_result": "APPLIED",
+        "canonical_effect_bindings": 1,
+        "contract_state": "SUCCEEDED",
+        "physical_contact": "B",
+        "terminal_result": {
+          "a_counter": 0,
+          "a_latched": false,
+          "b_counter": 1,
+          "b_latched": true,
+          "command_digest": "sha256:b80ff21d4d7c18cb4b2630546ea6ec4a4e7ec22168db03ebe387e2abdc34a6bf",
+          "command_digest_diagnostic": null,
+          "command_digest_verified": true,
+          "command_executed": true,
+          "contract_id": "686f558a-5817-5cce-9f10-9a69b68fd4ce",
+          "contract_revision": 1,
+          "device_id": "two-button-device-1",
+          "effect_key": "press:fde856e9-a326-482f-9a19-af1da7c1c60e:1",
+          "intent_revision": 1,
+          "observation_id": "spatial:f17a8ab8-a728-4976-84ed-b8ecc41f0a57",
+          "observed_at": "2026-09-05T00:20:00Z",
+          "operation_id": "fde856e9-a326-482f-9a19-af1da7c1c60e",
+          "outcome": "APPLIED",
+          "physical_contact": "B",
+          "semantic_effect_id": "ensure-latched:B",
+          "semantic_goal_attained": true,
+          "target_entity_id": "B"
+        }
+      },
+      "observed": {
+        "a_counter": 0,
+        "a_latched": false,
+        "action": "EXECUTE",
+        "b_counter": 1,
+        "b_latched": true,
+        "contact": "B",
+        "new_operation_pulses": 1,
+        "reason": "REFERENCE_STILL_VALID",
+        "seed_pulses": 0,
+        "total_device_pulses": 1
+      },
+      "raw_scenario_id": "S0_NOMINAL",
+      "target": "B"
+    }
+  ],
+  "schema": "deferred-teleoperation/m3a.1-two-button-service-proof.v1",
+  "scope": {
+    "active_robot_instances_per_store": 1,
+    "milestone": "M3a.1",
+    "operation": "EnsureButtonLatched(desired_latched=true)",
+    "revision": 1,
+    "service_authentication": "trusted services; this evidence is not cryptographic authentication",
+    "service_path": "Mission -> virtual transit -> local Field observation -> Robot -> independent simulated device -> Mission",
+    "virtual_delay_seconds": 1200
+  },
+  "sources": {
+    "count": 10,
+    "files": [
+      {
+        "bytes": 194801,
+        "path": "python/src/deferred_teleop/runtime.py",
+        "sha256": "7f91ba0d067fa1e4f88e2e3398eb2642ade6686b380c4821df428381cd47ffe2"
+      },
+      {
+        "bytes": 22084,
+        "path": "python/src/deferred_teleop/protocol.py",
+        "sha256": "ff487045f7cbe6520911d74301a1e76586abd3d9ce335a46b634b16d37fe7ecd"
+      },
+      {
+        "bytes": 111015,
+        "path": "python/src/deferred_teleop/storage.py",
+        "sha256": "1d5f966d930c00f4cc25f7080be963a840fd000653dfc26dd17b26ee12a2cd89"
+      },
+      {
+        "bytes": 7809,
+        "path": "python/src/deferred_teleop/mission_view.py",
+        "sha256": "4a79a9778873285db208c584ef56ce1f04ffe41aa22652a11880feb48bada263"
+      },
+      {
+        "bytes": 33576,
+        "path": "python/src/deferred_teleop/m3a_types.py",
+        "sha256": "6e20f43073011b82e4117152ed283f35b5d51c63605bf15e1deb89dbd865e45e"
+      },
+      {
+        "bytes": 35645,
+        "path": "python/src/deferred_teleop/two_button_fixture.py",
+        "sha256": "c4f1658e2cb109f20e6d68f47ff7ef9f10a813ca8218c315613872ca56ef99a8"
+      },
+      {
+        "bytes": 16200,
+        "path": "python/src/deferred_teleop/two_button_policy.py",
+        "sha256": "fee3932357e1e6717dc823da4ac2f3a7c32c64f4a841996885af5e8e557d680e"
+      },
+      {
+        "bytes": 14006,
+        "path": "python/src/deferred_teleop/external_effect.py",
+        "sha256": "fc195bc45955afa652156228e3c8caca968eea88c5321a0be2efd42c1f3a544d"
+      },
+      {
+        "bytes": 56567,
+        "path": "tests/test_m3a_two_button.py",
+        "sha256": "5309b91558f744d945b6b5e0811e6a4a1c5fd117465179fc0fbd2ce09c0be2f3"
+      },
+      {
+        "bytes": 47197,
+        "path": "protocol/v0/schemas/message-envelope.schema.json",
+        "sha256": "a6687bc5353e742ee2e8ee1a917cc73928b618b8b18c9ddb208e611fe47110f0"
+      }
+    ],
+    "manifest_sha256": "07a6aa4c140b3bc92c75f0761c28b7ab6a3669e9bc4bc0dea8b61b8cb1271329",
+    "unchanged_during_validation": true
+  },
+  "status": "verified_bounded_slice",
+  "validation": {
+    "checks": [
+      {
+        "exit_code": 0,
+        "log_sha256": "f4c4f0e7ecd0de0c5bb6693a99e60309855d2913de70fb0a875ed9b1ce32847a",
+        "name": "pytest"
+      },
+      {
+        "exit_code": 0,
+        "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "name": "ruff"
+      },
+      {
+        "exit_code": 0,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "name": "schema"
+      },
+      {
+        "exit_code": 0,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "name": "model"
+      },
+      {
+        "exit_code": 0,
+        "log_sha256": "466790a1ca97b7e1b196645ca253867e3b7f9ea94c456c53524c2787eb4f2a16",
+        "name": "oracle"
+      },
+      {
+        "exit_code": 0,
+        "log_sha256": "ff6e7d4a394b843139bb0bfae313ce9c85333c838df17a389d186ea8f7a7b648",
+        "name": "gate"
+      },
+      {
+        "exit_code": 0,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "name": "diff"
+      }
+    ],
+    "golden_artifacts": {
+      "base_commit": "1dfc085cef048acf104bc73882b6faa979799111",
+      "byte_identical": true,
+      "files": [
+        {
+          "bytes": 1487,
+          "path": "fixtures/m1/golden-session/README.md",
+          "sha256": "2de71be2ee218d9b7c0f4ee63f5f3a20f67f27cdd69e844824550b3ba685c6d7"
+        },
+        {
+          "bytes": 3292,
+          "path": "fixtures/m1/golden-session/expected-domain-state.json",
+          "sha256": "59f5b1927fc18e6f00ba6e654b91f8137eaca002497f2701acdeb39f7c41eed2"
+        },
+        {
+          "bytes": 359,
+          "path": "fixtures/m1/golden-session/expected-effect-counter.json",
+          "sha256": "f952470e7b4f214803a9039711f93b4099507c9b506257054a71ab6dd5ab138b"
+        },
+        {
+          "bytes": 5221,
+          "path": "fixtures/m1/golden-session/expected-mission-view.json",
+          "sha256": "5412ade4288360091807e7be4040d319873d2089822564683a99eeb4f5033512"
+        },
+        {
+          "bytes": 1424,
+          "path": "fixtures/m1/golden-session/manifest.json",
+          "sha256": "ac8efb8cc002cce65dfb36cab282e8770c8c888126383d40154b9da7676a4b8d"
+        },
+        {
+          "bytes": 23364,
+          "path": "fixtures/m1/golden-session/messages.jsonl",
+          "sha256": "6c1ac3bd0c46fdcee1bc664e70816802f6373711ef63b3ff687177771af37829"
+        }
+      ]
+    },
+    "python_version": "Python 3.11.15",
+    "runner": {
+      "exit_code": 0,
+      "public_source_fingerprints_checked_before_and_after": 9,
+      "report_sha256": "62d318216a0f5ab88a3769850662204cd64e5de9ee437c2c13a2ab702a58e135",
+      "runner_sha256": "4b1e52f4a3afb60549d15eb1146d60506d70765e20f78c03f8bc761e5d7cba8f",
+      "runner_visibility": "private supplementary receipt; public reproduction uses the test suite",
+      "scenario_count": 6
+    },
+    "sqlite_schema_version": 9,
+    "tests": {
+      "focused_m3a": {
+        "failed": 0,
+        "passed": 23,
+        "skipped": 0
+      },
+      "full_python": {
+        "failed": 0,
+        "passed": 175,
+        "skipped": 0
+      },
+      "junit_sha256": "19a79661965086c0226f14eff5061681a0ed2abbfaee1d4014b41f1c0dc19a99",
+      "log_sha256": "f4c4f0e7ecd0de0c5bb6693a99e60309855d2913de70fb0a875ed9b1ce32847a"
+    }
+  }
+}

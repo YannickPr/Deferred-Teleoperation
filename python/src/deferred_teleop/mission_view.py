@@ -14,9 +14,14 @@ from deferred_teleop.protocol import (
     ArticulatedRobotState,
     ContractState,
     EvidenceMetadata,
+    LocalTwoButtonDecision,
     Pose,
     PredictionManifest,
     ProvenanceKind,
+    SpatialPressCommand,
+    TwoButtonEffectEvidence,
+    TwoButtonLevelEvidence,
+    TwoButtonObservation,
     WireModel,
 )
 
@@ -107,6 +112,53 @@ class MissionViewState(WireModel):
     trajectory_forecasts: tuple[TimedTrajectorySample, ...]
     prediction_manifests: tuple[PredictionManifest, ...]
     status: MissionViewStatus
+
+
+class M3aMissionViewState(WireModel):
+    """Dedicated read model for the observed spatial two-button slice.
+
+    The historical ``mission.view_state`` remains unchanged.  This model keeps
+    the M3a evidence and physical proof together so a client can distinguish a
+    semantic decision, a dispatched command, and the device's contact result.
+    """
+
+    protocol_version: Literal["dtt/0"] = "dtt/0"
+    message_type: Literal["m3a.view"] = "m3a.view"
+    source_id: Annotated[str, Field(min_length=1)]
+    source_sequence: Annotated[int, Field(ge=1)]
+    produced_at: datetime
+    operation_id: UUID | None
+    correlation_id: UUID | None
+    configured_one_way_delay_seconds: Annotated[float, Field(ge=0.0)]
+    reference_observation: TwoButtonObservation | None
+    current_observation: TwoButtonObservation | None
+    level_evidence: TwoButtonLevelEvidence | None
+    decision: LocalTwoButtonDecision | None
+    command: SpatialPressCommand | None
+    effect_evidence: TwoButtonEffectEvidence | None
+    contract_id: UUID | None
+    contract_state: ContractState | None
+    terminal_result: dict[str, object] | None
+    business_result: str | None
+    physical_contact: Literal["A", "B", "NONE"] | None
+    a_counter: Annotated[int | None, Field(ge=0)]
+    b_counter: Annotated[int | None, Field(ge=0)]
+    a_latched: bool | None
+    b_latched: bool | None
+
+    @model_validator(mode="after")
+    def validate_identity(self) -> M3aMissionViewState:
+        if not self.source_id.strip():
+            raise ValueError("source_id must not be blank")
+        if self.business_result is not None and not self.business_result.strip():
+            raise ValueError("business_result must not be blank")
+        return self
+
+
+# A short alias keeps call sites readable while retaining the explicit model
+# name for schema and documentation consumers.
+M3aViewState = M3aMissionViewState
+M3ATwoButtonViewState = M3aMissionViewState
 
 
 class ArticulatedArrivalRobotState(WireModel):

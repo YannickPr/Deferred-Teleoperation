@@ -51,6 +51,46 @@
       "title": "ContractState",
       "type": "string"
     },
+    "EntityDetection": {
+      "additionalProperties": false,
+      "description": "One M3a observed candidate set and measured spatial pose.",
+      "properties": {
+        "candidate_entity_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Candidate Entity Ids",
+          "type": "array"
+        },
+        "detection_id": {
+          "minLength": 1,
+          "title": "Detection Id",
+          "type": "string"
+        },
+        "pose": {
+          "$ref": "#/$defs/Pose"
+        },
+        "source_evidence_id": {
+          "minLength": 1,
+          "title": "Source Evidence Id",
+          "type": "string"
+        },
+        "visibility": {
+          "title": "Visibility",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "detection_id",
+        "candidate_entity_ids",
+        "pose",
+        "visibility",
+        "source_evidence_id"
+      ],
+      "title": "EntityDetection",
+      "type": "object"
+    },
     "EntitySelector": {
       "additionalProperties": false,
       "properties": {
@@ -267,6 +307,400 @@
         "position_radians"
       ],
       "title": "JointPosition",
+      "type": "object"
+    },
+    "LocalTwoButtonDecision": {
+      "additionalProperties": false,
+      "description": "Pure Robot decision with explicit action/reason and budget state.",
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/M3aAction"
+        },
+        "budget_state": {
+          "minLength": 1,
+          "title": "Budget State",
+          "type": "string"
+        },
+        "command_digest": {
+          "anyOf": [
+            {
+              "maxLength": 71,
+              "minLength": 71,
+              "pattern": "sha256:[0-9a-f]{64}",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Command Digest"
+        },
+        "current_observation_id": {
+          "minLength": 1,
+          "title": "Current Observation Id",
+          "type": "string"
+        },
+        "displacement_m": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Displacement M"
+        },
+        "intent_revision": {
+          "const": 1,
+          "title": "Intent Revision",
+          "type": "integer"
+        },
+        "level_evidence_observation_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Level Evidence Observation Id"
+        },
+        "operation_id": {
+          "format": "uuid",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "reason": {
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "reference_observation_id": {
+          "minLength": 1,
+          "title": "Reference Observation Id",
+          "type": "string"
+        },
+        "selected_detection_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selected Detection Id"
+        },
+        "semantic_effect_id": {
+          "minLength": 1,
+          "title": "Semantic Effect Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation_id",
+        "intent_revision",
+        "semantic_effect_id",
+        "reference_observation_id",
+        "current_observation_id",
+        "action",
+        "reason",
+        "budget_state"
+      ],
+      "title": "LocalTwoButtonDecision",
+      "type": "object"
+    },
+    "M3aAction": {
+      "enum": [
+        "EXECUTE",
+        "REANCHOR_EXECUTE",
+        "HOLD_AMBIGUOUS",
+        "HOLD_REFERENCE_MISMATCH",
+        "HOLD_CONTEXT_MISMATCH",
+        "RECOGNIZE_EFFECT"
+      ],
+      "title": "M3aAction",
+      "type": "string"
+    },
+    "M3aEnsureLatchedIntent": {
+      "additionalProperties": false,
+      "description": "Revision-1 M3a root intent; only the true level effect is in scope.",
+      "properties": {
+        "desired_latched": {
+          "const": true,
+          "title": "Desired Latched",
+          "type": "boolean"
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expires At"
+        },
+        "intent_revision": {
+          "const": 1,
+          "title": "Intent Revision",
+          "type": "integer"
+        },
+        "max_displacement_m": {
+          "minimum": 0.0,
+          "title": "Max Displacement M",
+          "type": "number"
+        },
+        "operation_id": {
+          "format": "uuid",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "reference_calibration_version": {
+          "minLength": 1,
+          "title": "Reference Calibration Version",
+          "type": "string"
+        },
+        "reference_detection_id": {
+          "minLength": 1,
+          "title": "Reference Detection Id",
+          "type": "string"
+        },
+        "reference_digest": {
+          "maxLength": 71,
+          "minLength": 71,
+          "pattern": "sha256:[0-9a-f]{64}",
+          "title": "Reference Digest",
+          "type": "string"
+        },
+        "reference_frame_id": {
+          "minLength": 1,
+          "title": "Reference Frame Id",
+          "type": "string"
+        },
+        "reference_observation_id": {
+          "minLength": 1,
+          "title": "Reference Observation Id",
+          "type": "string"
+        },
+        "reference_observed_at": {
+          "format": "date-time",
+          "title": "Reference Observed At",
+          "type": "string"
+        },
+        "reference_pose": {
+          "$ref": "#/$defs/Pose"
+        },
+        "reference_world_revision": {
+          "minimum": 1,
+          "title": "Reference World Revision",
+          "type": "integer"
+        },
+        "same_identity_only": {
+          "const": true,
+          "default": true,
+          "title": "Same Identity Only",
+          "type": "boolean"
+        },
+        "semantic_effect_id": {
+          "minLength": 1,
+          "title": "Semantic Effect Id",
+          "type": "string"
+        },
+        "target_entity_id": {
+          "minLength": 1,
+          "title": "Target Entity Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation_id",
+        "intent_revision",
+        "semantic_effect_id",
+        "target_entity_id",
+        "desired_latched",
+        "reference_observation_id",
+        "reference_detection_id",
+        "reference_digest",
+        "reference_pose",
+        "reference_frame_id",
+        "reference_calibration_version",
+        "reference_world_revision",
+        "reference_observed_at",
+        "max_displacement_m"
+      ],
+      "title": "M3aEnsureLatchedIntent",
+      "type": "object"
+    },
+    "M3aSpatialExecutionContext": {
+      "additionalProperties": false,
+      "description": "Field's verified contract/context and full current observation.",
+      "properties": {
+        "contract_id": {
+          "format": "uuid",
+          "title": "Contract Id",
+          "type": "string"
+        },
+        "contract_revision": {
+          "const": 1,
+          "title": "Contract Revision",
+          "type": "integer"
+        },
+        "current_observation": {
+          "$ref": "#/$defs/TwoButtonObservation"
+        },
+        "current_observation_envelope_id": {
+          "minLength": 1,
+          "title": "Current Observation Envelope Id",
+          "type": "string"
+        },
+        "expected_device_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Device Id"
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expires At"
+        },
+        "intent_revision": {
+          "const": 1,
+          "title": "Intent Revision",
+          "type": "integer"
+        },
+        "max_displacement_m": {
+          "minimum": 0.0,
+          "title": "Max Displacement M",
+          "type": "number"
+        },
+        "operation_id": {
+          "format": "uuid",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "reference_calibration_version": {
+          "minLength": 1,
+          "title": "Reference Calibration Version",
+          "type": "string"
+        },
+        "reference_detection_id": {
+          "minLength": 1,
+          "title": "Reference Detection Id",
+          "type": "string"
+        },
+        "reference_digest": {
+          "maxLength": 71,
+          "minLength": 71,
+          "pattern": "sha256:[0-9a-f]{64}",
+          "title": "Reference Digest",
+          "type": "string"
+        },
+        "reference_frame_id": {
+          "minLength": 1,
+          "title": "Reference Frame Id",
+          "type": "string"
+        },
+        "reference_observation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TwoButtonObservation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reference_observation_id": {
+          "minLength": 1,
+          "title": "Reference Observation Id",
+          "type": "string"
+        },
+        "reference_observed_at": {
+          "format": "date-time",
+          "title": "Reference Observed At",
+          "type": "string"
+        },
+        "reference_pose": {
+          "$ref": "#/$defs/Pose"
+        },
+        "reference_world_revision": {
+          "minimum": 1,
+          "title": "Reference World Revision",
+          "type": "integer"
+        },
+        "same_identity_only": {
+          "const": true,
+          "default": true,
+          "title": "Same Identity Only",
+          "type": "boolean"
+        },
+        "semantic_effect_id": {
+          "minLength": 1,
+          "title": "Semantic Effect Id",
+          "type": "string"
+        },
+        "target_entity_id": {
+          "minLength": 1,
+          "title": "Target Entity Id",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation_id",
+        "intent_revision",
+        "contract_id",
+        "contract_revision",
+        "task_id",
+        "semantic_effect_id",
+        "target_entity_id",
+        "reference_observation_id",
+        "reference_detection_id",
+        "reference_digest",
+        "reference_pose",
+        "reference_frame_id",
+        "reference_calibration_version",
+        "reference_world_revision",
+        "reference_observed_at",
+        "current_observation_envelope_id",
+        "current_observation",
+        "max_displacement_m"
+      ],
+      "title": "M3aSpatialExecutionContext",
       "type": "object"
     },
     "OperationIntent": {
@@ -604,6 +1038,64 @@
       "title": "SpatialFrame",
       "type": "object"
     },
+    "SpatialPressCommand": {
+      "additionalProperties": false,
+      "description": "Immutable command addressed to the independent spatial adapter.",
+      "properties": {
+        "calibration_version": {
+          "minLength": 1,
+          "title": "Calibration Version",
+          "type": "string"
+        },
+        "command_digest": {
+          "maxLength": 71,
+          "minLength": 71,
+          "pattern": "sha256:[0-9a-f]{64}",
+          "title": "Command Digest",
+          "type": "string"
+        },
+        "command_id": {
+          "minLength": 1,
+          "title": "Command Id",
+          "type": "string"
+        },
+        "effect_key": {
+          "minLength": 1,
+          "title": "Effect Key",
+          "type": "string"
+        },
+        "frame_id": {
+          "minLength": 1,
+          "title": "Frame Id",
+          "type": "string"
+        },
+        "position_m": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "source_detection_id": {
+          "minLength": 1,
+          "title": "Source Detection Id",
+          "type": "string"
+        },
+        "source_observation_id": {
+          "minLength": 1,
+          "title": "Source Observation Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command_id",
+        "effect_key",
+        "position_m",
+        "frame_id",
+        "calibration_version",
+        "source_observation_id",
+        "source_detection_id",
+        "command_digest"
+      ],
+      "title": "SpatialPressCommand",
+      "type": "object"
+    },
     "TaskAssignment": {
       "additionalProperties": false,
       "properties": {
@@ -662,6 +1154,322 @@
         "target_entity_id"
       ],
       "title": "TaskNode",
+      "type": "object"
+    },
+    "TwoButtonEffectEvidence": {
+      "additionalProperties": false,
+      "description": "Post-dispatch device proof for one M3a spatial effect.",
+      "properties": {
+        "a_counter": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "A Counter"
+        },
+        "a_latched": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "A Latched"
+        },
+        "b_counter": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "B Counter"
+        },
+        "b_latched": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "B Latched"
+        },
+        "command_digest": {
+          "maxLength": 71,
+          "minLength": 71,
+          "pattern": "sha256:[0-9a-f]{64}",
+          "title": "Command Digest",
+          "type": "string"
+        },
+        "command_digest_diagnostic": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Command Digest Diagnostic"
+        },
+        "command_digest_verified": {
+          "default": true,
+          "title": "Command Digest Verified",
+          "type": "boolean"
+        },
+        "command_executed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Command Executed"
+        },
+        "contract_id": {
+          "format": "uuid",
+          "title": "Contract Id",
+          "type": "string"
+        },
+        "contract_revision": {
+          "const": 1,
+          "title": "Contract Revision",
+          "type": "integer"
+        },
+        "device_id": {
+          "minLength": 1,
+          "title": "Device Id",
+          "type": "string"
+        },
+        "effect_key": {
+          "minLength": 1,
+          "title": "Effect Key",
+          "type": "string"
+        },
+        "intent_revision": {
+          "const": 1,
+          "title": "Intent Revision",
+          "type": "integer"
+        },
+        "observation_id": {
+          "minLength": 1,
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "operation_id": {
+          "format": "uuid",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "APPLIED",
+            "NOT_APPLIED",
+            "UNKNOWN"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "physical_contact": {
+          "anyOf": [
+            {
+              "enum": [
+                "A",
+                "B",
+                "NONE"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Physical Contact"
+        },
+        "semantic_effect_id": {
+          "minLength": 1,
+          "title": "Semantic Effect Id",
+          "type": "string"
+        },
+        "semantic_goal_attained": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Semantic Goal Attained"
+        },
+        "target_entity_id": {
+          "minLength": 1,
+          "title": "Target Entity Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation_id",
+        "intent_revision",
+        "contract_id",
+        "contract_revision",
+        "semantic_effect_id",
+        "target_entity_id",
+        "effect_key",
+        "command_digest",
+        "device_id",
+        "observation_id",
+        "observed_at",
+        "outcome"
+      ],
+      "title": "TwoButtonEffectEvidence",
+      "type": "object"
+    },
+    "TwoButtonLevelEvidence": {
+      "additionalProperties": false,
+      "description": "Independent level sensor proof for one named button.",
+      "properties": {
+        "actual_latched": {
+          "title": "Actual Latched",
+          "type": "boolean"
+        },
+        "counter": {
+          "minimum": 0,
+          "title": "Counter",
+          "type": "integer"
+        },
+        "desired_latched": {
+          "const": true,
+          "title": "Desired Latched",
+          "type": "boolean"
+        },
+        "device_id": {
+          "minLength": 1,
+          "title": "Device Id",
+          "type": "string"
+        },
+        "evidence_observation_id": {
+          "minLength": 1,
+          "title": "Evidence Observation Id",
+          "type": "string"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "target_entity_id": {
+          "minLength": 1,
+          "title": "Target Entity Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target_entity_id",
+        "desired_latched",
+        "actual_latched",
+        "device_id",
+        "counter",
+        "observed_at",
+        "evidence_observation_id"
+      ],
+      "title": "TwoButtonLevelEvidence",
+      "type": "object"
+    },
+    "TwoButtonObservation": {
+      "additionalProperties": false,
+      "description": "Persisted reference/current observation envelope for M3a.",
+      "properties": {
+        "calibration_version": {
+          "minLength": 1,
+          "title": "Calibration Version",
+          "type": "string"
+        },
+        "canonical_payload_digest": {
+          "maxLength": 71,
+          "minLength": 71,
+          "pattern": "sha256:[0-9a-f]{64}",
+          "title": "Canonical Payload Digest",
+          "type": "string"
+        },
+        "detections": {
+          "items": {
+            "$ref": "#/$defs/EntityDetection"
+          },
+          "title": "Detections",
+          "type": "array"
+        },
+        "frame_id": {
+          "minLength": 1,
+          "title": "Frame Id",
+          "type": "string"
+        },
+        "observation_id": {
+          "minLength": 1,
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "produced_at": {
+          "format": "date-time",
+          "title": "Produced At",
+          "type": "string"
+        },
+        "source_id": {
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "world_revision": {
+          "minimum": 1,
+          "title": "World Revision",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "observation_id",
+        "source_id",
+        "world_revision",
+        "observed_at",
+        "produced_at",
+        "frame_id",
+        "calibration_version",
+        "canonical_payload_digest",
+        "detections"
+      ],
+      "title": "TwoButtonObservation",
       "type": "object"
     },
     "Vector3": {
@@ -901,6 +1709,139 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "m3a.two_button.observation"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/TwoButtonObservation"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "m3a.ensure_latched.intent"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/M3aEnsureLatchedIntent"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "m3a.spatial.context"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/M3aSpatialExecutionContext"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "m3a.spatial.command"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/SpatialPressCommand"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "m3a.spatial.level"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/TwoButtonLevelEvidence"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "m3a.spatial.effect"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/TwoButtonEffectEvidence"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "m3a.spatial.decision"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "#/$defs/LocalTwoButtonDecision"
+          }
+        }
+      }
     }
   ],
   "properties": {
@@ -962,7 +1903,14 @@
         "robot.articulated_state",
         "robot.forecast",
         "site.snapshot",
-        "prediction.manifest"
+        "prediction.manifest",
+        "m3a.two_button.observation",
+        "m3a.ensure_latched.intent",
+        "m3a.spatial.context",
+        "m3a.spatial.command",
+        "m3a.spatial.level",
+        "m3a.spatial.effect",
+        "m3a.spatial.decision"
       ],
       "title": "Message Type",
       "type": "string"
@@ -1014,6 +1962,30 @@
         },
         {
           "$ref": "#/$defs/PredictionManifest"
+        },
+        {
+          "$ref": "#/$defs/EntityDetection"
+        },
+        {
+          "$ref": "#/$defs/TwoButtonObservation"
+        },
+        {
+          "$ref": "#/$defs/M3aEnsureLatchedIntent"
+        },
+        {
+          "$ref": "#/$defs/M3aSpatialExecutionContext"
+        },
+        {
+          "$ref": "#/$defs/SpatialPressCommand"
+        },
+        {
+          "$ref": "#/$defs/TwoButtonLevelEvidence"
+        },
+        {
+          "$ref": "#/$defs/TwoButtonEffectEvidence"
+        },
+        {
+          "$ref": "#/$defs/LocalTwoButtonDecision"
         }
       ],
       "title": "Payload"
