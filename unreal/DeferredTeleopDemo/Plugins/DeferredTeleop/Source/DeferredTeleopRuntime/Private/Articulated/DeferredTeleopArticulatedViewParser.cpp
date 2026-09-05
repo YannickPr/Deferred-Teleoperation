@@ -16,6 +16,11 @@ bool Fail(FString& OutError, const FString& Path, const FString& Detail)
     return false;
 }
 
+bool EqualsCaseSensitive(const FString& Value, const TCHAR* Expected)
+{
+    return Value.Equals(FString(Expected), ESearchCase::CaseSensitive);
+}
+
 bool RequireExactFields(
     const FJsonObjectPtr& Object,
     const std::initializer_list<const TCHAR*>& Names,
@@ -67,7 +72,7 @@ bool ReadLiteral(
     {
         return false;
     }
-    if (Value != Expected)
+    if (!EqualsCaseSensitive(Value, Expected))
     {
         return Fail(
             OutError,
@@ -226,27 +231,27 @@ bool ParseProvenance(
     const FString& Path,
     FString& OutError)
 {
-    if (Value == TEXT("MEASURED"))
+    if (EqualsCaseSensitive(Value, TEXT("MEASURED")))
     {
         OutValue = EDeferredTeleopProvenance::Measured;
     }
-    else if (Value == TEXT("FUSED"))
+    else if (EqualsCaseSensitive(Value, TEXT("FUSED")))
     {
         OutValue = EDeferredTeleopProvenance::Fused;
     }
-    else if (Value == TEXT("OPERATOR_ASSERTED"))
+    else if (EqualsCaseSensitive(Value, TEXT("OPERATOR_ASSERTED")))
     {
         OutValue = EDeferredTeleopProvenance::OperatorAsserted;
     }
-    else if (Value == TEXT("INFERRED"))
+    else if (EqualsCaseSensitive(Value, TEXT("INFERRED")))
     {
         OutValue = EDeferredTeleopProvenance::Inferred;
     }
-    else if (Value == TEXT("PREDICTED"))
+    else if (EqualsCaseSensitive(Value, TEXT("PREDICTED")))
     {
         OutValue = EDeferredTeleopProvenance::Predicted;
     }
-    else if (Value == TEXT("SIMULATED"))
+    else if (EqualsCaseSensitive(Value, TEXT("SIMULATED")))
     {
         OutValue = EDeferredTeleopProvenance::Simulated;
     }
@@ -406,7 +411,7 @@ bool ParseEvidence(
 
 bool IsSha256Hash(const FString& Value)
 {
-    if (!Value.StartsWith(TEXT("sha256:")) || Value.Len() != 71)
+    if (!Value.StartsWith(TEXT("sha256:"), ESearchCase::CaseSensitive) || Value.Len() != 71)
     {
         return false;
     }
@@ -520,7 +525,9 @@ bool ParseArticulatedRobotState(
         if (OutState.Joints.ContainsByPredicate(
                 [&Joint](const FDeferredTeleopArticulatedJointPosition& Existing)
                 {
-                    return Existing.JointName == Joint.JointName;
+                    return Existing.JointName.Equals(
+                        Joint.JointName,
+                        ESearchCase::CaseSensitive);
                 }))
         {
             return Fail(OutError, JointPath + TEXT(".joint_name"), TEXT("duplicate joint name"));
@@ -552,15 +559,15 @@ bool ParseConnection(
     {
         return false;
     }
-    if (State == TEXT("DISCONNECTED"))
+    if (EqualsCaseSensitive(State, TEXT("DISCONNECTED")))
     {
         OutConnection.MissionToField = EDeferredTeleopConnectionState::Disconnected;
     }
-    else if (State == TEXT("CONNECTING"))
+    else if (EqualsCaseSensitive(State, TEXT("CONNECTING")))
     {
         OutConnection.MissionToField = EDeferredTeleopConnectionState::Connecting;
     }
-    else if (State == TEXT("CONNECTED"))
+    else if (EqualsCaseSensitive(State, TEXT("CONNECTED")))
     {
         OutConnection.MissionToField = EDeferredTeleopConnectionState::Connected;
     }
@@ -623,10 +630,10 @@ bool ParseStatus(
         return false;
     }
     if (!OutStatus.TerminalState.IsEmpty()
-        && OutStatus.TerminalState != TEXT("SUCCEEDED")
-        && OutStatus.TerminalState != TEXT("FAILED")
-        && OutStatus.TerminalState != TEXT("HELD")
-        && OutStatus.TerminalState != TEXT("CANCELLED"))
+        && !EqualsCaseSensitive(OutStatus.TerminalState, TEXT("SUCCEEDED"))
+        && !EqualsCaseSensitive(OutStatus.TerminalState, TEXT("FAILED"))
+        && !EqualsCaseSensitive(OutStatus.TerminalState, TEXT("HELD"))
+        && !EqualsCaseSensitive(OutStatus.TerminalState, TEXT("CANCELLED")))
     {
         return Fail(OutError, Path + TEXT(".terminal_state"), TEXT("unsupported terminal state"));
     }
@@ -712,7 +719,7 @@ bool CompareModelReference(
     FString& OutDiagnostic)
 {
     OutDiagnostic.Reset();
-    if (Actual.ModelId != Expected.ModelId)
+    if (!Actual.ModelId.Equals(Expected.ModelId, ESearchCase::CaseSensitive))
     {
         OutDiagnostic = FString::Printf(
             TEXT("model_id mismatch: actual='%s', expected='%s'"),
@@ -720,7 +727,7 @@ bool CompareModelReference(
             *Expected.ModelId);
         return false;
     }
-    if (Actual.ModelRevision != Expected.ModelRevision)
+    if (!Actual.ModelRevision.Equals(Expected.ModelRevision, ESearchCase::CaseSensitive))
     {
         OutDiagnostic = FString::Printf(
             TEXT("model_revision mismatch: actual='%s', expected='%s'"),
@@ -728,7 +735,7 @@ bool CompareModelReference(
             *Expected.ModelRevision);
         return false;
     }
-    if (Actual.DescriptionHash != Expected.DescriptionHash)
+    if (!Actual.DescriptionHash.Equals(Expected.DescriptionHash, ESearchCase::CaseSensitive))
     {
         OutDiagnostic = FString::Printf(
             TEXT("description_hash mismatch: actual='%s', expected='%s'"),

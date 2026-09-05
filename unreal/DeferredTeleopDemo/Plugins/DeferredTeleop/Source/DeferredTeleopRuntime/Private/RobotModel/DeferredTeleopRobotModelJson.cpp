@@ -16,6 +16,11 @@ bool Fail(FString& OutError, const FString& Path, const FString& Detail)
     return false;
 }
 
+bool EqualsCaseSensitive(const FString& Value, const TCHAR* Expected)
+{
+    return Value.Equals(FString(Expected), ESearchCase::CaseSensitive);
+}
+
 bool RequireExactFields(
     const FJsonObjectPtr& Object,
     std::initializer_list<const TCHAR*> Names,
@@ -69,7 +74,7 @@ bool ReadLiteral(
     {
         return false;
     }
-    if (Value != Expected)
+    if (!EqualsCaseSensitive(Value, Expected))
     {
         return Fail(
             OutError,
@@ -571,7 +576,7 @@ bool ParseRobotDescriptionJson(
         ParsedJoint.Name = FName(*Name);
         ParsedJoint.ParentLink = FName(*ParentLink);
         ParsedJoint.ChildLink = FName(*ChildLink);
-        if (Type == TEXT("fixed"))
+        if (EqualsCaseSensitive(Type, TEXT("fixed")))
         {
             if (bHasAxis || ParsedJoint.bHasPositionLimits)
             {
@@ -582,7 +587,7 @@ bool ParseRobotDescriptionJson(
             }
             ParsedJoint.Type = EDttRobotJointType::Fixed;
         }
-        else if (Type == TEXT("revolute"))
+        else if (EqualsCaseSensitive(Type, TEXT("revolute")))
         {
             if (!bHasAxis)
             {

@@ -5,6 +5,14 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 
 ## Unreleased
 
+### Fixed
+
+- exact model-reference and protocol-literal comparisons in the M2 articulated view,
+  robot-description parser, preview and actor topology reuse. Case-only mutations are covered
+  by strengthened assertions in the existing 43-test Unreal suite, passing on Linux and Win64;
+  native `FName` topology lookup semantics remain unchanged. See the
+  [identity contract and evidence](docs/m2/IDENTITY_CASE_SENSITIVITY.md).
+
 ### Added
 
 - experimental external-effect recovery with a separate persistent simulated button, durable

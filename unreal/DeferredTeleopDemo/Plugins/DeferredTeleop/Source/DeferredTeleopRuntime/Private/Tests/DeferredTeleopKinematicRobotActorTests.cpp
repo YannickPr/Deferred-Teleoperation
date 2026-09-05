@@ -558,6 +558,32 @@ bool FDeferredTeleopKinematicRobotActorStableTopologyTest::RunTest(const FString
             TestTrue(*FString::Printf(TEXT("tool component pointer %s is unchanged"), *Pair.Key.ToString()), *Found == Pair.Value);
         }
     }
+
+    FDttRobotDescription CaseChanged = Description;
+    CaseChanged.ModelId = TEXT("KINEMATIC-ACTOR-TEST");
+    TestTrue(
+        TEXT("model id case change reinitializes successfully"),
+        Actor->InitializeModel(
+            CaseChanged,
+            DttKinematicRobotActorTest::Translation(0.0, 0.0, 0.0),
+            Error));
+    TestFalse(
+        TEXT("model id case change does not retain the old pose"),
+        Actor->bHasValidPose);
+    TestTrue(
+        TEXT("case-changed model accepts a new state"),
+        Actor->ApplyState(DttKinematicRobotActorTest::MakeSmallState(-0.2), Error));
+
+    CaseChanged.ModelRevision = TEXT("TEST:1");
+    TestTrue(
+        TEXT("model revision case change reinitializes successfully"),
+        Actor->InitializeModel(
+            CaseChanged,
+            DttKinematicRobotActorTest::Translation(0.0, 0.0, 0.0),
+            Error));
+    TestFalse(
+        TEXT("model revision case change does not retain the old pose"),
+        Actor->bHasValidPose);
     return true;
 }
 

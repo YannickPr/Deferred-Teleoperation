@@ -1047,7 +1047,8 @@ bool ADeferredTeleopKinematicRobotActor::AreDescriptionsEqual(
     const FDttRobotDescription& Left,
     const FDttRobotDescription& Right)
 {
-    if (Left.ModelId != Right.ModelId || Left.ModelRevision != Right.ModelRevision
+    if (!Left.ModelId.Equals(Right.ModelId, ESearchCase::CaseSensitive)
+        || !Left.ModelRevision.Equals(Right.ModelRevision, ESearchCase::CaseSensitive)
         || Left.RootLinkName != Right.RootLinkName || Left.Links.Num() != Right.Links.Num()
         || Left.Joints.Num() != Right.Joints.Num() || Left.JointGroups.Num() != Right.JointGroups.Num()
         || Left.ToolFrames.Num() != Right.ToolFrames.Num())

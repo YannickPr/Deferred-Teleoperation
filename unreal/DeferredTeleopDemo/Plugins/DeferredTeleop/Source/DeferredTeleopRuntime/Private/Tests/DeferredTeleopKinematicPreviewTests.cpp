@@ -631,12 +631,22 @@ bool FDeferredTeleopKinematicPreviewForgedResultTest::RunTest(const FString& Par
     ExpectRejected(*this, Description, Forged, TEXT("wrong tool frame"));
 
     Forged = BaseRequest;
-    Forged.ModelReference.DescriptionHash = TEXT("sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-    ExpectRejected(*this, Description, Forged, TEXT("uppercase description hash"));
+    Forged.ModelReference.DescriptionHash =
+        TEXT("SHA256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    ExpectRejected(*this, Description, Forged, TEXT("uppercase description hash prefix"));
+
+    Forged = BaseRequest;
+    Forged.ModelReference.DescriptionHash =
+        TEXT("sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    ExpectRejected(*this, Description, Forged, TEXT("uppercase description hash digest"));
 
     Forged = BaseRequest;
     Forged.ModelReference.ModelId = TEXT("other-model");
     ExpectRejected(*this, Description, Forged, TEXT("model id mismatch"));
+
+    Forged = BaseRequest;
+    Forged.ModelReference.ModelId = TEXT("PREVIEW-TEST-MODEL");
+    ExpectRejected(*this, Description, Forged, TEXT("model id casing mismatch"));
 
     Forged = BaseRequest;
     Forged.GoalId = FGuid();
@@ -647,12 +657,24 @@ bool FDeferredTeleopKinematicPreviewForgedResultTest::RunTest(const FString& Par
     ExpectRejected(*this, Description, Forged, TEXT("model revision mismatch"));
 
     Forged = BaseRequest;
+    Forged.ModelReference.ModelRevision = TEXT("PREVIEW:TEST:1");
+    ExpectRejected(*this, Description, Forged, TEXT("model revision casing mismatch"));
+
+    Forged = BaseRequest;
     Forged.IKResult.ModelId = TEXT("other-model");
     ExpectRejected(*this, Description, Forged, TEXT("IK model id mismatch"));
 
     Forged = BaseRequest;
+    Forged.IKResult.ModelId = TEXT("PREVIEW-TEST-MODEL");
+    ExpectRejected(*this, Description, Forged, TEXT("IK model id casing mismatch"));
+
+    Forged = BaseRequest;
     Forged.IKResult.ModelRevision = TEXT("other-revision");
     ExpectRejected(*this, Description, Forged, TEXT("IK model revision mismatch"));
+
+    Forged = BaseRequest;
+    Forged.IKResult.ModelRevision = TEXT("PREVIEW:TEST:1");
+    ExpectRejected(*this, Description, Forged, TEXT("IK model revision casing mismatch"));
     return true;
 }
 
