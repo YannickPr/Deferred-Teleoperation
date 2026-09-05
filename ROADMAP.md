@@ -96,7 +96,7 @@ general perception system. M1.7a is a prerequisite correction, not a substitute 
 
 ## M1.8 — External effect and long-delay evidence
 
-Status: **in progress; M1.8b combined external-effect/long-delay proof implemented**
+Status: **in progress; M1.8b proof and bounded M1.8c budget implemented**
 
 The [long-delay domain tests](docs/m1/LONG_DELAY_DOMAIN.md) cover 0, 30, 900 and 1200 seconds
 of one-way transit, blackout, expiry and persisted-service restart with the M1 dummy effect. The
@@ -111,7 +111,15 @@ outcome is unknown or not applied. Missing or substituted adapters are rejected 
 The M1.8b proof combines that adapter with the delayed domain and verifies independent pulse
 history, duplicate contract delivery after Robot-store recovery, receiving-site expiry, and the
 absence of a fabricated completion snapshot. Stable effect identity across plan revisions and a
-durable autonomy budget remain unimplemented.
+full cross-revision effect identity remain open. The [M1.8c durable budget](docs/m1/DURABLE_EXTERNAL_ACTION_BUDGET.md)
+adds one local attempt/action reservation for each revision-1 operation, a configurable finite
+service-clock window (60 seconds by default), atomic reservation/dispatch/device binding, and
+durable pre-dispatch holds with v3-to-v4 legacy classification.
+
+M1.8c assumes one active Robot instance per SQLite database and external adapter. SQLite serializes
+the durable reservation, but it does not fence external I/O after that commit; two active workers
+can still produce an observe-versus-press race. Fencing or an exclusive process lock and a
+multiprocess oracle remain future work ([issue #45](https://github.com/YannickPr/Deferred-Teleoperation/issues/45)).
 
 M1.8 adds the smallest deterministic proof that a recorded execution event is not itself proof
 of an external effect. A fake button device keeps an effect counter or state in storage separate
@@ -125,12 +133,13 @@ fifteen-minute delay must configure and record at least 900 seconds of one-way t
 validity so that admission, execution and expiry are evaluated at the receiving site rather than
 inferred from a link profile name.
 
-The M1.8b bounded combined slice is implemented and covered by six focused tests in the 115-test
-Python suite. It does not validate physical hardware, a real network, or a whole-OS restart.
+The M1.8b bounded combined slice is implemented and covered by six focused tests. M1.8c adds
+eleven persistent budget cases; the current Python suite passes 152 tests. These slices do not
+validate physical hardware, a real network, or a whole-OS restart.
 Positive and ambiguous observation recovery are covered under long delay; absent external
 evidence remains covered by the separate M1.8a recovery proof. It covers contract revision 1;
-cross-revision identity and durable budget accounting remain open. Expiry or cancellation after
-external dispatch and before Robot recovery is outside this proof.
+cross-revision semantic identity remains open. Expiry or cancellation after external dispatch and
+before Robot recovery is outside this proof.
 
 M1.8 closes when deterministic evidence shows that:
 
@@ -139,6 +148,10 @@ M1.8 closes when deterministic evidence shows that:
   and no blind duplicate effect;
 - a long-delay run records virtual transit, local queue age, validity and the resulting decision;
 - restart and retransmission do not reset the effect identity or autonomy budget.
+
+The bounded budget portion satisfies the one-reservation invariant for revision 1. Full M1.8
+remains open for stable effect identity across plan revisions, multiprocess fencing, and the
+machine-readable evidence that joins those decisions to the independent effect record.
 
 No hardware-control path is introduced by this increment.
 

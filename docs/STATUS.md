@@ -11,7 +11,7 @@ progress. The [roadmap](../ROADMAP.md) defines the corresponding evidence gates.
 | M1 | **Implemented; `v0.1.0` historical** | Delay-tolerant dummy, persistence, replay and Mission reconciliation |
 | M1.7a | **Implemented; PR #30** | Bounded correlation selection and compatible Mission-view layer filtering |
 | M1.7 | **Planned after M1.7a** | Full causal coherence for concurrent operations and reordered Mission-view data |
-| M1.8 | **In progress; M1.8b combined proof implemented** | External device runs through delayed Mission/Field domain; durable budget and cross-revision identity remain open |
+| M1.8 | **In progress; M1.8b proof and bounded M1.8c budget implemented** | One revision-1 local reservation/window is durable; cross-revision identity and multiprocess fencing remain open |
 | M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.2 articulated-state protocol, M2.3 FK math core, M2.4 oracle, M2.5 actor, and M2.8a local preview math core are complete with Linux/Win64 UE evidence; M2.7 constrained IK is complete with Linux/Win64 UE evidence; desktop/VR authoring and #20/#21 remain |
 | M3 | **Planned; M3a + M3b required** | Simulation oracle gate plus calibrated physical-fixture gate |
 | M4/M5 | **Planned** | Broader robot-agnostic assignment, context acquisition and replanning |
@@ -20,7 +20,8 @@ M1.7a, M1.7, M1.8 and the enriched M3a/M3b slices are specified in the [delayed-
 validation design](design/DELAYED_INTENT_VALIDATION.md). M1.7a is implemented in
 [PR #30](https://github.com/YannickPr/Deferred-Teleoperation/pull/30), and the bounded M1.8b
 combined proof is implemented in [the external long-delay evidence](m1/EXTERNAL_EFFECT_LONG_DELAY.md).
-The remaining M1.7 and full M1.8 gates are not established by the design document.
+The bounded M1.8c local budget is documented in [the durable budget guide](m1/DURABLE_EXTERNAL_ACTION_BUDGET.md).
+The remaining M1.7 and full M1.8 gates are not established by these bounded slices.
 
 ## Implemented in M0
 
@@ -191,7 +192,7 @@ All 72 Python tests, Ruff and the unchanged M1 CI release gate passed in
 - explicit handling for missing or incompatible parent references;
 - deterministic machine-readable and visible evidence without cross-operation association.
 
-### M1.8 combined external-effect and long-delay gate
+### M1.8 remaining combined external-effect and long-delay gate
 
 The [long-delay domain tests](m1/LONG_DELAY_DOMAIN.md) exercise the real M1 services and
 deterministic link with up to 1200 seconds of one-way transit. The
@@ -202,14 +203,16 @@ durably; recovery observes without blind replay and rejects a missing or substit
 unknown outcome remains held, and a terminal event alone does not manufacture measured completion
 telemetry in the normal Field.
 
-The integrated Python suite passes 115 tests, including six focused M1.8b scenarios. The historical
-golden session and its six committed files remain unchanged, and the release gate remains
-unchanged. Its explicit dummy fixture compatibility is documented; it is not an external
-observation guarantee.
+The integrated Python suite passes 152 tests, including six M1.8b scenarios and eleven persistent
+M1.8c budget cases. The historical golden session and its six committed files remain unchanged,
+and the release gate remains unchanged. Its explicit dummy fixture compatibility is documented;
+it is not an external observation guarantee. M1.8c assumes one active Robot instance per SQLite
+database and adapter: SQLite serializes the reservation, but does not fence external I/O between
+active workers.
 
 The remaining full M1.8 gate requires:
 
-- stable effect identity across plan revisions and durable autonomy-budget accounting;
+- stable effect identity across plan revisions and multiprocess fencing for the external I/O race;
 - machine-readable evidence connecting those decisions and the independently recorded effect.
 
 ### Remaining M2 work
@@ -255,7 +258,7 @@ M3 remains incomplete until both M3a and M3b pass. Neither gate is currently imp
 
 The M2.5 runtime actor, public scene recipe, platform reports, and synthetic PNG are implemented
 in this bounded tranche; they introduce no hardware path. M1.7a has the separate implementation
-and validation cited above; the bounded M1.8b proof is implemented while the full M1.8 gate remains
+and validation cited above; the bounded M1.8b proof and M1.8c budget are implemented while the full M1.8 gate remains
 open. M2.2, M2.3, M2.4, and M2.5 have their implementation and machine-readable Linux/Win64
 platform records. M2.7 and the M2.8a preview math core are complete with machine-readable
 Linux/Win64 platform records; desktop/VR authoring and the full #20/#21 integration gates remain

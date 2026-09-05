@@ -53,7 +53,20 @@ from deferred_teleop.protocol import (
     Vector3,
     WireModel,
 )
-from deferred_teleop.storage import NodeStore, RecordConflictError
+from deferred_teleop.storage import (
+    BUDGET_DEADLINE_EXPIRED,
+    BUDGET_LIMIT_EXHAUSTED,
+    BUDGET_POLICY_CONFLICT,
+    BUDGET_SCOPE_CONFLICT,
+    LEGACY_OBSERVE_ONLY,
+    LEGACY_UNBUDGETED_HOLD,
+    BudgetDeadlineError,
+    BudgetLimitError,
+    BudgetPolicyConflictError,
+    BudgetScopeConflictError,
+    NodeStore,
+    RecordConflictError,
+)
 
 TERMINAL_STATES = frozenset(
     {
@@ -1127,6 +1140,8 @@ class FieldService(RuntimeService):
 
 
 class DummyRobotService(RuntimeService):
+    DEFAULT_EXTERNAL_MAX_ELAPSED_SECONDS = 60.0
+
     def __init__(
         self,
         store: NodeStore,
@@ -1135,12 +1150,31 @@ class DummyRobotService(RuntimeService):
         field_id: str = "field-1",
         phase_duration: float = 0.05,
         external_effect_adapter: ExternalEffectAdapter | None = None,
+        max_elapsed_seconds: float = DEFAULT_EXTERNAL_MAX_ELAPSED_SECONDS,
         emit: EventSink = _ignore_event,
     ) -> None:
         super().__init__(store, factory, emit=emit)
         self.field_id = field_id
         self.phase_duration = phase_duration
         self.external_effect_adapter = external_effect_adapter
+        if external_effect_adapter is not None:
+            if isinstance(max_elapsed_seconds, bool):
+                raise ValueError("max_elapsed_seconds must be a finite positive float")
+            try:
+                import math
+
+                valid_window = float(max_elapsed_seconds)
+            except (TypeError, ValueError) as error:
+                raise ValueError(
+                    "max_elapsed_seconds must be a finite positive float"
+                ) from error
+            if not math.isfinite(valid_window) or valid_window <= 0.0:
+                raise ValueError("max_elapsed_seconds must be a finite positive float")
+            self.max_elapsed_seconds = valid_window
+        else:
+            # The local policy is external-adapter-only.  Retain the value for
+            # introspection while leaving the historical dummy path untouched.
+            self.max_elapsed_seconds = max_elapsed_seconds
 
     @property
     def capabilities(self) -> tuple[str, ...]:
@@ -1221,18 +1255,101 @@ class DummyRobotService(RuntimeService):
         external_device_id = self._external_device_id()
         external_mode = self.external_effect_adapter is not None
         effect_key = f"press:{contract.operation_id}:{contract.contract_revision}"
-        accepted_now = self.store.accept_contract(
-            contract_id=contract.contract_id,
-            contract_revision=contract.contract_revision,
-            operation_id=contract.operation_id,
-            task_id=assignment.task_id,
-            effect_key=effect_key,
-            accepted_at=self.clock.now(),
+        existing_journal = self.store.find_execution_journal(
+            contract.contract_id, contract.contract_revision
         )
+        legacy_classification = self.store.budget_legacy_classification(
+            contract.contract_id, contract.contract_revision
+        )
+        if legacy_classification == LEGACY_UNBUDGETED_HOLD:
+            self._complete_budget_denial(
+                envelope,
+                operation_id=contract.operation_id,
+                reason=LEGACY_UNBUDGETED_HOLD,
+                previous_state=ContractState.ACCEPTED,
+            )
+            return
+        if not external_mode and self.store.find_autonomy_budget(
+            contract.contract_id, contract.contract_revision
+        ) is not None:
+            raise RecordConflictError(
+                "durable external autonomy budget requires its original adapter"
+            )
+        # A pre-v4 dispatch without a durable device identity cannot be
+        # admitted as a new budget.  Let the immutable recovery guard below
+        # reject an injected adapter with the historical, precise reason.
+        historical_dispatch_without_device = (
+            existing_journal is not None
+            and existing_journal["dispatch_recorded_at"] is not None
+            and existing_journal["dispatch_device_id"] is None
+        )
+        if (
+            external_mode
+            and legacy_classification != LEGACY_OBSERVE_ONLY
+            and not historical_dispatch_without_device
+        ):
+            try:
+                accepted_now = self.store.admit_external_budget_contract(
+                    contract_id=contract.contract_id,
+                    contract_revision=contract.contract_revision,
+                    operation_id=contract.operation_id,
+                    task_id=assignment.task_id,
+                    effect_key=effect_key,
+                    accepted_at=self.clock.now(),
+                    max_elapsed_seconds=self.max_elapsed_seconds,
+                )
+            except BudgetScopeConflictError as error:
+                self._complete_budget_denial(
+                    envelope,
+                    operation_id=contract.operation_id,
+                    reason=BUDGET_SCOPE_CONFLICT,
+                    previous_state=ContractState.RECEIVED,
+                )
+                self.emit(
+                    "robot.contract_held",
+                    {
+                        "contract_id": str(contract.contract_id),
+                        "reason": BUDGET_SCOPE_CONFLICT,
+                        "bound_contract_id": error.bound_contract_id,
+                    },
+                )
+                return
+        elif external_mode:
+            # A v3 dispatch with a durable device identity has no policy
+            # snapshot.  Migration marks it observe-only; skip admission and
+            # all current-policy comparisons during replay/recovery.
+            accepted_now = False
+        else:
+            accepted_now = self.store.accept_contract(
+                contract_id=contract.contract_id,
+                contract_revision=contract.contract_revision,
+                operation_id=contract.operation_id,
+                task_id=assignment.task_id,
+                effect_key=effect_key,
+                accepted_at=self.clock.now(),
+            )
+            # Recheck after the atomic journal admission as another Robot
+            # process may have admitted this contract's external budget between
+            # the initial read above and this transaction.
+            if self.store.find_autonomy_budget(
+                contract.contract_id, contract.contract_revision
+            ) is not None:
+                raise RecordConflictError(
+                    "durable external autonomy budget requires its original adapter"
+                )
         journal = self._journal(contract)
         self._assert_external_dispatch_configuration(journal, external_device_id)
         if journal["state"] in {state.value for state in TERMINAL_STATES}:
-            self._enqueue_terminal_replay(envelope, journal)
+            if external_mode and journal["dispatch_recorded_at"] is None:
+                denial_event = self.store.budget_denial_event(
+                    contract.contract_id, contract.contract_revision
+                )
+                if denial_event is not None:
+                    self._enqueue_if_absent(denial_event)
+                else:
+                    self._enqueue_terminal_replay(envelope, journal)
+            else:
+                self._enqueue_terminal_replay(envelope, journal)
             self.store.complete_inbox(
                 envelope.message_id,
                 processed_at=self.clock.now(),
@@ -1253,6 +1370,74 @@ class DummyRobotService(RuntimeService):
                 ),
             )
         dispatch_recorded_now = False
+        if external_mode:
+            if journal["state"] == ContractState.ACCEPTED.value:
+                try:
+                    dispatch_recorded_now = self.store.reserve_external_dispatch_with_budget(
+                        contract.contract_id,
+                        contract.contract_revision,
+                        recorded_at=self.clock.now(),
+                        device_id=external_device_id or "",
+                        max_elapsed_seconds=self.max_elapsed_seconds,
+                    )
+                except (
+                    BudgetPolicyConflictError,
+                    BudgetDeadlineError,
+                    BudgetLimitError,
+                ) as error:
+                    reason = self._budget_denial_reason(error)
+                    self._complete_budget_denial(
+                        envelope,
+                        operation_id=contract.operation_id,
+                        reason=reason,
+                        previous_state=ContractState.ACCEPTED,
+                    )
+                    self.emit(
+                        "robot.contract_held",
+                        {"contract_id": str(contract.contract_id), "reason": reason},
+                    )
+                    return
+                journal = self._journal(contract)
+                self._enqueue_transition(
+                    envelope,
+                    ContractState.ACCEPTED,
+                    ContractState.DISPATCH_RECORDED,
+                    ordinal=2,
+                    occurred_at=_durable_timestamp(
+                        journal["dispatch_recorded_at"],
+                        field_name="dispatch_recorded_at",
+                    ),
+                )
+                invocation_id = uuid5(
+                    NAMESPACE_URL,
+                    f"dtt-skill:{contract.contract_id}:{contract.contract_revision}",
+                )
+                invocation = {
+                    "invocation_id": str(invocation_id),
+                    "skill": OperationType.PRESS_BUTTON.value,
+                    "target_entity_id": "dummy-button-1",
+                }
+                self.store.append_execution_audit(
+                    contract.contract_id,
+                    contract.contract_revision,
+                    event_type="skill-invocation",
+                    metadata=invocation,
+                    recorded_at=self.clock.now(),
+                )
+                self.emit(
+                    "robot.skill_invoked",
+                    {"contract_id": str(contract.contract_id), **invocation},
+                )
+            journal = self._journal(contract)
+            self._assert_external_dispatch_configuration(journal, external_device_id)
+            await self._process_external_contract(
+                envelope,
+                effect_key=effect_key,
+                dispatch_recorded_now=dispatch_recorded_now,
+                expected_device_id=external_device_id,
+            )
+            return
+
         if journal["state"] == ContractState.ACCEPTED.value:
             dispatch_recorded_now = self.store.record_dispatch(
                 contract.contract_id,
@@ -1266,14 +1451,6 @@ class DummyRobotService(RuntimeService):
                 ContractState.ACCEPTED,
                 ContractState.DISPATCH_RECORDED,
                 ordinal=2,
-                occurred_at=(
-                    _durable_timestamp(
-                        journal["dispatch_recorded_at"],
-                        field_name="dispatch_recorded_at",
-                    )
-                    if external_mode
-                    else None
-                ),
             )
             invocation_id = uuid5(
                 NAMESPACE_URL,
@@ -1295,17 +1472,6 @@ class DummyRobotService(RuntimeService):
                 "robot.skill_invoked",
                 {"contract_id": str(contract.contract_id), **invocation},
             )
-
-        if self.external_effect_adapter is not None:
-            journal = self._journal(contract)
-            self._assert_external_dispatch_configuration(journal, external_device_id)
-            await self._process_external_contract(
-                envelope,
-                effect_key=effect_key,
-                dispatch_recorded_now=dispatch_recorded_now,
-                expected_device_id=external_device_id,
-            )
-            return
 
         self._enqueue_transition(
             envelope,
@@ -1394,6 +1560,46 @@ class DummyRobotService(RuntimeService):
                 "an external effect adapter must expose a non-empty string device_id"
             )
         return device_id
+
+    @staticmethod
+    def _budget_denial_reason(error: Exception) -> str:
+        if isinstance(error, BudgetPolicyConflictError):
+            return BUDGET_POLICY_CONFLICT
+        if isinstance(error, BudgetDeadlineError):
+            return BUDGET_DEADLINE_EXPIRED
+        if isinstance(error, BudgetLimitError):
+            return BUDGET_LIMIT_EXHAUSTED
+        raise TypeError(f"unsupported budget denial: {type(error).__name__}")
+
+    def _complete_budget_denial(
+        self,
+        envelope: MessageEnvelope,
+        *,
+        operation_id: UUID,
+        reason: str,
+        previous_state: ContractState,
+    ) -> None:
+        contract = envelope.payload
+        if not isinstance(contract, ExecutionContract):
+            raise ValueError("budget denial requires an execution contract envelope")
+        denial_at = self.clock.now()
+        held_event = self._transition(
+            envelope,
+            previous_state,
+            ContractState.HELD,
+            ordinal=1 if previous_state is ContractState.RECEIVED else 4,
+            occurred_at=denial_at,
+        )
+        self.store.complete_budget_scope_denial(
+            contract.contract_id,
+            contract.contract_revision,
+            operation_id=operation_id,
+            reason=reason,
+            first_envelope=envelope,
+            held_event=held_event,
+            inbox_message_id=envelope.message_id,
+            processed_at=denial_at,
+        )
 
     def _assert_external_dispatch_configuration(
         self, journal: Mapping[str, Any], expected_device_id: str | None
@@ -1721,6 +1927,11 @@ class DummyRobotService(RuntimeService):
         contract = cause.payload
         assert isinstance(contract, ExecutionContract)
         terminal = ContractState(str(journal["state"]))
+        previous_state = (
+            ContractState.ACCEPTED
+            if terminal is ContractState.HELD and journal.get("dispatch_recorded_at") is None
+            else ContractState.RUNNING
+        )
         replay_id = uuid5(NAMESPACE_URL, f"dtt-replay:{cause.message_id}:{terminal.value}")
         replay = self.factory.make(
             "execution.event",
@@ -1730,7 +1941,7 @@ class DummyRobotService(RuntimeService):
                 event_id=replay_id,
                 contract_id=contract.contract_id,
                 contract_revision=contract.contract_revision,
-                previous_state=ContractState.RUNNING,
+                previous_state=previous_state,
                 next_state=terminal,
                 occurred_at=datetime.fromisoformat(
                     str(journal["terminal_at"]).replace("Z", "+00:00")

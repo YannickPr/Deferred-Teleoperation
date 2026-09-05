@@ -9,6 +9,8 @@
 > The bounded M2.8a local KinematicPreview math core is implemented; Linux and Win64 Unreal
 > validation each record 43/43 contextual successes, including all eight preview tests, with
 > build/editor exit code 0.
+> The bounded M1.8c local external-action budget supports one revision-1 reservation/window;
+> cross-revision effect identity and multiprocess fencing remain open.
 > The `v0.1.0` release gate is satisfied with portable Python CI;
 > M2.2–M2.5 have separate Unreal Engine 5.8.2 evidence on Linux and Win64. No physical robot path
 > is enabled.
@@ -37,6 +39,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | Unreal Engine plugin | M1 Mission view, strict client and reconciliation scene; verified with UE 5.8.2 on Windows |
 | Delay-tolerant dummy | Runnable M1 Mission / Field / dummy-Robot development slice |
 | M1 release gate | Passed: golden replay, adversarial matrix, portable CI, and Windows UE 5.8.2 evidence |
+| M1.8 external effect | M1.8b delayed proof and bounded M1.8c one-reservation local budget implemented; cross-revision identity and multiprocess fencing remain open |
 | SO-101 twin | M2.2 articulated-state protocol (#14), M2.3 canonical transforms/generic FK code (#15), M2.4 cross-language numerical oracle (#16), and the bounded M2.5 rigid-link actor are complete with Python 3.11/3.12 and Linux/Win64 UE 5.8.2 evidence; the M2.7 constrained-IK implementation and M2.8a local preview math core are complete with Linux/Win64 UE 5.8.2 evidence; desktop/VR authoring and #20/#21 integration remain open |
 | Autonomous delayed button press | Planned for M3 |
 | Hardware control | Disabled by default; not implemented publicly |

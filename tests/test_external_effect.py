@@ -21,7 +21,12 @@ from deferred_teleop.runtime import (
     dummy_pose,
     evidence,
 )
-from deferred_teleop.storage import NodeStore, RecordConflictError, initialize_database
+from deferred_teleop.storage import (
+    CURRENT_SCHEMA_VERSION,
+    NodeStore,
+    RecordConflictError,
+    initialize_database,
+)
 
 NOW = datetime(2026, 9, 4, 12, 0, tzinfo=UTC)
 
@@ -597,7 +602,7 @@ def test_v2_dispatch_without_device_refuses_adapter_and_keeps_legacy_dummy_path(
 
         with mission_store, field_store:
             with NodeStore(robot_path) as robot_store:
-                assert robot_store.schema_version == 3
+                assert robot_store.schema_version == CURRENT_SCHEMA_VERSION
                 adapter = CountingObservationAdapter(
                     device_id="legacy-replacement-device", clock=clock
                 )
