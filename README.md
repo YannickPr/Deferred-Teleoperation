@@ -10,7 +10,12 @@
 > validation each record 43/43 contextual successes, including all eight preview tests, with
 > build/editor exit code 0.
 > The bounded M1.8c local external-action budget supports one revision-1 reservation/window;
-> cross-revision effect identity and multiprocess fencing remain open.
+> the integrated Python suite passes 152 tests, while cross-revision effect identity and
+> multiprocess fencing remain open.
+> The bounded M2.9a opt-in articulated-scene tranche is complete: Linux and Win64 each record
+> build/editor exit code 0 and 50 tests (48 `Success` plus two expected `SuccessWithWarnings` for
+> missing-model and duplicate-sequence negative cases). Its desktop capture is synthetic fixture
+> replay; full M2.9 and #20/#21 remain open.
 > The `v0.1.0` release gate is satisfied with portable Python CI;
 > M2.2–M2.5 have separate Unreal Engine 5.8.2 evidence on Linux and Win64. No physical robot path
 > is enabled.
@@ -40,7 +45,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | Delay-tolerant dummy | Runnable M1 Mission / Field / dummy-Robot development slice |
 | M1 release gate | Passed: golden replay, adversarial matrix, portable CI, and Windows UE 5.8.2 evidence |
 | M1.8 external effect | M1.8b delayed proof and bounded M1.8c one-reservation local budget implemented; cross-revision identity and multiprocess fencing remain open |
-| SO-101 twin | M2.2 articulated-state protocol (#14), M2.3 canonical transforms/generic FK code (#15), M2.4 cross-language numerical oracle (#16), and the bounded M2.5 rigid-link actor are complete with Python 3.11/3.12 and Linux/Win64 UE 5.8.2 evidence; the M2.7 constrained-IK implementation and M2.8a local preview math core are complete with Linux/Win64 UE 5.8.2 evidence; desktop/VR authoring and #20/#21 integration remain open |
+| SO-101 twin | M2.2 articulated-state protocol (#14), M2.3 canonical transforms/generic FK code (#15), M2.4 cross-language numerical oracle (#16), and the bounded M2.5 rigid-link actor are complete with Python 3.11/3.12 and Linux/Win64 UE 5.8.2 evidence; the M2.7 constrained-IK implementation and M2.8a local preview math core are complete with Linux/Win64 UE 5.8.2 evidence; the bounded M2.9a opt-in articulated-scene tranche is complete with Linux/Win64 native evidence and a synthetic desktop capture; full M2.9, desktop/VR authoring, and #20/#21 integration remain open |
 | Autonomous delayed button press | Planned for M3 |
 | Hardware control | Disabled by default; not implemented publicly |
 
@@ -129,7 +134,7 @@ tests. Version 2 fixes the reference operation order so Python 3.11 and 3.12 gen
 bytes; the final native validation passes the eight-test `DeferredTeleop.M2.Kinematics` selector
 on Linux and Win64, as recorded in the [M2.4 platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
 alongside the earlier full 14-test context. The post-rebase integrated Python validation passes
-141 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
+152 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
 historical 135/20 context. The raw articulated feed does not validate SO-101
 geometry: an FK consumer must call the description-backed validator and retain its diagnostics.
 M2.4 supplies the numerical FK oracle. The bounded M2.7 constrained-IK implementation (#19)
@@ -161,6 +166,22 @@ contextual successes with build/editor exit code 0. See the [preview guide](docs
 and the [platform record](docs/m2/evidence/kinematic-preview-platform-validation.json).
 This bounded math slice does not claim desktop/VR authoring, trajectory visualization, or closure
 of #20/#21.
+
+The bounded M2.9a articulated-scene tranche adds an opt-in Unreal consumer for the
+three-layer Mission view. It keeps persistent Confirmed, Arrival, and Target kinematic actors,
+loads and authenticates one explicit local description, preserves last-good state across invalid
+or stale inputs, and fixes the effective wire mode and source ordering per connection. The
+editor recipe and exactly seven grouped production Automation tests are committed. Linux and
+Win64 each record build/editor exit code 0 with 50 tests: 48 `Success` plus two expected
+`SuccessWithWarnings` for the missing-model and duplicate-sequence negative cases, with zero
+failures. The final 1920x1080 `RenderOffscreenVulkan` image is a `SYNTHETIC FIXTURE REPLAY`
+illustrating the three layers from runtime status labels; it is not a pose/root oracle or a
+pixel-identical output of the public generator alone. See
+the [platform record](docs/m2/evidence/articulated-scene-platform-validation.json), [scene guide](docs/m2/ARTICULATED_SCENE.md),
+and [capture](docs/m2/evidence/m2-9a-articulated-scene.png). JSON field-name exactness remains
+tracked by [issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47). This
+presentation seam does not add Target authoring, IK, VR, hardware, or an execution command path,
+and it does not close the full M2.9 milestone or #20/#21.
 
 Verify the portable gate in CI-compatible mode:
 

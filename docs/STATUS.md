@@ -12,7 +12,7 @@ progress. The [roadmap](../ROADMAP.md) defines the corresponding evidence gates.
 | M1.7a | **Implemented; PR #30** | Bounded correlation selection and compatible Mission-view layer filtering |
 | M1.7 | **Planned after M1.7a** | Full causal coherence for concurrent operations and reordered Mission-view data |
 | M1.8 | **In progress; M1.8b proof and bounded M1.8c budget implemented** | One revision-1 local reservation/window is durable; cross-revision identity and multiprocess fencing remain open |
-| M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.2 articulated-state protocol, M2.3 FK math core, M2.4 oracle, M2.5 actor, and M2.8a local preview math core are complete with Linux/Win64 UE evidence; M2.7 constrained IK is complete with Linux/Win64 UE evidence; desktop/VR authoring and #20/#21 remain |
+| M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.2 articulated-state protocol, M2.3 FK math core, M2.4 oracle, M2.5 actor, and M2.8a local preview math core are complete with Linux/Win64 UE evidence; M2.7 constrained IK is complete with Linux/Win64 UE evidence; bounded M2.9a articulated-scene tranche is complete with Linux/Win64 native evidence and a synthetic desktop capture; full M2.9, desktop/VR authoring and #20/#21 remain |
 | M3 | **Planned; M3a + M3b required** | Simulation oracle gate plus calibrated physical-fixture gate |
 | M4/M5 | **Planned** | Broader robot-agnostic assignment, context acquisition and replanning |
 
@@ -123,7 +123,7 @@ records the machine-readable eight-test native results and retains the earlier f
 context. The generated SO-101 structural check and the M2.4 fixture contract have distinct roles:
 the latter supplies the numerical FK oracle. Wire parsing and the live Mission view preserve the
 articulated model reference without validating SO-101 geometry; an FK consumer must call the
-explicit description-backed validator. The post-rebase integrated Python validation passes 141
+explicit description-backed validator. The post-rebase integrated Python validation passes 152
 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
 historical 135/20 context. Remaining M2 work is described in the [M2 design](design/M2_SO101_MATHEMATICAL_TWIN.md).
 
@@ -166,6 +166,36 @@ zero warnings/failures/not-run tests in process, and build/editor exit code 0. T
 [machine-readable record](m2/evidence/kinematic-preview-platform-validation.json) binds the
 platform reports and selected source hashes. This is the M2.8a math core only; desktop/VR authoring,
 trajectory visualization, and the full M2 integration gates in #20/#21 remain open.
+
+### M2.9a opt-in articulated scene
+
+The bounded M2.9a tranche adds an opt-in Unreal presentation consumer for the separate
+`mission.articulated_view_state` wire mode. It keeps three persistent Confirmed, Arrival and Target
+kinematic actors, binds one explicit local description using the exact raw bytes and private
+OpenSSL SHA-256, validates layer provenance and canonical FK inputs before mutation, and restores
+last-good roots/joints/evidence when candidate application fails. The effective wire mode and
+per-source sequence ordering are fixed per connection; stale callbacks from an old generation are
+ignored. The editor recipe labels its output `FIXTURE REPLAY / SYNTHETIC DEMONSTRATION` and does not
+claim live telemetry.
+
+The source contains exactly seven grouped production Automation tests covering byte hashing,
+identity/order validation, catalogue reload rollback, root/apply rollback, layer presence and
+outliers, connection ordering, and temporal evidence preservation. The
+[platform record](m2/evidence/articulated-scene-platform-validation.json) binds 63 selected files
+and records build, editor, and automation exit code `0` on Linux and Win64. Each platform reports
+50 tests: 48 `Success`, 2 expected `SuccessWithWarnings` for the missing-model and
+duplicate-sequence negative cases, and zero failures. The identity correction makes protocol and
+robot-description literals exact in the two existing C++ parsers while preserving the standalone
+client's `LegacyView` default and M1 behavior. JSON field-name exactness remains a separate
+parser-conformance concern tracked by [issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47).
+
+The final desktop capture is a 1920x1080 `RenderOffscreenVulkan` render labelled
+`SYNTHETIC FIXTURE REPLAY`; it is an illustration of the three layers using labels from the
+runtime statuses, not a pose/root oracle or a pixel-identical output of the public generator
+alone. It adds no VR or hardware path. Its generator, presentation-wrapper and image hashes,
+plus the capture metadata, are recorded in the platform record and the [articulated-scene guide](m2/ARTICULATED_SCENE.md)
+without exposing machine-local paths. This bounded tranche does not close full M2.9,
+desktop/VR authoring, or the full #20/#21 integration gates.
 
 ## Implemented in M1.7a
 
@@ -260,9 +290,9 @@ The M2.5 runtime actor, public scene recipe, platform reports, and synthetic PNG
 in this bounded tranche; they introduce no hardware path. M1.7a has the separate implementation
 and validation cited above; the bounded M1.8b proof and M1.8c budget are implemented while the full M1.8 gate remains
 open. M2.2, M2.3, M2.4, and M2.5 have their implementation and machine-readable Linux/Win64
-platform records. M2.7 and the M2.8a preview math core are complete with machine-readable
-Linux/Win64 platform records; desktop/VR authoring and the full #20/#21 integration gates remain
-open. A milestone is complete
+platform records. M2.7, the M2.8a preview math core, and bounded M2.9a are complete with
+machine-readable Linux/Win64 platform records; M2.9, desktop/VR authoring and the full #20/#21
+integration gates remain open. A milestone is complete
 only after its deterministic replay, machine-readable artifacts and visible result satisfy the gate
 in the [roadmap](../ROADMAP.md).
 
@@ -277,6 +307,7 @@ M3b's physical-fixture evidence is not present.
 No public hardware-control path exists. Nothing in the current repository should command a
 physical robot. The M1 release gate operates entirely on the public dummy path. Unreal Engine
 5.8.2 is verified on the reference Windows platform for `v0.1.0` and on Linux/Win64 for the M2.2
-protocol, M2.3 math-core, M2.4 oracle, M2.5 actor, M2.7 IK, and M2.8a preview evidence;
-`v0.1.0` does not claim Unreal support on Linux. M2.7 and M2.8a introduce no hardware-control
-path.
+protocol, M2.3 math-core, M2.4 oracle, M2.5 actor, M2.7 IK, M2.8a preview, and bounded M2.9a
+articulated-scene evidence; the M2.9a image is a synthetic desktop fixture replay and does not
+claim measured telemetry, VR, or hardware. `v0.1.0` does not claim Unreal support on Linux. The
+M2.7, M2.8a, and M2.9a slices introduce no hardware-control path.

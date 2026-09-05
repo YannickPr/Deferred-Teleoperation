@@ -22,5 +22,11 @@ public class DeferredTeleopRuntime : ModuleRules
                 "WebSockets",
             }
         );
+
+        if (Target.Platform == UnrealTargetPlatform.Linux
+            || Target.Platform == UnrealTargetPlatform.Win64)
+        {
+            AddEngineThirdPartyPrivateStaticDependencies(Target, "OpenSSL");
+        }
     }
 }

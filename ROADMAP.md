@@ -157,7 +157,7 @@ No hardware-control path is introduced by this increment.
 
 ## M2 — Mathematical SO-101 twin in Unreal
 
-Status: **M2.2 protocol, M2.3 math core, M2.4 oracle and M2.5 kinematic actor complete; M2.7 constrained IK and M2.8a preview math core complete with Linux/Win64 evidence; desktop/VR authoring and #20/#21 integration remain open**
+Status: **M2.2 protocol, M2.3 math core, M2.4 oracle and M2.5 kinematic actor complete; M2.7 constrained IK and M2.8a preview math core complete with Linux/Win64 evidence; bounded M2.9a articulated-scene tranche complete with Linux/Win64 native evidence and a synthetic desktop capture; full M2.9, desktop/VR authoring and #20/#21 integration remain open**
 Target release: **`v0.2.0`**
 
 - M2.2 articulated robot-state and model-reference protocol (#14), complete with strict Python and
@@ -178,6 +178,12 @@ Target release: **`v0.2.0`**
   Blueprint/C++ `BuildPreview`, explicit provenance values, partial-result opt-in, exact inactive
   joint handling, per-joint preview timing limits, FK recomputation for every tool sample, exact
   endpoints, and bounds of 128 samples and 30 seconds, with Linux/Win64 evidence;
+- M2.9a bounded opt-in articulated-scene tranche with persistent Confirmed, Arrival and Target
+  kinematic actors, explicit local description binding and SHA-256 authentication, per-connection
+  wire mode and source ordering, transactional last-good rollback, and seven grouped production
+  Automation tests; Linux and Win64 each record build/editor exit code 0 with 50 tests (48
+  `Success` and 2 expected `SuccessWithWarnings` for missing-model and duplicate-sequence negative
+  cases), plus a synthetic desktop capture;
 - planned desktop/VR target authoring and debugging;
 - planned confirmed, arrival and target representations with causal provenance;
 - planned trajectory lines and temporal markers;
@@ -193,7 +199,7 @@ Python 3.11 and 3.12 produce identical bytes, and its final native validation pa
 `DeferredTeleop.M2.Kinematics` selector on both targets. The [M2.4 fixture contract](docs/m2/KINEMATICS_FIXTURES.md)
 defines nine SO-101 cases, six independent Python reference tests, and three Unreal Automation
 tests; the integrated oracle snapshot reports 121 Python tests. The post-rebase integrated Python
-validation passes 141 tests; the M2.2 record retains its historical 135/20 context. Its [platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
+validation passes 152 tests; the M2.2 record retains its historical 135/20 context. Its [platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
 retains the earlier full 14-test run as context. The raw articulated feed preserves a model
 reference but does not validate geometry; an FK consumer must call the explicit description-backed
 validator. The recorded M2.5 Linux and Win64 runs pass their full Automation reports with build and
@@ -223,6 +229,24 @@ limits rather than dynamics, exact inactive-joint rejection, partial opt-in, and
 boundary. The [platform record](docs/m2/evidence/kinematic-preview-platform-validation.json)
 binds the platform evidence; this math slice does not claim desktop/VR authoring, trajectory
 visualization, or closure of #20/#21.
+
+The bounded M2.9a tranche adds the opt-in Unreal presentation consumer described in the
+[articulated-scene guide](docs/m2/ARTICULATED_SCENE.md). Its committed editor recipe and seven
+grouped production tests cover exact description bytes, strict model and evidence validation,
+three persistent semantic layers, stale/last-good transaction behavior, and connection ordering.
+The identity correction makes protocol and robot-description literals exact in the existing
+articulated-view and robot-description JSON C++ parsers while preserving the standalone client's
+`LegacyView` default and M1 behavior. JSON field-name exactness remains a separate parser
+conformance concern tracked by [issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47).
+The [platform record](docs/m2/evidence/articulated-scene-platform-validation.json) binds 63
+selected files and records build, editor, and automation exit code 0 on both Linux and Win64.
+Each platform reports 50 tests: 48 `Success`, 2 expected `SuccessWithWarnings` for the
+missing-model and duplicate-sequence negative cases, and zero failures. The final 1920x1080
+`RenderOffscreenVulkan` image is a `SYNTHETIC FIXTURE REPLAY` illustrating the three layers from
+runtime status labels; it is not a pose/root oracle or a pixel-identical output of the public
+generator alone. It is documented in the guide and committed at [the capture](docs/m2/evidence/m2-9a-articulated-scene.png). JSON field-name
+exactness remains tracked by [issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47).
+The tranche does not close full M2.9, #20 or #21.
 
 ## M3 — Autonomous delayed button press with bounded re-anchoring
 
@@ -301,8 +325,10 @@ replanning policies must retain explicit authorization, effect identity and caus
 `v0.1.0` remains the historical M1 release. The M1.7a, M1.7, M1.8, M3a and M3b design increments do not
 retroactively add capabilities or evidence to that tag. `v0.2.0` remains the M2 target; the M2.2,
 M2.3, M2.4 and bounded M2.5 slices are evidenced, M2.7 and M2.8a are complete with Linux/Win64
-evidence, and desktop/VR authoring with the #20/#21 integration gates remains open. The target does
-not require a physical SO-101 or claim hardware control.
+evidence, and the bounded M2.9a articulated-scene tranche is complete with its Linux/Win64 native
+record and synthetic desktop capture. Full M2.9 and desktop/VR authoring with the #20/#21
+integration gates remain open. The target does not require a physical SO-101 or claim hardware
+control.
 
 Every status claim in this roadmap distinguishes an implemented increment from planned or
 in-progress work. A design document, fixture or proposed oracle is not reported as an

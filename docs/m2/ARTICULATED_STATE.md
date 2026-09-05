@@ -24,10 +24,11 @@ keep its diagnostics visible before applying the ordered vector.
 
 Mission exposes this state through an opt-in `mission.articulated_view_state` WebSocket. The
 frame has three required nullable keys: `confirmed_robot_state`, `arrival_robot_state`, and
-`target_robot_state`. The live M2 path currently fills only the confirmed key, selecting the
-latest measured or fused state for the active operation correlation and its preferred executor.
-Selection is ordered by `(world_revision, observed_at, produced_at, message_id)` and retains the
-M1 operation/correlation ambiguity checks. State from another operation or executor is never
+`target_robot_state`. When a candidate exists, the live M2 path currently fills only the
+confirmed key, selecting the latest measured or fused state for the active operation
+correlation and its preferred executor. Selection is ordered by
+`(world_revision, observed_at, produced_at, message_id)` and retains the M1
+operation/correlation ambiguity checks. State from another operation or executor is never
 borrowed. An explicit grounded frame is used when one is available; an M1 `OperationIntent`
 does not contain a frame or calibration reference and is not extended for M2.
 
@@ -37,6 +38,12 @@ estimated intent arrival, and the finite non-negative one-way delay. The target 
 implemented in this slice, so live arrival and target values are `null`. The model reference
 and canonical frame remain visible to a later FK consumer, which must reject an incompatible
 description rather than silently falling back.
+
+The checked-in `live-articulated-view.json` is an idle/disconnected envelope and deliberately
+has all three layer values set to explicit `null`; it is an absence fixture rather than a
+populated confirmed telemetry sample. The articulated-scene demonstration reads that envelope
+as-is and constructs its connected presentation state separately with the valid fixture's
+`Confirmed` layer plus explicit `null` Arrival and Target layers.
 
 The M2 endpoint is separate from the M1 endpoint and is enabled with
 `--articulated-view-ws HOST:PORT`; the existing `--view-ws` port and M1 client are unchanged.
@@ -52,14 +59,15 @@ headless-editor exit code `0`; the three listed tests are the M2.2 slice. The re
 Linux-copy and Windows-overlay SHA-256 checks, and records six byte-identical M1 golden files.
 The 135-test Python and 20-test targeted totals are a historical suite22 context snapshot from
 the root aggregate, including other feature branches rather than an M2.2-only count. Root's
-post-rebase integrated validation passes 141 Python tests; the platform record remains the dated
+post-rebase integrated validation passes 152 Python tests; the platform record remains the dated
 135/20 snapshot.
 
 This platform evidence is a parser/DTO and contract result. It does not claim that a raw feed
 state is SO-101-model-valid: an FK consumer must call the explicit description-backed validator,
-compare the model triple, and keep any diagnostics visible. The live view exposes only the
-provenance-selected confirmed state; arrival and target remain `null`. The record does not claim
-the full M1.7 lineage gate, an Unreal network consumer, or hardware validation. The numerical
+compare the model triple, and keep any diagnostics visible. A populated live view exposes only
+the provenance-selected confirmed state; arrival and target remain `null` in this slice. The
+checked-in idle fixture has all three layers `null`. The record does not claim the full M1.7
+lineage gate, an Unreal network consumer, or hardware validation. The numerical
 M2.4 oracle is documented separately and complete; Jacobian and IK remain future work.
 
 Regenerate and check the protocol artefact and model independently:
