@@ -11,7 +11,7 @@ progress. The [roadmap](../ROADMAP.md) defines the corresponding evidence gates.
 | M1 | **Implemented; `v0.1.0` historical** | Delay-tolerant dummy, persistence, replay and Mission reconciliation |
 | M1.7a | **Implemented; PR #30** | Bounded correlation selection and compatible Mission-view layer filtering |
 | M1.7 | **Planned after M1.7a** | Full causal coherence for concurrent operations and reordered Mission-view data |
-| M1.8 | **In progress; M1.8b proof and bounded M1.8c budget implemented** | One revision-1 local reservation/window is durable; cross-revision identity and multiprocess fencing remain open |
+| M1.8 | **In progress; M1.8b proof and bounded M1.8c budget implemented** | One revision-1 local reservation/window is durable; local ownership is enforced; cross-revision identity remains open |
 | M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.2 articulated-state protocol, M2.3 FK math core, M2.4 oracle, M2.5 actor, and M2.8a local preview math core are complete with Linux/Win64 UE evidence; M2.7 constrained IK is complete with Linux/Win64 UE evidence; bounded M2.9a articulated-scene tranche is complete with Linux/Win64 native evidence and a synthetic desktop capture; full M2.9, desktop/VR authoring and #20/#21 remain |
 | M3 | **In progress; bounded M3a.1 implemented** | [Two-button service proof](m3/evidence/two-button-service-proof.json); full M3a S0–S10 and physical M3b remain open |
 | M4/M5 | **Planned** | Broader robot-agnostic assignment, context acquisition and replanning |
@@ -123,7 +123,7 @@ records the machine-readable eight-test native results and retains the earlier f
 context. The generated SO-101 structural check and the M2.4 fixture contract have distinct roles:
 the latter supplies the numerical FK oracle. Wire parsing and the live Mission view preserve the
 articulated model reference without validating SO-101 geometry; an FK consumer must call the
-explicit description-backed validator. The post-rebase integrated Python validation passes 175
+explicit description-backed validator. The post-rebase integrated Python validation passes 185
 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
 historical 135/20 context. Remaining M2 work is described in the [M2 design](design/M2_SO101_MATHEMATICAL_TWIN.md).
 
@@ -248,16 +248,18 @@ durably; recovery observes without blind replay and rejects a missing or substit
 unknown outcome remains held, and a terminal event alone does not manufacture measured completion
 telemetry in the normal Field.
 
-The integrated Python suite passes 175 tests, including six M1.8b scenarios and eleven persistent
-M1.8c budget cases. The historical golden session and its six committed files remain unchanged,
+The integrated Python suite passes 185 tests, including six M1.8b scenarios, eleven persistent
+M1.8c budget cases, and ten local ownership cases. The historical golden session and its six committed files remain unchanged,
 and the release gate remains unchanged. Its explicit dummy fixture compatibility is documented;
-it is not an external observation guarantee. M1.8c assumes one active Robot instance per SQLite
-database and adapter: SQLite serializes the reservation, but does not fence external I/O between
-active workers.
+it is not an external observation guarantee. The [exclusive local Robot owner lock](m1/EXCLUSIVE_ROBOT_OWNERSHIP.md)
+now excludes competing services on the same canonical database path through external I/O and
+durable resolution. Contention is retryable before inbox/recovery mutation; owner process death
+permits observe-only recovery. Separate databases and multi-host/device fencing remain outside
+this guarantee.
 
 The remaining full M1.8 gate requires:
 
-- stable effect identity across plan revisions and multiprocess fencing for the external I/O race;
+- stable effect identity and causal lineage across plan revisions;
 - machine-readable evidence connecting those decisions and the independently recorded effect.
 
 ### Remaining M2 work

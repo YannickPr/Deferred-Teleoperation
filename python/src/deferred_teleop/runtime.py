@@ -1398,6 +1398,18 @@ class DummyRobotService(RuntimeService):
     def effect_counter(self) -> int:
         return sum(int(row["effect_count"]) for row in self.store.inspect_execution_journal())
 
+    async def handle(self, envelope: MessageEnvelope) -> None:
+        """Process one delivery while exclusively owning this Robot database."""
+
+        with self.store.exclusive_robot_owner():
+            await super().handle(envelope)
+
+    async def recover(self) -> int:
+        """Reset and retry interrupted Robot work under the same owner lock."""
+
+        with self.store.exclusive_robot_owner():
+            return await super().recover()
+
     async def process_claimed(self, envelope: MessageEnvelope) -> None:
         if isinstance(envelope.payload, TaskAssignment):
             self.store.complete_inbox(

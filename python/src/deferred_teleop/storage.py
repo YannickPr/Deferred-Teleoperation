@@ -7,9 +7,11 @@ make a future external physical action exactly-once.
 
 from __future__ import annotations
 
+import errno
 import hashlib
 import json
 import math
+import os
 import re
 import sqlite3
 from collections.abc import Iterator, Mapping, Sequence
@@ -51,6 +53,10 @@ TERMINAL_STATES = frozenset(
 
 class StorageError(RuntimeError):
     """Base class for durable-store failures."""
+
+
+class BusyError(StorageError):
+    """The local Robot database is currently owned by another service."""
 
 
 class IncompatibleSchemaError(StorageError):
@@ -664,7 +670,10 @@ class NodeStore:
         *,
         busy_timeout_ms: int = DEFAULT_BUSY_TIMEOUT_MS,
     ) -> None:
-        self.path = Path(path)
+        # Resolve before opening SQLite or deriving the sidecar path.  Two
+        # relative/symlinked spellings of one database must use one lock file.
+        self.path = Path(path).resolve(strict=False)
+        self._robot_owner_lock_path = Path(f"{self.path}.robot-owner.lock")
         self.path.parent.mkdir(parents=True, exist_ok=True)
         initialize_database(self.path, busy_timeout_ms=busy_timeout_ms)
         self._connection = sqlite3.connect(self.path, isolation_level=None)
@@ -679,6 +688,63 @@ class NodeStore:
 
     def __exit__(self, *_args: object) -> None:
         self.close()
+
+    @contextmanager
+    def exclusive_robot_owner(self) -> Iterator[None]:
+        """Hold the process-lifetime Robot owner lock for one service action.
+
+        The lock is deliberately a sidecar rather than SQLite state: it spans
+        the complete ``handle``/``recover`` call, including external adapter
+        I/O and the terminal commit.  The sidecar is retained after release so
+        that all path aliases continue to address the same inode.
+        """
+
+        lock_path = self._robot_owner_lock_path
+        with lock_path.open("a+b") as lock_file:
+            acquired = False
+            try:
+                if os.name == "nt":
+                    import msvcrt
+
+                    lock_file.seek(0)
+                    try:
+                        # ``msvcrt.locking`` may lock beyond EOF; no marker byte
+                        # is written because the sidecar is only a lock inode.
+                        msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+                    except OSError as error:
+                        if error.errno in {
+                            errno.EACCES,
+                            errno.EAGAIN,
+                            errno.EDEADLK,
+                        }:
+                            raise BusyError(
+                                f"Robot database ownership is busy: {lock_path}"
+                            ) from error
+                        raise
+                else:
+                    import fcntl
+
+                    try:
+                        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    except OSError as error:
+                        if error.errno in {errno.EACCES, errno.EAGAIN, errno.EWOULDBLOCK}:
+                            raise BusyError(
+                                f"Robot database ownership is busy: {lock_path}"
+                            ) from error
+                        raise
+                acquired = True
+                yield
+            finally:
+                if acquired:
+                    if os.name == "nt":
+                        import msvcrt
+
+                        lock_file.seek(0)
+                        msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
+                    else:
+                        import fcntl
+
+                        fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
     @contextmanager
     def _transaction(self) -> Iterator[sqlite3.Connection]:

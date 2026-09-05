@@ -5,7 +5,7 @@
 > **Status:** M0 and the historical M1 dummy gate are complete. Bounded delay/recovery,
 > autonomy-budget and M2 kinematics/presentation slices are implemented. M3a.1 adds a delayed
 > two-button simulation with bounded re-anchoring and independently recorded effects.
-> The integrated Python suite passes 175 tests. For M2.9a, Linux and Win64 UE 5.8.2 each pass 50
+> The integrated Python suite passes 185 tests. For M2.9a, Linux and Win64 UE 5.8.2 each pass 50
 > contextual tests (48 successes plus two expected negative-case warnings), with build/editor exit code 0.
 > Full M1.7/M1.8, M2 authoring/integration and M3a/M3b remain open. The desktop image is synthetic;
 > no physical robot or VR authoring result is claimed.
@@ -34,7 +34,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | Unreal Engine plugin | M1 Mission view, strict client and reconciliation scene; verified with UE 5.8.2 on Windows |
 | Delay-tolerant dummy | Runnable M1 Mission / Field / dummy-Robot development slice |
 | M1 release gate | Passed: golden replay, adversarial matrix, portable CI, and Windows UE 5.8.2 evidence |
-| M1.8 external effect | M1.8b delayed proof and bounded M1.8c one-reservation local budget implemented; cross-revision identity and multiprocess fencing remain open |
+| M1.8 external effect | M1.8b delayed proof and bounded M1.8c one-reservation local budget implemented; local ownership is enforced; cross-revision identity remains open |
 | SO-101 twin | M2.2 articulated-state protocol (#14), M2.3 canonical transforms/generic FK code (#15), M2.4 cross-language numerical oracle (#16), and the bounded M2.5 rigid-link actor are complete with Python 3.11/3.12 and Linux/Win64 UE 5.8.2 evidence; the M2.7 constrained-IK implementation and M2.8a local preview math core are complete with Linux/Win64 UE 5.8.2 evidence; the bounded M2.9a opt-in articulated-scene tranche is complete with Linux/Win64 native evidence and a synthetic desktop capture; full M2.9, desktop/VR authoring, and #20/#21 integration remain open |
 | Autonomous delayed button press | [M3a.1 two-button simulation](docs/m3/M3A_TWO_BUTTON.md) implemented; full M3a S0–S10 and physical M3b remain open |
 | Hardware control | Disabled by default; not implemented publicly |
@@ -124,7 +124,7 @@ tests. Version 2 fixes the reference operation order so Python 3.11 and 3.12 gen
 bytes; the final native validation passes the eight-test `DeferredTeleop.M2.Kinematics` selector
 on Linux and Win64, as recorded in the [M2.4 platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
 alongside the earlier full 14-test context. The post-rebase integrated Python validation passes
-175 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
+185 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
 historical 135/20 context. The raw articulated feed does not validate SO-101
 geometry: an FK consumer must call the description-backed validator and retain its diagnostics.
 M2.4 supplies the numerical FK oracle. The bounded M2.7 constrained-IK implementation (#19)
