@@ -5,6 +5,12 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 
 ## Unreleased
 
+### Removed
+
+- unused experimental M3a compatibility aliases and Mission-side current-observation
+  injection helpers. The authoring API accepts the reference observation only; Field
+  supplies the current observation after transit. The wire protocol is unchanged.
+
 ### Fixed
 
 - exact model-reference and protocol-literal comparisons in the M2 articulated view,
