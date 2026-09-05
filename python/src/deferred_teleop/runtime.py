@@ -2266,7 +2266,6 @@ class _M3aMissionMixin:
         self,
         reference_observation: TwoButtonObservation | LocalM3aObservation,
         *,
-        current_observation: TwoButtonObservation | LocalM3aObservation | None = None,
         target_entity_id: str = "A",
         semantic_effect_id: str = "ensure-latched:A",
         max_displacement_m: float = 0.05,
@@ -2281,17 +2280,10 @@ class _M3aMissionMixin:
         The caller supplies observer output; Mission never asks the device for
         a hidden position.  It persists and forwards the authoring reference,
         then authors the delayed intent.  Current observations are acquired
-        locally by Field after the delayed transit.  The optional current value
-        is retained only as a Mission-side compatibility/view record and is
-        never forwarded to Field by this method.
+        locally by Field after the delayed transit.
         """
 
         reference = _m3a_as_wire_observation(reference_observation)
-        current = (
-            _m3a_as_wire_observation(current_observation)
-            if current_observation is not None
-            else None
-        )
         operation = operation_id or self.factory.uuid_factory()
         correlation = correlation_id or operation
         observer = observer_id or reference.source_id
@@ -2327,23 +2319,6 @@ class _M3aMissionMixin:
         self.store.enqueue(field_reference)
 
         not_before = reference_envelope.created_at + timedelta(seconds=delay)
-        if current is not None:
-            # TEST-ONLY compatibility: retain a Mission copy for the dedicated
-            # view.  This value is never sent to Field; production callers use
-            # record_m3a_current_observation after the delayed transit.
-            mission_current = self.factory.make(
-                "m3a.two_button.observation",
-                self.factory.node_id,
-                correlation,
-                current,
-                source_id=observer,
-                source_boot_id=reference_envelope.source_boot_id,
-                created_at=now,
-                not_before=not_before,
-                message_id=_m3a_uuid(operation, "current-mission-envelope"),
-            )
-            self.store.enqueue(mission_current)
-
         persisted_reference = next(
             (
                 message.payload
@@ -2407,48 +2382,6 @@ class _M3aMissionMixin:
             },
         )
         return intent_envelope
-
-    # Common spellings used by small integration harnesses.
-    submit_m3a_ensure_latched = submit_ensure_button_latched
-    submit_m3a_intent = submit_ensure_button_latched
-
-    def publish_m3a_current_observation(
-        self,
-        observation: TwoButtonObservation | LocalM3aObservation,
-        *,
-        operation_id: UUID,
-        correlation_id: UUID | None = None,
-        observer_id: str | None = None,
-        transit_seconds: float | None = None,
-    ) -> MessageEnvelope:
-        """Schedule a pre-produced current observation (compatibility/test-only).
-
-        The central M3a service path acquires current truth through Field's
-        local ``record_m3a_current_observation`` after the virtual transit.
-        This method remains only for older harnesses that explicitly model a
-        separately transported current payload.
-        """
-
-        payload = _m3a_as_wire_observation(observation)
-        correlation = correlation_id or operation_id
-        delay = (
-            self.configured_one_way_delay
-            if transit_seconds is None
-            else float(transit_seconds)
-        )
-        created_at = self.clock.now()
-        envelope = self.factory.make(
-            "m3a.two_button.observation",
-            "field-1",
-            correlation,
-            payload,
-            source_id=observer_id or payload.source_id,
-            not_before=created_at + timedelta(seconds=delay),
-            created_at=created_at,
-            message_id=_m3a_uuid(operation_id, f"current-field-envelope:{payload.observation_id}"),
-        )
-        self.store.enqueue(envelope)
-        return envelope
 
     async def process_claimed(self, envelope: MessageEnvelope) -> None:
         if isinstance(envelope.payload, M3aSpatialExecutionContext):
@@ -3089,7 +3022,6 @@ class _M3aMissionMixin:
     def m3a_view(self) -> dict[str, Any]:
         return self.m3a_view_state().model_dump(mode="json")
 
-    view_m3a = m3a_view
 
 
 class M3aMissionService(_M3aMissionMixin, MissionService):
@@ -4868,13 +4800,3 @@ class M3aRobotService(_M3aRobotMixin, DummyRobotService):
     """Robot service for the M3a spatial adapter and command-bound budget."""
 
     _m3a_only = True
-
-
-# Compatibility aliases for integration harnesses that describe the physical
-# role before the M3a slice name.
-TwoButtonMissionService = M3aMissionService
-TwoButtonFieldService = M3aFieldService
-TwoButtonRobotService = M3aRobotService
-SpatialMissionService = M3aMissionService
-SpatialFieldService = M3aFieldService
-SpatialRobotService = M3aRobotService

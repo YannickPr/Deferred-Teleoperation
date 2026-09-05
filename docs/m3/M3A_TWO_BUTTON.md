@@ -67,8 +67,8 @@ delay. After the virtual 1200-second transit, `M3aFieldService` records the
 current observation directly from its local observer, then builds the Field
 bundle. The bundle preserves the reference observation's source, provenance,
 `observed_at`, `produced_at`, and world revision instead of re-dating it.
-The older Mission helper `publish_m3a_current_observation` remains reserved for
-compatibility/test replays and is not this local proof.
+Mission authors from the reference only; the current observation enters through
+Field's local acquisition path.
 Robot's post-dispatch `TwoButtonEffectEvidence` is durably committed with the
 external outcome, relayed Field-to-Mission, and used by `m3a.view`; counters,
 latches, contact, and terminal result remain `null` until that post-action
