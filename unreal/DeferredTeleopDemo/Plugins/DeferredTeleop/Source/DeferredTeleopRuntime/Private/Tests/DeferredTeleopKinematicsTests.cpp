@@ -509,6 +509,36 @@ bool FDeferredTeleopRobotDescriptionJsonTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("schema error is explicit"), Error.Contains(TEXT("schema_version")));
 
     Tampered = MinimalDescriptionJson().Replace(
+        TEXT("dtt.robot-description/0"),
+        TEXT("DTT.ROBOT-DESCRIPTION/0"));
+    Error.Reset();
+    TestFalse(
+        TEXT("JSON schema casing is exact"),
+        DeferredTeleop::RobotModel::ParseRobotDescriptionJson(Tampered, Description, Error));
+    TestTrue(TEXT("schema case error is explicit"), Error.Contains(TEXT("schema_version")));
+
+    Tampered = MinimalDescriptionJson().Replace(
+        TEXT("\"type\":\"revolute\""),
+        TEXT("\"type\":\"REVOLUTE\""));
+    Error.Reset();
+    TestFalse(
+        TEXT("JSON revolute type casing is exact"),
+        DeferredTeleop::RobotModel::ParseRobotDescriptionJson(Tampered, Description, Error));
+    TestTrue(TEXT("revolute type case error is explicit"), Error.Contains(TEXT("type")));
+
+    Tampered = MinimalDescriptionJson()
+        .Replace(TEXT("\"type\":\"revolute\""), TEXT("\"type\":\"FIXED\""))
+        .Replace(TEXT("\"axis_joint_frame\":[0,0,1]"), TEXT("\"axis_joint_frame\":null"))
+        .Replace(
+            TEXT("\"position_limits_rad\":{\"lower\":-1,\"upper\":1}"),
+            TEXT("\"position_limits_rad\":null"));
+    Error.Reset();
+    TestFalse(
+        TEXT("JSON fixed type casing is exact"),
+        DeferredTeleop::RobotModel::ParseRobotDescriptionJson(Tampered, Description, Error));
+    TestTrue(TEXT("fixed type case error is explicit"), Error.Contains(TEXT("type")));
+
+    Tampered = MinimalDescriptionJson().Replace(
         TEXT("\"position_limits_rad\":{\"lower\":-1,\"upper\":1}"),
         TEXT("\"position_limits_rad\":\"invalid\""));
     Error.Reset();

@@ -76,6 +76,26 @@ bool FDeferredTeleopArticulatedViewRejectTest::RunTest(const FString& Parameters
     TestTrue(TEXT("duplicate diagnostic is visible"), Error.Contains(TEXT("duplicate joint name")));
     TestEqual(TEXT("rejection keeps the last valid state"), State.SourceId, FString(TEXT("last-valid-state")));
 
+    const FString CaseDistinctJson = Json.Replace(
+        TEXT("\"joint_name\": \"shoulder_pan\",\n        \"position_radians\": -0.2"),
+        TEXT("\"joint_name\": \"SHOULDER_PAN\",\n        \"position_radians\": -0.2"));
+    Error.Reset();
+    TestTrue(
+        TEXT("joint names differing only by case are distinct on the wire"),
+        DeferredTeleop::ArticulatedView::ParseArticulated(
+            CaseDistinctJson,
+            State,
+            Error));
+    TestEqual(TEXT("case-distinct fixture keeps six joints"), State.ConfirmedRobotState.Joints.Num(), 6);
+    if (State.ConfirmedRobotState.Joints.Num() >= 2)
+    {
+        TestTrue(
+            TEXT("case-distinct joint names are preserved"),
+            !State.ConfirmedRobotState.Joints[0].JointName.Equals(
+                State.ConfirmedRobotState.Joints[1].JointName,
+                ESearchCase::CaseSensitive));
+    }
+
     if (!TestTrue(
             TEXT("near-boundary quaternion fixture loads"),
             DeferredTeleop::ArticulatedTests::LoadFixture(
@@ -89,6 +109,60 @@ bool FDeferredTeleopArticulatedViewRejectTest::RunTest(const FString& Parameters
         TEXT("quaternion norm outside the canonical tolerance is rejected"),
         DeferredTeleop::ArticulatedView::ParseArticulated(Json, State, Error));
     TestTrue(TEXT("non-unit quaternion diagnostic is visible"), Error.Contains(TEXT("unit length")));
+
+    if (!TestTrue(
+            TEXT("valid fixture loads for wire-case mutations"),
+            DeferredTeleop::ArticulatedTests::LoadFixture(
+                TEXT("valid-articulated-view.json"),
+                Json)))
+    {
+        return false;
+    }
+
+    auto ExpectWireCaseRejected = [this, &Json](
+                                       const TCHAR* Label,
+                                       const TCHAR* Before,
+                                       const TCHAR* After,
+                                       const TCHAR* DiagnosticPath)
+    {
+        const FString Mutated = Json.Replace(Before, After);
+        FDeferredTeleopArticulatedViewState Candidate;
+        FString MutationError;
+        TestFalse(
+            Label,
+            DeferredTeleop::ArticulatedView::ParseArticulated(
+                Mutated,
+                Candidate,
+                MutationError));
+        TestTrue(
+            *FString::Printf(TEXT("%s reports its field"), Label),
+            MutationError.Contains(DiagnosticPath));
+    };
+    ExpectWireCaseRejected(
+        TEXT("wire protocol version casing is exact"),
+        TEXT("dtt/0"),
+        TEXT("DTT/0"),
+        TEXT("protocol_version"));
+    ExpectWireCaseRejected(
+        TEXT("wire description hash prefix casing is exact"),
+        TEXT("sha256:"),
+        TEXT("SHA256:"),
+        TEXT("description_hash"));
+    ExpectWireCaseRejected(
+        TEXT("wire provenance casing is exact"),
+        TEXT("\"provenance\": \"MEASURED\""),
+        TEXT("\"provenance\": \"measured\""),
+        TEXT("provenance"));
+    ExpectWireCaseRejected(
+        TEXT("wire connection casing is exact"),
+        TEXT("\"mission_to_field\": \"CONNECTED\""),
+        TEXT("\"mission_to_field\": \"connected\""),
+        TEXT("mission_to_field"));
+    ExpectWireCaseRejected(
+        TEXT("wire terminal-state casing is exact"),
+        TEXT("\"terminal_state\": null"),
+        TEXT("\"terminal_state\": \"succeeded\""),
+        TEXT("terminal_state"));
     return true;
 }
 
@@ -120,6 +194,34 @@ bool FDeferredTeleopArticulatedModelReferenceTest::RunTest(const FString& Parame
         TEXT("model hash mismatch is a visible comparison failure"),
         DeferredTeleop::ArticulatedView::CompareModelReference(Actual, Expected, Diagnostic));
     TestTrue(TEXT("hash diagnostic names the mismatched field"), Diagnostic.Contains(TEXT("description_hash")));
+
+    Expected = Actual;
+    Expected.ModelId = TEXT("SO101_NEW_CALIB");
+    Diagnostic.Reset();
+    TestFalse(
+        TEXT("model id casing is a comparison mismatch"),
+        DeferredTeleop::ArticulatedView::CompareModelReference(Actual, Expected, Diagnostic));
+    TestTrue(TEXT("model id case diagnostic names the field"), Diagnostic.Contains(TEXT("model_id")));
+
+    Expected = Actual;
+    Expected.ModelRevision = TEXT("GIT:ACTUAL");
+    Diagnostic.Reset();
+    TestFalse(
+        TEXT("model revision casing is a comparison mismatch"),
+        DeferredTeleop::ArticulatedView::CompareModelReference(Actual, Expected, Diagnostic));
+    TestTrue(
+        TEXT("model revision case diagnostic names the field"),
+        Diagnostic.Contains(TEXT("model_revision")));
+
+    Expected = Actual;
+    Expected.DescriptionHash = TEXT("SHA256:0000000000000000000000000000000000000000000000000000000000000000");
+    Diagnostic.Reset();
+    TestFalse(
+        TEXT("description hash prefix casing is a comparison mismatch"),
+        DeferredTeleop::ArticulatedView::CompareModelReference(Actual, Expected, Diagnostic));
+    TestTrue(
+        TEXT("description hash case diagnostic names the field"),
+        Diagnostic.Contains(TEXT("description_hash")));
     return true;
 }
 

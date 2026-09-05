@@ -1,0 +1,699 @@
+{
+  "affected_test_groups": {
+    "M2.ArticulatedView": [
+      {
+        "name": "DeferredTeleop.M2.ArticulatedView.ModelReferenceDiagnostic",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.ArticulatedView.RejectsInvalidAndPreservesLastValid",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.ArticulatedView.ValidThreeLayers",
+        "state": "Success"
+      }
+    ],
+    "M2.KinematicPreview": [
+      {
+        "name": "DeferredTeleop.M2.KinematicPreview.CapsSamplesAndPreservesEndpoints",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.KinematicPreview.ConvergedSnapshotAndFK",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.KinematicPreview.DurationUsesMaxJointTime",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.KinematicPreview.RejectsForgedOrMismatchedIK",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.KinematicPreview.RejectsInvalidSettings",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.KinematicPreview.ValidatesJointsAndStatuses",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.KinematicPreview.ValidatesSourceEvidence",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.KinematicPreview.ZeroDuration",
+        "state": "Success"
+      }
+    ],
+    "M2.KinematicRobotActor": [
+      {
+        "name": "DeferredTeleop.M2.KinematicRobotActor.IndependentSemanticLayers",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.KinematicRobotActor.InvalidStatePreservesPose",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.KinematicRobotActor.MatchesCoreByName",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.KinematicRobotActor.ReusesTopology",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.KinematicRobotActor.SO101GeneratedDescription",
+        "state": "Success"
+      }
+    ],
+    "M2.Kinematics": [
+      {
+        "name": "DeferredTeleop.M2.Kinematics.CanonicalComposition",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.Kinematics.CanonicalUnrealConversion",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.Kinematics.CrossLanguageFixtureInputValidation",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.Kinematics.CrossLanguageSO101Fixtures",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.Kinematics.FrameConversionContract",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.Kinematics.GenericTreeForwardKinematics",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.Kinematics.RejectsInvalidDescriptions",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.Kinematics.RejectsInvalidJointInputs",
+        "state": "Success"
+      }
+    ],
+    "M2.RobotModel": [
+      {
+        "name": "DeferredTeleop.M2.RobotModel.ParsesCanonicalJson",
+        "state": "Success"
+      },
+      {
+        "name": "DeferredTeleop.M2.RobotModel.ParsesGeneratedSo101Description",
+        "state": "Success"
+      }
+    ]
+  },
+  "automation_arguments": [
+    "-unattended",
+    "-nop4",
+    "-nosplash",
+    "-NullRHI",
+    "-ExecCmds=\"Automation RunTests DeferredTeleop.; SoftQuit\"",
+    "-ReportExportPath=<REPORT_DIR>"
+  ],
+  "build_scope": "Existing UnrealEditor Development project/runtime module; not an engine build or packaged-plugin build",
+  "evidence_date": "2026-09-05",
+  "evidence_kind": "Normalized compact record of the Linux and Windows native identity validation receipts",
+  "files": [
+    {
+      "path": "fixtures/m2/articulated-state/invalid-articulated-view-duplicate-joint.json",
+      "sha256": "da9dcb96313cd61c32513408168f67d63d8df4a36b85706625f1827222f401ca"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-articulated-view-nonunit-quaternion.json",
+      "sha256": "318678662f13d9696ee918a813267fa4d0be69e033cfcbabaf8b0b2a4eca84c0"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-duplicate-joint.json",
+      "sha256": "08af914bfb74b9b21272f699b527d97c66387e5f71973f23387c97bb078a9e21"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-fixed-joint.json",
+      "sha256": "ec2843364e48aeefeb5c26c45bcbc70376a55806bf8c486f2d980e44f4958f3a"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-gripper-100.json",
+      "sha256": "7cab7b64d3cdd089354a8c2cf776dabf77b8dc46a51501fa2f013040f9a587dd"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-missing-joint.json",
+      "sha256": "6c41a0c573a5a5fb44dbe03da230d7525fe895ffba8f3635690066875f72f729"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-model-reference.json",
+      "sha256": "7bace857da96aaa6a2db7c0614f322ae7bbeada6ba3462ba7548bb09ddb78f22"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-nonfinite.json",
+      "sha256": "2e568eecb54ed9c7d01043bd3ea7dc7d47acc1fc46f1d7006a0321ba2db6a5e9"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/invalid-unknown-joint.json",
+      "sha256": "c88987e2a16ce053b805cf8c158f849b78c5456dd14db7edc42d269a6bc7c488"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/live-articulated-view.json",
+      "sha256": "a810abeb1de31c6e53c8c2f66d2fb547fe2668a23f45d321719510e862bd5367"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/reordered-articulated-state.json",
+      "sha256": "c60c6de55b531430546033a17e0b276714377281fc6c3c935170caea2b0611ff"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/valid-articulated-envelope.json",
+      "sha256": "3830e8d86af96d5fbe93e8700378b3b386f8314dfb4c862985aff52c2eb48ff2"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/valid-articulated-state.json",
+      "sha256": "706258ba04457dbd22e2c1a66cce530221d4debeeb3bce43ec3f0fcc8ae4a30c"
+    },
+    {
+      "path": "fixtures/m2/articulated-state/valid-articulated-view.json",
+      "sha256": "ca7e5582ae7f668b96f410f5112c656b02dbff25fcb06201b0d21ae9d375b884"
+    },
+    {
+      "path": "fixtures/m2/kinematics/so101-fk.json",
+      "sha256": "2fd05f90c8f0344d8687b06d11086d8ba4bc1e43b0fc248869b19369bfa8c3b8"
+    },
+    {
+      "path": "robots/so101/generated/so101.kinematics.json",
+      "sha256": "36ce321332248351f5304630a9ccc4887d6665666e17b6933e3302874735e5f2"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/DeferredTeleopDemo.uproject",
+      "sha256": "86ba4cc0c07997bdf0b8083b43236a7b79ea642144105aa6263e6bfba24e1b39"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/DeferredTeleop.uplugin",
+      "sha256": "5587a5d087cf44eabdea70e2d9de4edc157c20989ba75d9c7cc6221d8c0b6427"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/DeferredTeleopRuntime.Build.cs",
+      "sha256": "94cce8c400553ffb84b8a34ebe419276c8d9c86b868df8eddf51fe7479d25f3f"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedViewParser.cpp",
+      "sha256": "126ee2df8adabcfd4a8e4b3b8f62d18d582af5baffdfcfe39e714d3ef670a6c3"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedViewParser.h",
+      "sha256": "6803ec5686544aa6f40f0af52979262bc9c5f921fc275216c911ed46962579e9"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopMissionClientComponent.cpp",
+      "sha256": "fbda6aab08076de4dbc02216c263a7aa75d8bbc2db7c20ed68e73cbac821532d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopMissionViewParser.cpp",
+      "sha256": "e7a26dc0306c317070aab990731f037a144fc8494133fcedd197d951553e4ab5"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopMissionViewParser.h",
+      "sha256": "7a00e323cf9a27a07e0af16833d71746b7ec20b72e865b6d17b880a35bc0f38d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopRuntime.cpp",
+      "sha256": "c3e3c943960d18a1d9a34742aae5fe9770061191187b39bc5517c5d9b90ae887"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopStateVisualizationActor.cpp",
+      "sha256": "e6bf490426bfe6a8610a64747d12d2dc1d5bfa00e047daa37b41d67aea576235"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopVersionLibrary.cpp",
+      "sha256": "cbb763125de0ae7830795d16860140a1e0bc18038ec7f2fdf15ab3b6dfdbeeef"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopVisualizationLibrary.cpp",
+      "sha256": "e88d55a276d4de67d09969db610049732ff6a17b9476846b1e08ddc6ec1e4a3c"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopIKLibrary.cpp",
+      "sha256": "1074e64b7dabe1a637e057381388b3bc923a550c3a8ad7ca87e4f24acd3a749a"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopIKTestBridge.h",
+      "sha256": "89b216145d9eb9cd8cbfe945b356eab21e5339798b58b3ca4ec42b7fb880e254"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopKinematicPreviewLibrary.cpp",
+      "sha256": "2da9d58615ee840a2767a2838ac9420e0a85bec8abf9443e9a97fa475e809934"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopKinematicsLibrary.cpp",
+      "sha256": "17e07edf30e6bda519da3c0415f0f0cf0563403ac33b9ae0c0ad32a079900773"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/RobotModel/DeferredTeleopRobotModelJson.cpp",
+      "sha256": "df40adb1d7ce84d87e6cb460714b7e7396f1e6f4093801d27e38e3f3609d6b28"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/RobotModel/DeferredTeleopRobotModelTypes.cpp",
+      "sha256": "ca9693125f9ff761105c67cf165b5c16bbc2ee43dc6b8fd58fee4cacbd8a74e0"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopArticulatedViewTests.cpp",
+      "sha256": "3c304ecb1949d93c2c04639341ea1dd5befb795d7c18871385ab495d39df3cea"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopFrameConversionContractTests.cpp",
+      "sha256": "9aa5cf021b6839fa54165630d9e3915d82d91c41ae1b359955f9832eb49e1fbc"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopIKTests.cpp",
+      "sha256": "2ce22c575d5495a62f449a16c9844b0c079eb59a23849d23a2b064bc98d6b84e"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicPreviewTests.cpp",
+      "sha256": "ae94d23c9f02bd558a1048bf5982c66e8066236413cf16ee55cc920c725a1539"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicRobotActorTests.cpp",
+      "sha256": "53e578c3d9f3fa9b26e38b14dd4dce66190e61b8fc0844ebb71af35688118284"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicsFixtureTests.cpp",
+      "sha256": "489c209cba968cf198750cf7228844092ad7c1d93613e1208f5c499f5248300b"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicsTests.cpp",
+      "sha256": "88a28057b19d46d4c1b17ad861f1c26ff57132e97ce2132bee9dbd55cb2c02b4"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopMissionViewTests.cpp",
+      "sha256": "40a56f91054898732a26a9b1958c06a9279bc2e07a94ce374fda27fe7bd152e2"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Visualization/DeferredTeleopKinematicRobotActor.cpp",
+      "sha256": "dd6b2d8debde8545b7b82ea3dcc767ec4068bab7d2446fa4600e62844a6816e4"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Articulated/DeferredTeleopArticulatedViewTypes.h",
+      "sha256": "4ded7520fb560d9d4d42f8d76fef53cbbd1fc1e9e9b6c9e3b0a45e8991ba6c3d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopMissionClientComponent.h",
+      "sha256": "9323d041d73879e54feee96ffd21d2e7e7ca242981157ef370a2b597ea164c9c"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopMissionViewTypes.h",
+      "sha256": "a6ab1e5b9b9d23d8693b99b59ae3ed20eee71e6dd71742f43189e329467378ce"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopRuntime.h",
+      "sha256": "5ab43d0e84c526acd869d73a2ea98391de5635e7fd75e10663a532051c0a128d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopStateVisualizationActor.h",
+      "sha256": "4c7123a741f1108cdb1f5abfcc502b125ebe5d19f338b352bdce6169df8eb734"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopVersionLibrary.h",
+      "sha256": "903971ea5a3b55d07a45751acbad2fbf9114a8865d5490d4a286756a19d54f04"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopVisualizationLibrary.h",
+      "sha256": "0669fd5f9123f8eafc8e7bca5913822a6c3f8cb1efae1da459d8f75eb40fd93c"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopIKLibrary.h",
+      "sha256": "e7e0444ffa6400a8c68098c1487dd234989c7e8083b6945a4c69e6e4fa454b2d"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopIKTypes.h",
+      "sha256": "637ab3db0b187ea8eb046e24668dd79d0e21b4dc6e947f7592e932d034610035"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopKinematicPreviewLibrary.h",
+      "sha256": "08bfa2b6e9caed7dada7cbb412094f18875bbaf568c771d41164ce6a7325e7e5"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopKinematicPreviewTypes.h",
+      "sha256": "e3e41dd5faaef980b1e8f9a5cad6d2a6d65df27ddef68ff9b3b4d83160c4b1cf"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopKinematicsLibrary.h",
+      "sha256": "697f41e5611ba0f35c564d779e5e5a3d8ec447dc258afd428725c3bfeb5ec705"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/RobotModel/DeferredTeleopRobotModelTypes.h",
+      "sha256": "b10aea77aac60a5b8d539d4c00c481250ca465564cf7f83a118d7e287e8939d4"
+    },
+    {
+      "path": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Visualization/DeferredTeleopKinematicRobotActor.h",
+      "sha256": "18a41f6569c8ba405214adf8690932ef5bf2f2387741bf5ab7fe61c4d989901b"
+    }
+  ],
+  "full_suite": {
+    "existing_test_names_preserved": true,
+    "failed": 0,
+    "inProcess": 0,
+    "mutation_cases_strengthen_existing_assertions": true,
+    "new_test_name_count": 0,
+    "notRun": 0,
+    "succeeded": 43,
+    "succeededWithWarnings": 0,
+    "test_count": 43
+  },
+  "integration_base_commit": "f22681be11b9f5698575dcc6fc6a673255701937",
+  "limits": [
+    "The proof binds exactly the 57 selected source, fixture, robot-model, and project files; it makes no whole-checkout or 110-file base claim.",
+    "FName topology lookups keep native Unreal semantics; this change does not refactor or redefine FName case behavior.",
+    "Field-name parity across parser implementations remains open in issue #47; this record does not claim complete parser parity.",
+    "Validation used headless NullRHI desktop execution; it makes no physical-hardware, motion, performance, or VR claim.",
+    "Raw logs remain in private receipts; this public record contains normalized results and hashes only."
+  ],
+  "milestone": "M2 identity",
+  "platforms": [
+    {
+      "affected_test_count": 26,
+      "all_test_names_preserved": true,
+      "automation_exit_code": 0,
+      "automation_log_sha256": "57c31748637b1f2aa392ee84d9d56fe32e53f532a2fb77137b0f06c16c2471a4",
+      "automation_result_sha256": "15f3f3eab76d151643a0fd48e5abe26da81b24d80bae06e0528d8119260ed7c2",
+      "build_exit_code": 0,
+      "build_log_sha256": "043355a2274730a176c158ebd33b3c679da0cb0f0624fe964ac19a2b99f2033b",
+      "build_result_sha256": "1b49d26cf35cac4d868b19cecbf34bb0663de19765b716401faa54d8fc0c4741",
+      "editor_exit_code": 0,
+      "editor_platform": "LinuxEditor",
+      "editor_result_sha256": "15f3f3eab76d151643a0fd48e5abe26da81b24d80bae06e0528d8119260ed7c2",
+      "environment": {
+        "compiler": "Clang 20.1.8",
+        "engine_source_commit": "ff8421f2b8cb4feb76fff57965a1effc53a6eb7b",
+        "engine_version": "5.8.2"
+      },
+      "full_suite_counts": {
+        "failed": 0,
+        "inProcess": 0,
+        "notRun": 0,
+        "succeeded": 43,
+        "succeededWithWarnings": 0
+      },
+      "platform": "Linux",
+      "raw_automation_report_sha256": "6320f5a93b73ac710b9dcb481ed54660f1c9b3a36260cb3257f1ae16e412ef0d",
+      "report_created_on_utc": "2026.09.05-00.56.57Z",
+      "scope_test_count": 43,
+      "tests": [
+        {
+          "name": "DeferredTeleop.M2.ArticulatedView.ModelReferenceDiagnostic",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedView.RejectsInvalidAndPreservesLastValid",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedView.ValidThreeLayers",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.CapsSamplesAndPreservesEndpoints",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ConvergedSnapshotAndFK",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.DurationUsesMaxJointTime",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.RejectsForgedOrMismatchedIK",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.RejectsInvalidSettings",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ValidatesJointsAndStatuses",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ValidatesSourceEvidence",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ZeroDuration",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.IndependentSemanticLayers",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.InvalidStatePreservesPose",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.MatchesCoreByName",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.ReusesTopology",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.SO101GeneratedDescription",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.CanonicalComposition",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.CanonicalUnrealConversion",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.CrossLanguageFixtureInputValidation",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.CrossLanguageSO101Fixtures",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.FrameConversionContract",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.GenericTreeForwardKinematics",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.RejectsInvalidDescriptions",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.RejectsInvalidJointInputs",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.RobotModel.ParsesCanonicalJson",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.RobotModel.ParsesGeneratedSo101Description",
+          "state": "Success"
+        }
+      ],
+      "toolchain_verified": true
+    },
+    {
+      "affected_test_count": 26,
+      "all_test_names_preserved": true,
+      "automation_exit_code": 0,
+      "automation_log_sha256": "f688639c27dd5427816a90b1eebcf3d06eb070187e07d87b0b6c8d129815b10e",
+      "automation_result_sha256": "779d635836fe739dc9928b0adadfee93e1dfc3d615692482ecf78fab6ff64756",
+      "build_exit_code": 0,
+      "build_log_sha256": "ff8a12647a69c18c9b459cf036a148a91f37dc8ec279c054b2e049256df85411",
+      "build_result_sha256": "cf36f63a83f59ad0e7f00c262dcf0a77deab94bd18b70e5848a129bd9681613d",
+      "editor_exit_code": 0,
+      "editor_platform": "WindowsEditor",
+      "editor_result_sha256": "779d635836fe739dc9928b0adadfee93e1dfc3d615692482ecf78fab6ff64756",
+      "environment": {
+        "compiler": "MSVC 19.50.35737.0",
+        "engine_source_commit": null,
+        "engine_source_commit_status": "Not independently verifiable in this engine installation",
+        "engine_version": "5.8.2",
+        "toolchain_reported_by_ubt": "14.50.35737",
+        "windows_sdk": "10.0.26100.0"
+      },
+      "full_suite_counts": {
+        "failed": 0,
+        "inProcess": 0,
+        "notRun": 0,
+        "succeeded": 43,
+        "succeededWithWarnings": 0
+      },
+      "platform": "Win64",
+      "raw_automation_report_sha256": "b31536ae04b4ed0d85571b4a119f5a7541f66f4137fb373f9b92fdfceccb6127",
+      "report_created_on_utc": "2026.09.05-01.02.17Z",
+      "scope_test_count": 43,
+      "tests": [
+        {
+          "name": "DeferredTeleop.M2.ArticulatedView.ModelReferenceDiagnostic",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedView.RejectsInvalidAndPreservesLastValid",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.ArticulatedView.ValidThreeLayers",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.CapsSamplesAndPreservesEndpoints",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ConvergedSnapshotAndFK",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.DurationUsesMaxJointTime",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.RejectsForgedOrMismatchedIK",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.RejectsInvalidSettings",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ValidatesJointsAndStatuses",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ValidatesSourceEvidence",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicPreview.ZeroDuration",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.IndependentSemanticLayers",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.InvalidStatePreservesPose",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.MatchesCoreByName",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.ReusesTopology",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.KinematicRobotActor.SO101GeneratedDescription",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.CanonicalComposition",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.CanonicalUnrealConversion",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.CrossLanguageFixtureInputValidation",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.CrossLanguageSO101Fixtures",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.FrameConversionContract",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.GenericTreeForwardKinematics",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.RejectsInvalidDescriptions",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.Kinematics.RejectsInvalidJointInputs",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.RobotModel.ParsesCanonicalJson",
+          "state": "Success"
+        },
+        {
+          "name": "DeferredTeleop.M2.RobotModel.ParsesGeneratedSo101Description",
+          "state": "Success"
+        }
+      ],
+      "toolchain_verified": true
+    }
+  ],
+  "related_issue": 47,
+  "reproduction_recipe": "docs/m2/IDENTITY_CASE_SENSITIVITY.md",
+  "schema": "deferred-teleoperation/m2.8b-identity-platform-validation.v1",
+  "scope": "Case-sensitive model identity validation for the bounded native identity change; eight C++ overrides and the existing 43-test contextual suite.",
+  "selected_source_count": 57,
+  "source_file_counts": {
+    "fixtures_articulated_state": 14,
+    "fixtures_fk": 1,
+    "fixtures_m2_json": 15,
+    "identity_override_cpp": 8,
+    "plugin_source": 39,
+    "project_files": 2,
+    "robot_model": 1,
+    "total": 57
+  },
+  "source_files_hash_encoding": "UTF-8 JSON array of {path,sha256}, sorted object keys and path order, compact separators, no trailing newline",
+  "source_files_sha256": "3c2109b87e1d2e2fd446326501a3bfdb217da1d6e142efbf3c13abb4183b11e4",
+  "source_hash_verification": {
+    "all_files_match": true,
+    "identity_overlay_cpp_count": 8,
+    "identity_overlay_hashes_match": true,
+    "linux_snapshot_manifest_sha256": "001be68b86b91d6f1dec7f9c79de2b9a31fa49262f5cbf2e807c5b14406a3cfb",
+    "public_vs_linux_immutable_snapshot": true,
+    "public_vs_windows_sequential_receipts": true,
+    "windows_receipts_composed_in_order": [
+      "baseline-11",
+      "baseline-14",
+      "baseline-22",
+      "baseline-oracle-v2",
+      "baseline-ik35",
+      "baseline-preview43",
+      "identity43"
+    ]
+  },
+  "source_identity_note": "The files below identify exactly the 57 selected sources, fixtures, robot model, and project descriptors used by this bounded proof.",
+  "status": "complete_for_bounded_identity_scope",
+  "validation_command": {
+    "automation": "Automation RunTests DeferredTeleop.; SoftQuit",
+    "editor": "UnrealEditor-Cmd",
+    "headless": "NullRHI",
+    "module": "DeferredTeleopRuntime",
+    "project": "unreal/DeferredTeleopDemo/DeferredTeleopDemo.uproject"
+  }
+}

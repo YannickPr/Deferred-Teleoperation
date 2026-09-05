@@ -23,7 +23,7 @@ bool IsValidDescriptionHash(const FString& DescriptionHash)
     constexpr int32 PrefixLength = 7; // "sha256:"
     constexpr int32 DigestLength = 64;
     if (DescriptionHash.Len() != PrefixLength + DigestLength
-        || !DescriptionHash.StartsWith(TEXT("sha256:")))
+        || !DescriptionHash.StartsWith(TEXT("sha256:"), ESearchCase::CaseSensitive))
     {
         return false;
     }
@@ -64,13 +64,17 @@ bool ValidateIdsAndModelReference(
             OutError,
             TEXT("preview model reference description_hash must be sha256: followed by 64 lowercase hex digits"));
     }
-    if (Request.ModelReference.ModelId != Description.ModelId
-        || Request.ModelReference.ModelRevision != Description.ModelRevision)
+    if (!Request.ModelReference.ModelId.Equals(Description.ModelId, ESearchCase::CaseSensitive)
+        || !Request.ModelReference.ModelRevision.Equals(
+            Description.ModelRevision,
+            ESearchCase::CaseSensitive))
     {
         return Fail(OutError, TEXT("preview model reference does not match the description"));
     }
-    if (Request.IKResult.ModelId != Description.ModelId
-        || Request.IKResult.ModelRevision != Description.ModelRevision)
+    if (!Request.IKResult.ModelId.Equals(Description.ModelId, ESearchCase::CaseSensitive)
+        || !Request.IKResult.ModelRevision.Equals(
+            Description.ModelRevision,
+            ESearchCase::CaseSensitive))
     {
         return Fail(OutError, TEXT("IK result model reference does not match the description"));
     }
