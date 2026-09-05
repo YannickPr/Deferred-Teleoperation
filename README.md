@@ -2,23 +2,13 @@
 
 **A research prototype for delay-tolerant, VR-mediated shared autonomy with remote robots.**
 
-> **Status:** M0, the M1 delay-tolerant dummy, and the bounded M2.2–M2.5 protocol, math, oracle, and actor
-> slices are complete. The bounded M2.7 constrained-IK implementation is complete with Linux and
-> Win64 Unreal Engine 5.8.2 evidence: each run records 35 contextual successes, including all 13
-> IK tests, with build/editor exit code 0.
-> The bounded M2.8a local KinematicPreview math core is implemented; Linux and Win64 Unreal
-> validation each record 43/43 contextual successes, including all eight preview tests, with
-> build/editor exit code 0.
-> The bounded M1.8c local external-action budget supports one revision-1 reservation/window;
-> the integrated Python suite passes 152 tests, while cross-revision effect identity and
-> multiprocess fencing remain open.
-> The bounded M2.9a opt-in articulated-scene tranche is complete: Linux and Win64 each record
-> build/editor exit code 0 and 50 tests (48 `Success` plus two expected `SuccessWithWarnings` for
-> missing-model and duplicate-sequence negative cases). Its desktop capture is synthetic fixture
-> replay; full M2.9 and #20/#21 remain open.
-> The `v0.1.0` release gate is satisfied with portable Python CI;
-> M2.2–M2.5 have separate Unreal Engine 5.8.2 evidence on Linux and Win64. No physical robot path
-> is enabled.
+> **Status:** M0 and the historical M1 dummy gate are complete. Bounded delay/recovery,
+> autonomy-budget and M2 kinematics/presentation slices are implemented. M3a.1 adds a delayed
+> two-button simulation with bounded re-anchoring and independently recorded effects.
+> The integrated Python suite passes 175 tests. For M2.9a, Linux and Win64 UE 5.8.2 each pass 50
+> contextual tests (48 successes plus two expected negative-case warnings), with build/editor exit code 0.
+> Full M1.7/M1.8, M2 authoring/integration and M3a/M3b remain open. The desktop image is synthetic;
+> no physical robot or VR authoring result is claimed.
 
 Deferred Teleoperation explores how an operator can express a spatial and linguistic intent from a delayed representation of a remote environment, while an autonomous field site grounds, assigns, executes, adapts, or holds that intent without depending on a real-time round trip.
 
@@ -46,7 +36,7 @@ The first physical demonstration will use a SO-101 arm and an independently inst
 | M1 release gate | Passed: golden replay, adversarial matrix, portable CI, and Windows UE 5.8.2 evidence |
 | M1.8 external effect | M1.8b delayed proof and bounded M1.8c one-reservation local budget implemented; cross-revision identity and multiprocess fencing remain open |
 | SO-101 twin | M2.2 articulated-state protocol (#14), M2.3 canonical transforms/generic FK code (#15), M2.4 cross-language numerical oracle (#16), and the bounded M2.5 rigid-link actor are complete with Python 3.11/3.12 and Linux/Win64 UE 5.8.2 evidence; the M2.7 constrained-IK implementation and M2.8a local preview math core are complete with Linux/Win64 UE 5.8.2 evidence; the bounded M2.9a opt-in articulated-scene tranche is complete with Linux/Win64 native evidence and a synthetic desktop capture; full M2.9, desktop/VR authoring, and #20/#21 integration remain open |
-| Autonomous delayed button press | Planned for M3 |
+| Autonomous delayed button press | [M3a.1 two-button simulation](docs/m3/M3A_TWO_BUTTON.md) implemented; full M3a S0–S10 and physical M3b remain open |
 | Hardware control | Disabled by default; not implemented publicly |
 
 See [project status](docs/STATUS.md), [canonical terminology](docs/concepts/TERMINOLOGY.md), [time, frames and provenance](docs/concepts/TIME_FRAMES_AND_PROVENANCE.md), the initial [threat model](docs/security/THREAT_MODEL.md), and the [roadmap](ROADMAP.md).
@@ -134,7 +124,7 @@ tests. Version 2 fixes the reference operation order so Python 3.11 and 3.12 gen
 bytes; the final native validation passes the eight-test `DeferredTeleop.M2.Kinematics` selector
 on Linux and Win64, as recorded in the [M2.4 platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
 alongside the earlier full 14-test context. The post-rebase integrated Python validation passes
-152 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
+175 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
 historical 135/20 context. The raw articulated feed does not validate SO-101
 geometry: an FK consumer must call the description-backed validator and retain its diagnostics.
 M2.4 supplies the numerical FK oracle. The bounded M2.7 constrained-IK implementation (#19)
@@ -193,6 +183,21 @@ Run the full matrix and release decision with `dtt-release-gate verify --scope r
 required automated and reference-platform item must pass.
 
 The Unreal host project and plugin live under `unreal/DeferredTeleopDemo`. See [the Unreal notes](unreal/README.md). GitHub CI does not compile Unreal; M0 and the M1 visualization were therefore verified locally with Unreal Engine 5.8.2 on Windows, the reference Unreal platform for this release. Unreal on Linux is not claimed as supported by `v0.1.0`.
+
+## Delayed two-button simulation
+
+[M3a.1](docs/m3/M3A_TWO_BUTTON.md) executes the Mission, Field and Robot service classes in one
+process with separate persistent stores and an independent simulated device journal. Mission
+sends a reference-based intent; after 1200 seconds of virtual transit, Field acquires its local
+current observation. Robot executes, re-anchors the same identity within the allowed bound,
+or holds. The programmatic Mission snapshot receives the attributed post-action evidence.
+
+The [service proof](docs/m3/evidence/two-button-service-proof.json) records normal contact,
+bounded displacement, over-tolerance and ambiguous-swap holds, recognition of an already-latched
+button without a new action, and close/reopen recovery after an injected post-press failure.
+The fixed-reference ablations record no contact (`NONE`) or contact with the other button in the simulation.
+These are deterministic simulation oracles, not a distributed-network, perception, VR or
+physical-hardware validation. Full M3a still requires S0–S10; M3b is a separate physical gate.
 
 ## Design constraints
 

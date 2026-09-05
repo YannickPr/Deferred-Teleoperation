@@ -307,6 +307,242 @@ class PredictionManifest(WireModel):
         return self
 
 
+class EntityDetection(WireModel):
+    """One M3a observed candidate set and measured spatial pose."""
+
+    detection_id: OpaqueId
+    candidate_entity_ids: tuple[OpaqueId, ...]
+    pose: Pose
+    visibility: bool
+    source_evidence_id: OpaqueId
+
+    @model_validator(mode="after")
+    def validate_candidates(self) -> EntityDetection:
+        if not self.candidate_entity_ids:
+            raise ValueError("candidate_entity_ids must not be empty")
+        if len(set(self.candidate_entity_ids)) != len(self.candidate_entity_ids):
+            raise ValueError("candidate_entity_ids must not contain duplicates")
+        return self
+
+
+class TwoButtonObservation(WireModel):
+    """Persisted reference/current observation envelope for M3a."""
+
+    observation_id: OpaqueId
+    source_id: OpaqueId
+    world_revision: Revision
+    observed_at: datetime
+    produced_at: datetime
+    frame_id: OpaqueId
+    calibration_version: OpaqueId
+    canonical_payload_digest: Annotated[
+        str,
+        Field(pattern=r"sha256:[0-9a-f]{64}", min_length=71, max_length=71),
+    ]
+    detections: tuple[EntityDetection, ...]
+
+    @model_validator(mode="after")
+    def validate_observation(self) -> TwoButtonObservation:
+        if self.produced_at < self.observed_at:
+            raise ValueError("produced_at cannot precede observed_at")
+        if any(
+            detection.pose.frame.frame_id != self.frame_id
+            or detection.pose.frame.calibration_version != self.calibration_version
+            for detection in self.detections
+        ):
+            raise ValueError("detection pose context differs from observation context")
+        if len({detection.detection_id for detection in self.detections}) != len(self.detections):
+            raise ValueError("detections must not contain duplicate detection_id values")
+        return self
+
+
+class M3aEnsureLatchedIntent(WireModel):
+    """Revision-1 M3a root intent; only the true level effect is in scope."""
+
+    operation_id: UUID
+    intent_revision: Literal[1]
+    semantic_effect_id: OpaqueId
+    target_entity_id: OpaqueId
+    desired_latched: Literal[True]
+    reference_observation_id: OpaqueId
+    reference_detection_id: OpaqueId
+    reference_digest: Annotated[
+        str,
+        Field(pattern=r"sha256:[0-9a-f]{64}", min_length=71, max_length=71),
+    ]
+    reference_pose: Pose
+    reference_frame_id: OpaqueId
+    reference_calibration_version: OpaqueId
+    reference_world_revision: Revision
+    reference_observed_at: datetime
+    same_identity_only: Literal[True] = True
+    max_displacement_m: float = Field(ge=0.0)
+    expires_at: datetime | None = None
+
+    @model_validator(mode="after")
+    def validate_reference_context(self) -> M3aEnsureLatchedIntent:
+        if self.reference_pose.frame.frame_id != self.reference_frame_id:
+            raise ValueError("reference_pose frame differs from reference_frame_id")
+        if self.reference_pose.frame.calibration_version != self.reference_calibration_version:
+            raise ValueError(
+                "reference_pose calibration differs from reference_calibration_version"
+            )
+        if self.expires_at is not None and self.expires_at < self.reference_observed_at:
+            raise ValueError("expires_at cannot precede reference_observed_at")
+        if not math.isfinite(self.max_displacement_m):
+            raise ValueError("max_displacement_m must be finite")
+        return self
+
+
+class M3aSpatialExecutionContext(WireModel):
+    """Field's verified contract/context and full current observation."""
+
+    operation_id: UUID
+    intent_revision: Literal[1]
+    contract_id: UUID
+    contract_revision: Literal[1]
+    task_id: UUID
+    semantic_effect_id: OpaqueId
+    target_entity_id: OpaqueId
+    reference_observation_id: OpaqueId
+    reference_detection_id: OpaqueId
+    reference_digest: Annotated[
+        str,
+        Field(pattern=r"sha256:[0-9a-f]{64}", min_length=71, max_length=71),
+    ]
+    reference_pose: Pose
+    reference_frame_id: OpaqueId
+    reference_calibration_version: OpaqueId
+    reference_world_revision: Revision
+    reference_observed_at: datetime
+    current_observation_envelope_id: OpaqueId
+    current_observation: TwoButtonObservation
+    reference_observation: TwoButtonObservation | None = None
+    same_identity_only: Literal[True] = True
+    max_displacement_m: float = Field(ge=0.0)
+    expires_at: datetime | None = None
+    expected_device_id: OpaqueId | None = None
+
+    @model_validator(mode="after")
+    def validate_context(self) -> M3aSpatialExecutionContext:
+        if self.reference_pose.frame.frame_id != self.reference_frame_id:
+            raise ValueError("reference_pose frame differs from reference_frame_id")
+        if self.reference_pose.frame.calibration_version != self.reference_calibration_version:
+            raise ValueError(
+                "reference_pose calibration differs from reference_calibration_version"
+            )
+        if self.current_observation.frame_id != self.reference_frame_id:
+            raise ValueError("current observation frame differs from reference frame")
+        if self.current_observation.calibration_version != self.reference_calibration_version:
+            raise ValueError("current observation calibration differs from reference calibration")
+        if self.reference_observation is not None:
+            if self.reference_observation.observation_id != self.reference_observation_id:
+                raise ValueError("reference observation ID differs from context binding")
+            if self.reference_observation.canonical_payload_digest != self.reference_digest:
+                raise ValueError("reference observation digest differs from context binding")
+        if not math.isfinite(self.max_displacement_m):
+            raise ValueError("max_displacement_m must be finite")
+        return self
+
+
+class SpatialPressCommand(WireModel):
+    """Immutable command addressed to the independent spatial adapter."""
+
+    command_id: OpaqueId
+    effect_key: OpaqueId
+    position_m: Vector3
+    frame_id: OpaqueId
+    calibration_version: OpaqueId
+    source_observation_id: OpaqueId
+    source_detection_id: OpaqueId
+    command_digest: Annotated[
+        str,
+        Field(pattern=r"sha256:[0-9a-f]{64}", min_length=71, max_length=71),
+    ]
+
+
+class TwoButtonLevelEvidence(WireModel):
+    """Independent level sensor proof for one named button."""
+
+    target_entity_id: OpaqueId
+    desired_latched: Literal[True]
+    actual_latched: bool
+    device_id: OpaqueId
+    counter: Annotated[int, Field(ge=0)]
+    observed_at: datetime
+    evidence_observation_id: OpaqueId
+
+
+class TwoButtonEffectEvidence(WireModel):
+    """Post-dispatch device proof for one M3a spatial effect."""
+
+    operation_id: UUID
+    intent_revision: Literal[1]
+    contract_id: UUID
+    contract_revision: Literal[1]
+    semantic_effect_id: OpaqueId
+    target_entity_id: OpaqueId
+    effect_key: OpaqueId
+    command_digest: Annotated[
+        str,
+        Field(pattern=r"sha256:[0-9a-f]{64}", min_length=71, max_length=71),
+    ]
+    device_id: OpaqueId
+    observation_id: OpaqueId
+    observed_at: datetime
+    outcome: Literal["APPLIED", "NOT_APPLIED", "UNKNOWN"]
+    # ``False`` means the digest below is the durable command expectation,
+    # because the adapter did not report a matching digest.  Such an effect is
+    # an explicit UNKNOWN diagnostic and cannot attribute contact or counters.
+    command_digest_verified: bool = True
+    command_digest_diagnostic: OpaqueId | None = None
+    physical_contact: Literal["A", "B", "NONE"] | None = None
+    command_executed: bool | None = None
+    semantic_goal_attained: bool | None = None
+    a_counter: Annotated[int, Field(ge=0)] | None = None
+    b_counter: Annotated[int, Field(ge=0)] | None = None
+    a_latched: bool | None = None
+    b_latched: bool | None = None
+
+
+class M3aAction(StrEnum):
+    EXECUTE = "EXECUTE"
+    REANCHOR_EXECUTE = "REANCHOR_EXECUTE"
+    HOLD_AMBIGUOUS = "HOLD_AMBIGUOUS"
+    HOLD_REFERENCE_MISMATCH = "HOLD_REFERENCE_MISMATCH"
+    HOLD_CONTEXT_MISMATCH = "HOLD_CONTEXT_MISMATCH"
+    RECOGNIZE_EFFECT = "RECOGNIZE_EFFECT"
+
+
+class LocalTwoButtonDecision(WireModel):
+    """Pure Robot decision with explicit action/reason and budget state."""
+
+    operation_id: UUID
+    intent_revision: Literal[1]
+    semantic_effect_id: OpaqueId
+    reference_observation_id: OpaqueId
+    current_observation_id: OpaqueId
+    action: M3aAction
+    reason: OpaqueId
+    selected_detection_id: OpaqueId | None = None
+    displacement_m: float | None = Field(default=None, ge=0.0)
+    budget_state: OpaqueId
+    command_digest: (
+        Annotated[
+            str,
+            Field(pattern=r"sha256:[0-9a-f]{64}", min_length=71, max_length=71),
+        ]
+        | None
+    ) = None
+    level_evidence_observation_id: OpaqueId | None = None
+
+    @model_validator(mode="after")
+    def validate_displacement(self) -> LocalTwoButtonDecision:
+        if self.displacement_m is not None and not math.isfinite(self.displacement_m):
+            raise ValueError("displacement_m must be finite")
+        return self
+
+
 Payload = Annotated[
     OperationIntent
     | GroundedOperation
@@ -318,13 +554,28 @@ Payload = Annotated[
     | ArticulatedRobotState
     | RobotForecast
     | SiteSnapshot
-    | PredictionManifest,
+    | PredictionManifest
+    | EntityDetection
+    | TwoButtonObservation
+    | M3aEnsureLatchedIntent
+    | M3aSpatialExecutionContext
+    | SpatialPressCommand
+    | TwoButtonLevelEvidence
+    | TwoButtonEffectEvidence
+    | LocalTwoButtonDecision,
     Field(union_mode="left_to_right"),
 ]
 
 
 ROOT_MESSAGE_TYPES = frozenset(
-    {"operation.intent", "robot.state", "robot.articulated_state", "site.snapshot"}
+    {
+        "operation.intent",
+        "robot.state",
+        "robot.articulated_state",
+        "site.snapshot",
+        "m3a.two_button.observation",
+        "m3a.ensure_latched.intent",
+    }
 )
 PAYLOAD_TYPES: dict[str, type[WireModel]] = {
     "operation.intent": OperationIntent,
@@ -338,6 +589,13 @@ PAYLOAD_TYPES: dict[str, type[WireModel]] = {
     "robot.forecast": RobotForecast,
     "site.snapshot": SiteSnapshot,
     "prediction.manifest": PredictionManifest,
+    "m3a.two_button.observation": TwoButtonObservation,
+    "m3a.ensure_latched.intent": M3aEnsureLatchedIntent,
+    "m3a.spatial.context": M3aSpatialExecutionContext,
+    "m3a.spatial.command": SpatialPressCommand,
+    "m3a.spatial.level": TwoButtonLevelEvidence,
+    "m3a.spatial.effect": TwoButtonEffectEvidence,
+    "m3a.spatial.decision": LocalTwoButtonDecision,
 }
 
 
@@ -356,6 +614,13 @@ class MessageEnvelope(WireModel):
         "robot.forecast",
         "site.snapshot",
         "prediction.manifest",
+        "m3a.two_button.observation",
+        "m3a.ensure_latched.intent",
+        "m3a.spatial.context",
+        "m3a.spatial.command",
+        "m3a.spatial.level",
+        "m3a.spatial.effect",
+        "m3a.spatial.decision",
     ]
     source_id: OpaqueId
     source_boot_id: UUID

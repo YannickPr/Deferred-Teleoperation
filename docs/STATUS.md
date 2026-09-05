@@ -13,7 +13,7 @@ progress. The [roadmap](../ROADMAP.md) defines the corresponding evidence gates.
 | M1.7 | **Planned after M1.7a** | Full causal coherence for concurrent operations and reordered Mission-view data |
 | M1.8 | **In progress; M1.8b proof and bounded M1.8c budget implemented** | One revision-1 local reservation/window is durable; cross-revision identity and multiprocess fencing remain open |
 | M2 | **In progress; target `v0.2.0`** | M2.1 structural model, M2.2 articulated-state protocol, M2.3 FK math core, M2.4 oracle, M2.5 actor, and M2.8a local preview math core are complete with Linux/Win64 UE evidence; M2.7 constrained IK is complete with Linux/Win64 UE evidence; bounded M2.9a articulated-scene tranche is complete with Linux/Win64 native evidence and a synthetic desktop capture; full M2.9, desktop/VR authoring and #20/#21 remain |
-| M3 | **Planned; M3a + M3b required** | Simulation oracle gate plus calibrated physical-fixture gate |
+| M3 | **In progress; bounded M3a.1 implemented** | [Two-button service proof](m3/evidence/two-button-service-proof.json); full M3a S0–S10 and physical M3b remain open |
 | M4/M5 | **Planned** | Broader robot-agnostic assignment, context acquisition and replanning |
 
 M1.7a, M1.7, M1.8 and the enriched M3a/M3b slices are specified in the [delayed-intent
@@ -123,7 +123,7 @@ records the machine-readable eight-test native results and retains the earlier f
 context. The generated SO-101 structural check and the M2.4 fixture contract have distinct roles:
 the latter supplies the numerical FK oracle. Wire parsing and the live Mission view preserve the
 articulated model reference without validating SO-101 geometry; an FK consumer must call the
-explicit description-backed validator. The post-rebase integrated Python validation passes 152
+explicit description-backed validator. The post-rebase integrated Python validation passes 175
 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
 historical 135/20 context. Remaining M2 work is described in the [M2 design](design/M2_SO101_MATHEMATICAL_TWIN.md).
 
@@ -213,7 +213,22 @@ All 72 Python tests, Ruff and the unchanged M1 CI release gate passed in
 - existing `dtt/0` golden and Unreal Mission-view evidence preserved;
 - no claim of complete lineage or multi-operation coherence.
 
-## Planned, not implemented
+## Implemented in M3a.1
+
+The [two-button guide](m3/M3A_TWO_BUTTON.md) and [machine-readable proof](m3/evidence/two-button-service-proof.json)
+record the bounded in-process Mission/Field/Robot simulation with separate persistent stores.
+Field acquires the current observation locally after 1200 seconds of virtual Mission-to-Field
+transit. Robot acts only within the declared same-identity displacement and one-action budget;
+the independent device records the actual contact and counters, which return to Mission.
+
+The focused suite covers S0, S1, S2 and S4 behaviors, target B, reference/context/proof mutations,
+reservation failures and close/reopen recovery. A separate recorded run exercises six scenario
+setups, including a failure after the real simulated impulse and an already-latched replay.
+The latter produces no new impulse, execution journal or budget. An unverified command digest
+produces durable HELD/UNKNOWN with no attributed contact or counters. These are simulation
+receipts; no separate-process crash, power-loss, network-deployment, physical or VR claim follows.
+
+## Remaining work
 
 ### M1.7 full lineage gate
 
@@ -233,7 +248,7 @@ durably; recovery observes without blind replay and rejects a missing or substit
 unknown outcome remains held, and a terminal event alone does not manufacture measured completion
 telemetry in the normal Field.
 
-The integrated Python suite passes 152 tests, including six M1.8b scenarios and eleven persistent
+The integrated Python suite passes 175 tests, including six M1.8b scenarios and eleven persistent
 M1.8c budget cases. The historical golden session and its six committed files remain unchanged,
 and the release gate remains unchanged. Its explicit dummy fixture compatibility is documented;
 it is not an external observation guarantee. M1.8c assumes one active Robot instance per SQLite
@@ -274,7 +289,7 @@ The remaining full M1.8 gate requires:
 - M3a oracles transposed to the physical fixture, with Robot and independent fixture evidence
   recorded separately for every result.
 
-M3 remains incomplete until both M3a and M3b pass. Neither gate is currently implemented.
+M3 remains incomplete until both full M3a and M3b pass. M3a.1 implements the bounded subset above; the remaining simulation rows and physical gate are still open.
 
 ### Later M4/M5 work
 
@@ -296,8 +311,7 @@ integration gates remain open. A milestone is complete
 only after its deterministic replay, machine-readable artifacts and visible result satisfy the gate
 in the [roadmap](../ROADMAP.md).
 
-This documentation change does not close M1.7 or M3. M3a remains a future simulation gate, and
-M3b's physical-fixture evidence is not present.
+The bounded M3a.1 implementation does not close M1.7 or M3. Full M3a still requires its remaining scenario rows, and M3b's physical-fixture evidence is not present.
 
 `v0.1.0` remains the historical M1 tag; later planned increments do not add capabilities to it.
 `v0.2.0` remains the M2 target and makes no physical SO-101 or hardware-control claim.
