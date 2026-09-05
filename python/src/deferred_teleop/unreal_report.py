@@ -1,8 +1,8 @@
-"""Fail-closed inspection of a local Unreal Automation report.
+"""Inspect Unreal Automation report contents, not build or headset evidence.
 
-This validates report contents, not compilation, rendered UX, physical safety,
-report authenticity, or the identity of compiled sources. Keep the build log,
-editor exit code and before/after source hashes alongside the resulting receipt.
+Keep native build/editor exits and compiled-source hashes separately. Approved
+contextual warning tests must be named explicitly; required tests never inherit
+that allowance. A green state cannot hide nonzero error counts or error entries.
 """
 
 from __future__ import annotations
@@ -15,26 +15,39 @@ from pathlib import Path
 from typing import Any
 
 
-def verify_report(report: object, required: object) -> dict[str, Any]:
-    """Require every exact test name once, with Success and no failing context."""
+def _names(value: object, *, allow_empty: bool) -> bool:
+    return (
+        isinstance(value, list)
+        and (allow_empty or bool(value))
+        and all(isinstance(name, str) and bool(name.strip()) for name in value)
+        and len(set(value)) == len(value)
+    )
+
+
+def verify_report(
+    report: object, required: object, allowed_context_warnings: object = None
+) -> dict[str, Any]:
+    """Require exact names/states and reject contradictory rows and summaries."""
     errors: list[str] = []
-    if (
-        not isinstance(required, list)
-        or not required
-        or any(not isinstance(name, str) or not name.strip() for name in required)
-        or len(set(required)) != len(required)
-    ):
+    if not _names(required, allow_empty=False):
         return {"passed": False, "errors": ["required tests must be unique non-empty names"]}
+    if allowed_context_warnings is None:
+        allowed_context_warnings = []
+    if not _names(allowed_context_warnings, allow_empty=True):
+        return {"passed": False, "errors": ["warning allowance must be unique non-empty names"]}
+    if set(required) & set(allowed_context_warnings):
+        return {"passed": False, "errors": ["required tests cannot be granted warning allowances"]}
     if not isinstance(report, dict) or not isinstance(report.get("tests"), list):
         return {"passed": False, "errors": ["report must contain a tests array"]}
     by_name: dict[str, str] = {}
     contextual_warnings: list[str] = []
+    state_counts = {"Success": 0, "SuccessWithWarnings": 0}
     for index, test in enumerate(report["tests"]):
         if not isinstance(test, dict):
             errors.append(f"invalid test record {index}")
             continue
         name, state = test.get("fullTestPath"), test.get("state")
-        if not isinstance(name, str) or not name:
+        if not isinstance(name, str) or not name.strip():
             errors.append(f"missing exact fullTestPath at {index}")
             continue
         if name in by_name:
@@ -43,26 +56,65 @@ def verify_report(report: object, required: object) -> dict[str, Any]:
             errors.append(f"invalid state for {name}")
             state = "INVALID"
         by_name[name] = state
-        if state not in {"Success", "SuccessWithWarnings"}:
+        if state not in state_counts:
             errors.append(f"non-successful test: {name}: {state}")
-        if state == "SuccessWithWarnings" and name not in required:
-            contextual_warnings.append(name)
+        else:
+            state_counts[state] += 1
+        has_warning = state == "SuccessWithWarnings"
+        for key in ("errors", "warnings"):
+            if key not in test:
+                continue
+            count = test[key]
+            if type(count) is not int or count < 0:
+                errors.append(f"invalid {key} count for {name}")
+            elif key == "errors" and count:
+                errors.append(f"nonzero errors for {name}")
+            elif key == "warnings" and count:
+                has_warning = True
+        if "entries" in test:
+            entries = test["entries"]
+            if not isinstance(entries, list):
+                errors.append(f"invalid entries for {name}")
+            else:
+                for entry in entries:
+                    if not isinstance(entry, dict) or not isinstance(entry.get("event"), dict):
+                        errors.append(f"invalid event entry for {name}")
+                        continue
+                    kind = entry["event"].get("type")
+                    if kind == "Error":
+                        errors.append(f"error event for {name}")
+                    elif kind == "Warning":
+                        has_warning = True
+                    elif kind != "Info":
+                        errors.append(f"unsupported event type for {name}: {kind}")
+        if has_warning:
+            if state != "SuccessWithWarnings":
+                errors.append(f"warning evidence contradicts state for {name}")
+            if name in required or name not in allowed_context_warnings:
+                errors.append(f"unapproved warning test: {name}")
+            if name not in required:
+                contextual_warnings.append(name)
     for name in required:
         if name not in by_name:
             errors.append(f"required test missing: {name}")
         elif by_name[name] != "Success":
             errors.append(f"required test must be Success without warnings: {name}")
-    # Summary fields vary by engine report version. If present, never ignore
-    # a conflicting failure/not-run summary even when individual rows look green.
-    for key in ("failed", "notRun", "inProcess"):
-        if key in report and (type(report[key]) is not int or report[key] != 0):
-            errors.append(f"report summary {key} must be integer zero")
+    # Optional fields differ across report versions, but any supplied summary is binding.
+    summaries = {
+        "failed": 0, "notRun": 0, "inProcess": 0,
+        "succeeded": state_counts["Success"],
+        "succeededWithWarnings": state_counts["SuccessWithWarnings"],
+    }
+    for key, expected in summaries.items():
+        if key in report and (type(report[key]) is not int or report[key] != expected):
+            errors.append(f"report summary {key} must equal {expected}")
     return {
         "passed": not errors,
         "required_test_count": len(required),
         "observed_test_count": len(by_name),
         "required_tests": {name: by_name.get(name, "MISSING") for name in required},
         "contextual_warning_tests": contextual_warnings,
+        "allowed_context_warning_tests": allowed_context_warnings,
         "errors": errors,
     }
 
@@ -87,13 +139,16 @@ def _load_json(raw: bytes) -> object:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--report", type=Path, required=True, help="Automation index.json")
-    parser.add_argument(
-        "--required", type=Path, required=True, help="JSON array of exact test names"
-    )
+    parser.add_argument("--required", type=Path, required=True, help="Exact test names (JSON)")
+    parser.add_argument("--allow-context-warnings", type=Path, help="Reviewed warning names (JSON)")
     args = parser.parse_args(argv)
     try:
         raw = args.report.read_bytes()
-        result = verify_report(_load_json(raw), _load_json(args.required.read_bytes()))
+        allowance = (
+            _load_json(args.allow_context_warnings.read_bytes())
+            if args.allow_context_warnings else []
+        )
+        result = verify_report(_load_json(raw), _load_json(args.required.read_bytes()), allowance)
         result["report_sha256"] = hashlib.sha256(raw).hexdigest()
         result["scope"] = "automation-report-inspection-only"
     except (OSError, ValueError) as error:

@@ -6,18 +6,21 @@ import pytest
 from deferred_teleop.unreal_report import main, verify_report
 
 REQUIRED = ["DeferredTeleop.M2.GoalAuthoring.Example"]
+CONTEXT = "Other.ExpectedNegative"
 
 
 def report(state="Success", name=REQUIRED[0]):
     return {"failed": 0, "notRun": 0, "tests": [{"fullTestPath": name, "state": state}]}
 
 
-def test_exact_success_and_contextual_warning_are_distinguished():
+def test_contextual_warning_requires_explicit_reviewed_allowance():
     data = report()
-    data["tests"].append({"fullTestPath": "Other.ExpectedNegative", "state": "SuccessWithWarnings"})
-    result = verify_report(data, REQUIRED)
+    data["tests"].append({"fullTestPath": CONTEXT, "state": "SuccessWithWarnings"})
+    assert not verify_report(data, REQUIRED)["passed"]
+    result = verify_report(data, REQUIRED, [CONTEXT])
     assert result["passed"]
-    assert result["contextual_warning_tests"] == ["Other.ExpectedNegative"]
+    assert result["contextual_warning_tests"] == [CONTEXT]
+    assert not verify_report(data, REQUIRED, [CONTEXT.upper()])["passed"]
 
 
 @pytest.mark.parametrize(
@@ -46,14 +49,65 @@ def test_unrelated_failure_and_summary_conflict_are_fatal():
     assert not verify_report(data, REQUIRED)["passed"]
 
 
-@pytest.mark.parametrize("required", [[], [""], ["x", "x"], "not-an-array", [None]])
+@pytest.mark.parametrize("required", [[], [""], ["x", "x"], "not-an-array", [None], [{}]])
 def test_invalid_required_set_fails_closed(required):
     assert not verify_report(report(), required)["passed"]
+
+
+@pytest.mark.parametrize("allowance", [[REQUIRED[0]], [None], [""], ["x", "x"], "all"])
+def test_invalid_or_overlapping_warning_allowance_is_rejected(allowance):
+    assert not verify_report(report(), REQUIRED, allowance)["passed"]
 
 
 def test_malformed_report_is_rejected():
     for value in (None, [], {}, {"tests": [None]}, {"tests": [{"state": "Success"}]}):
         assert not verify_report(value, REQUIRED)["passed"]
+
+
+@pytest.mark.parametrize("key,value", [
+    ("errors", 1), ("errors", False), ("errors", -1), ("errors", "0"),
+    ("warnings", 1), ("warnings", None), ("warnings", 0.0),
+])
+def test_success_cannot_hide_bad_counts(key, value):
+    data = report()
+    data["tests"][0][key] = value
+    assert not verify_report(data, REQUIRED)["passed"]
+
+
+@pytest.mark.parametrize("entries", [
+    [{"event": {"type": "Error"}}], [{"event": {"type": "Warning"}}],
+    [{"event": {"type": "garbage"}}], [{"event": {}}], [None], None, {},
+])
+def test_success_cannot_hide_bad_entries(entries):
+    data = report()
+    data["tests"][0]["entries"] = entries
+    assert not verify_report(data, REQUIRED)["passed"]
+
+
+def test_warning_allowance_never_suppresses_an_error_event():
+    data = report()
+    data["tests"].append({
+        "fullTestPath": CONTEXT, "state": "SuccessWithWarnings", "errors": 0,
+        "entries": [{"event": {"type": "Error", "message": "bad"}}],
+    })
+    assert not verify_report(data, REQUIRED, [CONTEXT])["passed"]
+
+
+@pytest.mark.parametrize("key,value", [
+    ("succeeded", 2), ("succeeded", True), ("succeededWithWarnings", 1),
+    ("failed", 1), ("notRun", 2), ("inProcess", 1),
+])
+def test_summary_must_agree_with_rows(key, value):
+    data = report()
+    data[key] = value
+    assert not verify_report(data, REQUIRED)["passed"]
+
+
+def test_consistent_summary_and_info_entries_pass():
+    data = report()
+    data.update(succeeded=1, succeededWithWarnings=0, inProcess=0)
+    data["tests"][0].update(errors=0, warnings=0, entries=[{"event": {"type": "Info"}}])
+    assert verify_report(data, REQUIRED)["passed"]
 
 
 def test_cli_reports_hash_and_fails_on_missing_file(tmp_path, capsys):
@@ -68,10 +122,22 @@ def test_cli_reports_hash_and_fails_on_missing_file(tmp_path, capsys):
     assert main(["--report", str(tmp_path / "absent"), "--required", str(required)]) == 1
 
 
+def test_cli_warning_allowance(tmp_path, capsys):
+    required, source, allowed = (tmp_path / n for n in ("req.json", "index.json", "allow.json"))
+    required.write_text(json.dumps(REQUIRED), encoding="utf-8")
+    data = report()
+    data["tests"].append({"fullTestPath": CONTEXT, "state": "SuccessWithWarnings"})
+    source.write_text(json.dumps(data), encoding="utf-8")
+    allowed.write_text(json.dumps([CONTEXT]), encoding="utf-8")
+    args = ["--report", str(source), "--required", str(required)]
+    assert main(args) == 1
+    assert main(args + ["--allow-context-warnings", str(allowed)]) == 0
+    capsys.readouterr()
+
+
 @pytest.mark.parametrize("raw", [
     '{"failed": 1, "failed": 0, "tests": []}',
-    '{"tests": [], "extra": NaN}',
-    '{"tests": [], "extra": Infinity}',
+    '{"tests": [], "extra": NaN}', '{"tests": [], "extra": Infinity}',
 ])
 def test_cli_rejects_ambiguous_json(tmp_path, capsys, raw):
     required = tmp_path / "required.json"

@@ -1,0 +1,10 @@
+[
+  "DeferredTeleop.M2.Workbench.DormantByDefault",
+  "DeferredTeleop.M2.Workbench.InitializeAndReload",
+  "DeferredTeleop.M2.Workbench.ReleaseWaitsForFinalResult",
+  "DeferredTeleop.M2.Workbench.FailedFinalGoalNeverFreezesOldResult",
+  "DeferredTeleop.M2.Workbench.CancelClearsPendingFreeze",
+  "DeferredTeleop.M2.Workbench.StageAndModeGuards",
+  "DeferredTeleop.M2.Workbench.HandleChangeDuringReleaseInvalidatesCandidate",
+  "DeferredTeleop.M2.Workbench.DisplayFailureBlocksFreeze"
+]

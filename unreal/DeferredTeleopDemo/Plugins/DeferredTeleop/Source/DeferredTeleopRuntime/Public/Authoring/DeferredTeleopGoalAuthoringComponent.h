@@ -137,6 +137,7 @@ protected:
 private:
 #if WITH_DEV_AUTOMATION_TESTS
     friend struct FDttGoalAuthoringTestAccess;
+    friend struct FDttAuthoringWorkbenchTestAccess;
 #endif
     FDeferredTeleopArticulatedModelBinding SourceBinding;
     FDttKinematicPreviewRequest SourceRequest;
