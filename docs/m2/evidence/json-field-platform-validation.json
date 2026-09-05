@@ -1,0 +1,238 @@
+{
+  "base_commit": "95418bbe07517d092b038307d3d04048da2a94f7",
+  "commands": {
+    "editor": "UnrealEditor-Cmd <project> -unattended -nop4 -nosplash -NullRHI -ExecCmds=\"Automation RunTests DeferredTeleop.; SoftQuit\" -ReportExportPath=<report-directory>",
+    "linux_build": "Build.sh UnrealEditor Linux Development -Project=<project> -Plugin=<plugin> -NoUBTMakefiles -NoHotReload -MaxParallelActions=4 -UBARootDir=<writable-cache> -UBAStoreCapacityGb=1 -UBADisableRemote",
+    "note": "Use an already-built UE 5.8.2 editor. These runs built the plugin (2 Linux actions, 4 Windows actions); they were not full engine builds.",
+    "plugin": "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/DeferredTeleop.uplugin",
+    "project": "unreal/DeferredTeleopDemo/DeferredTeleopDemo.uproject",
+    "windows_build": "Build.bat UnrealEditor Win64 Development -Project=<project> -Plugin=<plugin> -NoUBTMakefiles -NoHotReload -MaxParallelActions=4",
+    "windows_preparation": "For the reused project, move its generated Intermediate/Build/Win64/x64/UnrealEditor/Development/Makefile.bin out of Intermediate before building, so new test files are discovered. A fresh checkout has no such cached makefile."
+  },
+  "engine_build_versions": {
+    "linux_build_version": {
+      "BranchName": "UE5",
+      "Changelist": 0,
+      "CompatibleChangelist": 55116800,
+      "IsLicenseeVersion": 0,
+      "IsPromotedBuild": 0,
+      "MajorVersion": 5,
+      "MinorVersion": 8,
+      "PatchVersion": 2
+    },
+    "windows_build_version": {
+      "BranchName": "UE5",
+      "Changelist": 0,
+      "CompatibleChangelist": 55116800,
+      "IsLicenseeVersion": 0,
+      "IsPromotedBuild": 0,
+      "MajorVersion": 5,
+      "MinorVersion": 8,
+      "PatchVersion": 2
+    }
+  },
+  "engine_version": "5.8.2",
+  "expected_warning_tests": {
+    "DeferredTeleop.M2.ArticulatedScene.InvalidModelPreservesLastGood": "missing-model negative case",
+    "DeferredTeleop.M2.ArticulatedScene.SourceSequenceAndConnectionGeneration": "duplicate-sequence negative case"
+  },
+  "limits": [
+    "Case-folded collisions are rejected throughout the Unreal JSON document, including opaque objects; unique uppercase opaque keys remain allowed.",
+    "Exact duplicate decoded names keep the existing DOM last-wins behavior.",
+    "This bounded matrix is not a claim of complete Python/Unreal JSON parity; the numerical robot reference loader is not a strict wire parser.",
+    "Prior 43/50-test evidence records remain historical snapshots.",
+    "No hardware, VR, or full M2.9/#20/#21 closure is claimed."
+  ],
+  "platforms": {
+    "LinuxEditor": {
+      "after": {
+        "build_exit_code": 0,
+        "counters": {
+          "failed": 0,
+          "inProcess": 0,
+          "notRun": 0,
+          "succeeded": 50,
+          "succeededWithWarnings": 2
+        },
+        "editor_exit_code": 0,
+        "json_tests": [
+          {
+            "errors": 0,
+            "name": "DeferredTeleop.M2.JsonFieldExactness.NonSchemaObjects",
+            "state": "Success",
+            "warnings": 0
+          },
+          {
+            "errors": 0,
+            "name": "DeferredTeleop.M2.JsonFieldExactness.SharedMatrix",
+            "state": "Success",
+            "warnings": 0
+          }
+        ],
+        "report_sha256": "8ac3c5afa6ff048d9ec84b0323128d6e194839acc346275503aacdf5b257397c",
+        "total_tests": 52
+      },
+      "before": {
+        "build_exit_code": 0,
+        "counters": {
+          "failed": 1,
+          "inProcess": 0,
+          "notRun": 0,
+          "succeeded": 48,
+          "succeededWithWarnings": 2
+        },
+        "editor_exit_code": 255,
+        "json_tests": [
+          {
+            "errors": 54,
+            "name": "DeferredTeleop.M2.JsonFieldExactness.SharedMatrix",
+            "state": "Fail",
+            "warnings": 0
+          }
+        ],
+        "report_sha256": "1a8c572854477d159e65bf24a27e248e881e56906d316bf80458892de6106409",
+        "total_tests": 51
+      }
+    },
+    "WindowsEditor": {
+      "after": {
+        "build_exit_code": 0,
+        "counters": {
+          "failed": 0,
+          "inProcess": 0,
+          "notRun": 0,
+          "succeeded": 50,
+          "succeededWithWarnings": 2
+        },
+        "editor_exit_code": 0,
+        "json_tests": [
+          {
+            "errors": 0,
+            "name": "DeferredTeleop.M2.JsonFieldExactness.NonSchemaObjects",
+            "state": "Success",
+            "warnings": 0
+          },
+          {
+            "errors": 0,
+            "name": "DeferredTeleop.M2.JsonFieldExactness.SharedMatrix",
+            "state": "Success",
+            "warnings": 0
+          }
+        ],
+        "report_sha256": "6f236054202aa47ebd04b11e095a1614d72192b3e989eb3e8fced96439e90cff",
+        "total_tests": 52
+      },
+      "before": {
+        "build_exit_code": 0,
+        "counters": {
+          "failed": 1,
+          "inProcess": 0,
+          "notRun": 0,
+          "succeeded": 48,
+          "succeededWithWarnings": 2
+        },
+        "editor_exit_code": 0,
+        "json_tests": [
+          {
+            "errors": 54,
+            "name": "DeferredTeleop.M2.JsonFieldExactness.SharedMatrix",
+            "state": "Fail",
+            "warnings": 0
+          }
+        ],
+        "report_sha256": "92ec217c62b09325e2926e26ac32bf3469a727d114960100e9e36fb5985c8b69",
+        "total_tests": 51
+      }
+    }
+  },
+  "regression_baseline": {
+    "failure": "18 case-only alias/collision cases were accepted; SharedMatrix recorded 54 failed assertions on each platform. The three exact-duplicate cases already passed.",
+    "input_manifest_sha256": "adbda332ccd11ba60ffe0ba092c63fc4d310f5b73390c9f6528a23c1d0d9919a",
+    "reproduction": "At base_commit, add only the matrix fixture and SharedMatrix test from this change, then build and run DeferredTeleop. The same 21 raw cases fail before the parser correction.",
+    "unchanged_test_inputs": {
+      "fixtures/m2/json-field-exactness.json": "bc41b4ff561ea6b48b36067e6200733cc507ee401e4dc97c24a096bdc24fc0a1",
+      "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopJsonFieldExactnessTests.cpp": "6e7818b56a883fb1ff02068bb9d95a4f91db1d284005d633023706df16656553"
+    }
+  },
+  "schema_version": "dtt.json-field-platform-validation/0",
+  "scope": {
+    "integrated_python_tests_passed": 200,
+    "opaque_objects_test": "DeferredTeleop.M2.JsonFieldExactness.NonSchemaObjects",
+    "production_change": "UE token-reader preflight for case-folded duplicate keys, then exact stored-key checks in the three parsers",
+    "python_matrix_tests_passed": 15,
+    "python_wire_parsers": [
+      "legacy Mission view",
+      "articulated Mission view"
+    ],
+    "shared_raw_cases": 21,
+    "unreal_parsers": [
+      "legacy Mission view",
+      "articulated Mission view",
+      "robot description"
+    ]
+  },
+  "source_files": {
+    "fixtures/m1/golden-session/expected-mission-view.json": "5412ade4288360091807e7be4040d319873d2089822564683a99eeb4f5033512",
+    "fixtures/m2/articulated-state/valid-articulated-view.json": "ca7e5582ae7f668b96f410f5112c656b02dbff25fcb06201b0d21ae9d375b884",
+    "fixtures/m2/json-field-exactness.json": "bc41b4ff561ea6b48b36067e6200733cc507ee401e4dc97c24a096bdc24fc0a1",
+    "robots/so101/generated/so101.kinematics.json": "36ce321332248351f5304630a9ccc4887d6665666e17b6933e3302874735e5f2",
+    "unreal/DeferredTeleopDemo/DeferredTeleopDemo.uproject": "86ba4cc0c07997bdf0b8083b43236a7b79ea642144105aa6263e6bfba24e1b39",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/DeferredTeleop.uplugin": "5587a5d087cf44eabdea70e2d9de4edc157c20989ba75d9c7cc6221d8c0b6427",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/DeferredTeleopRuntime.Build.cs": "bd82250e7eeb6aa8e50870ae98c2fd7f0d444e094d474aadb0023f7da502152e",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedSceneActor.cpp": "0e2a96345764d54a83374f7cf6185e74e76359ad1aed56b65d739afc2c44ea8d",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedSceneValidation.cpp": "f41c95736eb2431b9cac3499d1924372dff1a60e9e811ade1a0e98897cd3530a",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedSceneValidation.h": "a4c8d675fa4fe021f3541420d1ca8c5b12e6d979c06b989a0424e8d1760f7fd4",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedViewParser.cpp": "9a2d2e2299b082c8d0c98477129a27fb18db56d20b7c40bff6eca4b2af116bad",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Articulated/DeferredTeleopArticulatedViewParser.h": "6803ec5686544aa6f40f0af52979262bc9c5f921fc275216c911ed46962579e9",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopMissionClientComponent.cpp": "19c388acc73be63c5e59224d99d44695166566dbf9155761b49dbd0fa577da1a",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopMissionViewParser.cpp": "ce32acdb940337a02a0340c1090229aa7ebfc61bee549a50292171860fec37c3",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopMissionViewParser.h": "7a00e323cf9a27a07e0af16833d71746b7ec20b72e865b6d17b880a35bc0f38d",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopRuntime.cpp": "c3e3c943960d18a1d9a34742aae5fe9770061191187b39bc5517c5d9b90ae887",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopStateVisualizationActor.cpp": "e6bf490426bfe6a8610a64747d12d2dc1d5bfa00e047daa37b41d67aea576235",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopStrictJsonFields.h": "052fb5069db7a0d47b9e44c384d54005163fb48d36edf5c5116d71be15f2b902",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopVersionLibrary.cpp": "cbb763125de0ae7830795d16860140a1e0bc18038ec7f2fdf15ab3b6dfdbeeef",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/DeferredTeleopVisualizationLibrary.cpp": "e88d55a276d4de67d09969db610049732ff6a17b9476846b1e08ddc6ec1e4a3c",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopIKLibrary.cpp": "1074e64b7dabe1a637e057381388b3bc923a550c3a8ad7ca87e4f24acd3a749a",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopIKTestBridge.h": "89b216145d9eb9cd8cbfe945b356eab21e5339798b58b3ca4ec42b7fb880e254",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopKinematicPreviewLibrary.cpp": "2da9d58615ee840a2767a2838ac9420e0a85bec8abf9443e9a97fa475e809934",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Kinematics/DeferredTeleopKinematicsLibrary.cpp": "17e07edf30e6bda519da3c0415f0f0cf0563403ac33b9ae0c0ad32a079900773",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/RobotModel/DeferredTeleopRobotModelJson.cpp": "915489693edf00dcbebd78ed4d06b64cf6d81070548c9d7bf4fe87e65026c1bc",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/RobotModel/DeferredTeleopRobotModelTypes.cpp": "ca9693125f9ff761105c67cf165b5c16bbc2ee43dc6b8fd58fee4cacbd8a74e0",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopArticulatedSceneTests.cpp": "dc8413b238cff17c01315b881bb118bdbe60bb61218ff62063e613afe6f87e17",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopArticulatedViewTests.cpp": "3c304ecb1949d93c2c04639341ea1dd5befb795d7c18871385ab495d39df3cea",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopFrameConversionContractTests.cpp": "9aa5cf021b6839fa54165630d9e3915d82d91c41ae1b359955f9832eb49e1fbc",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopIKTests.cpp": "2ce22c575d5495a62f449a16c9844b0c079eb59a23849d23a2b064bc98d6b84e",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopJsonFieldExactnessTests.cpp": "6e7818b56a883fb1ff02068bb9d95a4f91db1d284005d633023706df16656553",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicPreviewTests.cpp": "ae94d23c9f02bd558a1048bf5982c66e8066236413cf16ee55cc920c725a1539",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicRobotActorTests.cpp": "53e578c3d9f3fa9b26e38b14dd4dce66190e61b8fc0844ebb71af35688118284",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicsFixtureTests.cpp": "489c209cba968cf198750cf7228844092ad7c1d93613e1208f5c499f5248300b",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopKinematicsTests.cpp": "88a28057b19d46d4c1b17ad861f1c26ff57132e97ce2132bee9dbd55cb2c02b4",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopMissionViewTests.cpp": "e06ef5cdd7e2a0282f5770006f201a7e374992b436ceb702711e1b22c7f9d1ac",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Tests/DeferredTeleopStrictJsonFieldsTests.cpp": "4a0fd047400d8a97b23231193f50f37b8581a2618557d120ad2bfb87fb0a74c2",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Private/Visualization/DeferredTeleopKinematicRobotActor.cpp": "dd6b2d8debde8545b7b82ea3dcc767ec4068bab7d2446fa4600e62844a6816e4",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Articulated/DeferredTeleopArticulatedSceneActor.h": "5093d8c1f926f2e5dbda84bf80e7c400c6f2024ea6fd7995444442f6b6d3b50b",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Articulated/DeferredTeleopArticulatedSceneTypes.h": "e8cef3edf3508021031126b1b32b3b26137057ea4955c11f0a15f006d096f849",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Articulated/DeferredTeleopArticulatedViewTypes.h": "4ded7520fb560d9d4d42f8d76fef53cbbd1fc1e9e9b6c9e3b0a45e8991ba6c3d",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopMissionClientComponent.h": "fc11bb0efd07e318fcd52f674552551eac8098b5f34ac904e3b40209369f7d75",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopMissionViewTypes.h": "a6ab1e5b9b9d23d8693b99b59ae3ed20eee71e6dd71742f43189e329467378ce",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopRuntime.h": "5ab43d0e84c526acd869d73a2ea98391de5635e7fd75e10663a532051c0a128d",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopStateVisualizationActor.h": "4c7123a741f1108cdb1f5abfcc502b125ebe5d19f338b352bdce6169df8eb734",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopVersionLibrary.h": "903971ea5a3b55d07a45751acbad2fbf9114a8865d5490d4a286756a19d54f04",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/DeferredTeleopVisualizationLibrary.h": "0669fd5f9123f8eafc8e7bca5913822a6c3f8cb1efae1da459d8f75eb40fd93c",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopIKLibrary.h": "e7e0444ffa6400a8c68098c1487dd234989c7e8083b6945a4c69e6e4fa454b2d",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopIKTypes.h": "637ab3db0b187ea8eb046e24668dd79d0e21b4dc6e947f7592e932d034610035",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopKinematicPreviewLibrary.h": "08bfa2b6e9caed7dada7cbb412094f18875bbaf568c771d41164ce6a7325e7e5",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopKinematicPreviewTypes.h": "e3e41dd5faaef980b1e8f9a5cad6d2a6d65df27ddef68ff9b3b4d83160c4b1cf",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Kinematics/DeferredTeleopKinematicsLibrary.h": "697f41e5611ba0f35c564d779e5e5a3d8ec447dc258afd428725c3bfeb5ec705",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/RobotModel/DeferredTeleopRobotModelTypes.h": "b10aea77aac60a5b8d539d4c00c481250ca465564cf7f83a118d7e287e8939d4",
+    "unreal/DeferredTeleopDemo/Plugins/DeferredTeleop/Source/DeferredTeleopRuntime/Public/Visualization/DeferredTeleopKinematicRobotActor.h": "18a41f6569c8ba405214adf8690932ef5bf2f2387741bf5ab7fe61c4d989901b"
+  },
+  "source_hash_verification": {
+    "all_linux_match": true,
+    "all_windows_match": true,
+    "compiled_input_manifest_sha256": "a8dffa5505e204ab8db5b69d696afc228547b8177bae3ca291d3a5548014b82c",
+    "selected_inputs": 54
+  },
+  "status": "complete_for_bounded_json_field_scope",
+  "validated_at_utc": "2026-09-05T06:36:50.208871+00:00"
+}

@@ -13,6 +13,11 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 
 ### Fixed
 
+- exact JSON field-name validation in the legacy Mission, articulated Mission, and robot-model
+  parsers. A shared Unreal token preflight rejects case-only collisions before DOM construction;
+  strict field checks reject case-only aliases. Exact duplicates retain last-wins behavior.
+  See the [shared regression matrix and platform evidence](docs/m2/JSON_FIELD_CONFORMANCE.md).
+
 - Robot handle/recovery now holds an exclusive local owner lock through external I/O and
   durable resolution. A competing service on the same canonical database path fails before
   mutating work; process death permits observe-only recovery. See the
@@ -86,8 +91,7 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
   in the final Linux and Win64 receipts: each platform records build/editor exit code 0 and 50
   tests (48 `Success` plus two expected `SuccessWithWarnings` for missing-model and
   duplicate-sequence negative cases), with zero failures. The final desktop image is a 1920x1080
-  `RenderOffscreenVulkan` capture; JSON field-name exactness remains tracked by [issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47),
-  and full M2.9/#20/#21 remain open.
+  `RenderOffscreenVulkan` capture; full M2.9/#20/#21 remain open.
 
 ### Status
 
@@ -97,7 +101,7 @@ tagged releases; the experimental `dtt/0` protocol can still change incompatibly
 - M2.4 is complete, including the cross-version reference check and native Linux/Win64 Kinematics
   validation.
 - M2.2 is complete. Its raw articulated feed does not validate model geometry; an FK consumer must
-  call the explicit description-backed validator. The integrated Python suite passes 185 tests;
+  call the explicit description-backed validator. The integrated Python suite passes 200 tests;
   the historical M2.2 135/20 snapshot remains identified in its platform record.
 - M2.5 is complete for the bounded kinematic-actor slice. M2.7 constrained IK and the M2.8a
   preview math core are complete with Linux/Win64 evidence. The bounded M2.9a articulated-scene

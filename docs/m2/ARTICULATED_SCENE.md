@@ -62,9 +62,10 @@ guards: Confirmed is `MEASURED`/`FUSED`, Arrival is `PREDICTED` with a strictly 
 The identity correction also makes protocol and robot-description literals exact in the two
 existing C++ parsers, `Private/Articulated/DeferredTeleopArticulatedViewParser.cpp` and
 `Private/RobotModel/DeferredTeleopRobotModelJson.cpp`.  This preserves the standalone client's
-`LegacyView` default and existing M1 behavior.  JSON object field-name
-lookup still follows Unreal's case-insensitive alias behavior in this slice; exact JSON key
-validation and parser conformance remain tracked by [issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47).
+`LegacyView` default and existing M1 behavior.  The subsequent
+[JSON field conformance correction](JSON_FIELD_CONFORMANCE.md) rejects case-only
+field aliases and collisions before information can be lost in the Unreal DOM.
+Exact duplicates retain their existing last-wins behavior.
 
 For a valid candidate the scene performs `InitializeModel` and `ApplyState` on
 the existing layer actor.  Each layer retains a last-good tuple containing its
@@ -143,9 +144,8 @@ The generator is bound by SHA-256
 `690ca1f5b0fb2233e5e4dc8a56d8b8bce5976284a4b91cf7c15a69cce9a79b3a`. The capture is desktop
 presentation evidence only; it adds no VR or hardware path.
 
-JSON field-name exactness remains a separate parser-conformance concern tracked by
-[issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47); the native
-`FName` topology lookup remains case-insensitive. The full M2.9 milestone and #20/#21 remain
+The native `FName` topology lookup remains case-insensitive, separately from
+[exact JSON field names](JSON_FIELD_CONFORMANCE.md). The full M2.9 milestone and #20/#21 remain
 open.
 
 ## Deterministic checks

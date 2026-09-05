@@ -5,7 +5,7 @@
 > **Status:** M0 and the historical M1 dummy gate are complete. Bounded delay/recovery,
 > autonomy-budget and M2 kinematics/presentation slices are implemented. M3a.1 adds a delayed
 > two-button simulation with bounded re-anchoring and independently recorded effects.
-> The integrated Python suite passes 185 tests. For M2.9a, Linux and Win64 UE 5.8.2 each pass 50
+> The integrated Python suite passes 200 tests. For M2.9a, Linux and Win64 UE 5.8.2 each pass 50
 > contextual tests (48 successes plus two expected negative-case warnings), with build/editor exit code 0.
 > Full M1.7/M1.8, M2 authoring/integration and M3a/M3b remain open. The desktop image is synthetic;
 > no physical robot or VR authoring result is claimed.
@@ -124,7 +124,7 @@ tests. Version 2 fixes the reference operation order so Python 3.11 and 3.12 gen
 bytes; the final native validation passes the eight-test `DeferredTeleop.M2.Kinematics` selector
 on Linux and Win64, as recorded in the [M2.4 platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
 alongside the earlier full 14-test context. The post-rebase integrated Python validation passes
-185 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
+200 tests; the M2.4 oracle record retains its 121-test snapshot and the M2.2 record retains its
 historical 135/20 context. The raw articulated feed does not validate SO-101
 geometry: an FK consumer must call the description-backed validator and retain its diagnostics.
 M2.4 supplies the numerical FK oracle. The bounded M2.7 constrained-IK implementation (#19)
@@ -168,8 +168,8 @@ failures. The final 1920x1080 `RenderOffscreenVulkan` image is a `SYNTHETIC FIXT
 illustrating the three layers from runtime status labels; it is not a pose/root oracle or a
 pixel-identical output of the public generator alone. See
 the [platform record](docs/m2/evidence/articulated-scene-platform-validation.json), [scene guide](docs/m2/ARTICULATED_SCENE.md),
-and [capture](docs/m2/evidence/m2-9a-articulated-scene.png). JSON field-name exactness remains
-tracked by [issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47). This
+and [capture](docs/m2/evidence/m2-9a-articulated-scene.png). The [JSON field conformance correction](docs/m2/JSON_FIELD_CONFORMANCE.md)
+closes #47 with token-level collision rejection and exact field-name checks. This
 presentation seam does not add Target authoring, IK, VR, hardware, or an execution command path,
 and it does not close the full M2.9 milestone or #20/#21.
 

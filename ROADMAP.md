@@ -136,7 +136,7 @@ validity so that admission, execution and expiry are evaluated at the receiving 
 inferred from a link profile name.
 
 The M1.8b bounded combined slice is implemented and covered by six focused tests. M1.8c adds
-eleven persistent budget cases; the current Python suite passes 185 tests. These slices do not
+eleven persistent budget cases; the current Python suite passes 200 tests. These slices do not
 validate physical hardware, a real network, or a whole-OS restart.
 Positive and ambiguous observation recovery are covered under long delay; absent external
 evidence remains covered by the separate M1.8a recovery proof. It covers contract revision 1;
@@ -201,7 +201,7 @@ Python 3.11 and 3.12 produce identical bytes, and its final native validation pa
 `DeferredTeleop.M2.Kinematics` selector on both targets. The [M2.4 fixture contract](docs/m2/KINEMATICS_FIXTURES.md)
 defines nine SO-101 cases, six independent Python reference tests, and three Unreal Automation
 tests; the integrated oracle snapshot reports 121 Python tests. The post-rebase integrated Python
-validation passes 185 tests; the M2.2 record retains its historical 135/20 context. Its [platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
+validation passes 200 tests; the M2.2 record retains its historical 135/20 context. Its [platform summary](docs/m2/evidence/fk-oracle-platform-validation.json)
 retains the earlier full 14-test run as context. The raw articulated feed preserves a model
 reference but does not validate geometry; an FK consumer must call the explicit description-backed
 validator. The recorded M2.5 Linux and Win64 runs pass their full Automation reports with build and
@@ -238,16 +238,15 @@ grouped production tests cover exact description bytes, strict model and evidenc
 three persistent semantic layers, stale/last-good transaction behavior, and connection ordering.
 The identity correction makes protocol and robot-description literals exact in the existing
 articulated-view and robot-description JSON C++ parsers while preserving the standalone client's
-`LegacyView` default and M1 behavior. JSON field-name exactness remains a separate parser
-conformance concern tracked by [issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47).
+`LegacyView` default and M1 behavior. The [JSON field conformance correction](docs/m2/JSON_FIELD_CONFORMANCE.md)
+closes #47 with shared raw-input cases, token-level collision rejection, and exact field-name checks.
 The [platform record](docs/m2/evidence/articulated-scene-platform-validation.json) binds 63
 selected files and records build, editor, and automation exit code 0 on both Linux and Win64.
 Each platform reports 50 tests: 48 `Success`, 2 expected `SuccessWithWarnings` for the
 missing-model and duplicate-sequence negative cases, and zero failures. The final 1920x1080
 `RenderOffscreenVulkan` image is a `SYNTHETIC FIXTURE REPLAY` illustrating the three layers from
 runtime status labels; it is not a pose/root oracle or a pixel-identical output of the public
-generator alone. It is documented in the guide and committed at [the capture](docs/m2/evidence/m2-9a-articulated-scene.png). JSON field-name
-exactness remains tracked by [issue #47](https://github.com/YannickPr/Deferred-Teleoperation/issues/47).
+generator alone. It is documented in the guide and committed at [the capture](docs/m2/evidence/m2-9a-articulated-scene.png).
 The tranche does not close full M2.9, #20 or #21.
 
 ## M3 — Autonomous delayed button press with bounded re-anchoring
@@ -277,7 +276,7 @@ attributed contact. This slice does not close the full S0–S10 matrix or physic
 
 Next, extend the same independent oracles to the remaining matrix rows before broadening the
 policy. Cross-revision effect identity and causal lineage, and the
-separate M2 parser/authoring/integration issues (#47, #20 and #21) remain open. Future 2D/VR
+remaining M2 authoring/integration issues (#20 and #21) remain open. Future 2D/VR
 comparisons retain the same controller and local autonomy.
 
 ### M3a — Deterministic simulation gate
