@@ -1,0 +1,23 @@
+{
+  "schema": "experiment-inventory-only-not-runtime-config/0",
+  "backend": "replay",
+  "hardware_enabled": false,
+  "robot_port": null,
+  "driver_commit": null,
+  "robot_description_sha256": null,
+  "joint_calibration": null,
+  "driver_to_si_mapping": null,
+  "joint_limits_rad": null,
+  "joint_speed_limits_rad_s": null,
+  "joint_acceleration_limits_rad_s2": null,
+  "validated_workspace": null,
+  "camera_extrinsics": null,
+  "independent_button_device": null,
+  "local_physical_stop_validation": null,
+  "operator_activation_approval": null,
+  "design_targets_not_measured": {
+    "selector_hz": 10,
+    "host_command_hz": 20
+  },
+  "note": "No motor driver is included. Null hardware fields must be resolved and reviewed before any separately implemented hardware gate. Do not reuse toy simulation distances as physical safety limits."
+}

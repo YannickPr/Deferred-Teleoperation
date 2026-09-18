@@ -1,0 +1,281 @@
+{
+  "scope": "synthetic state/point-contact + trained MLP; no LLM, Jev, camera or SO101",
+  "base_commit": "26783d9cae483dd119179135accdb48829fc4fc6",
+  "environment": {
+    "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "torch": "2.10.0+cpu",
+    "numpy": "2.3.5",
+    "device": "cpu",
+    "gpu": null
+  },
+  "seed": 20260918,
+  "learning": {
+    "model": "random-init 8-48-48-4 ReLU MLP; rule distillation, not LLM or RLCD",
+    "parameters": 2980,
+    "training_s": 2.335704726000017,
+    "temperature": 0.44033978028662074,
+    "calibration_before": {
+      "n": 4000,
+      "accuracy": 0.9935,
+      "nll": 0.023321162909269333,
+      "brier_multiclass_sum": 0.01237961606880595,
+      "ece_10_equal_width": 0.01003387636691332,
+      "coverage_at_0_9": 0.9465,
+      "error_given_confidence_ge_0_9": 0.0,
+      "confusion_matrix": [
+        [
+          1633,
+          4,
+          1,
+          0
+        ],
+        [
+          4,
+          1321,
+          17,
+          0
+        ],
+        [
+          0,
+          0,
+          340,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          680
+        ]
+      ]
+    },
+    "calibration_after": {
+      "n": 4000,
+      "accuracy": 0.9935,
+      "nll": 0.01674758456647396,
+      "brier_multiclass_sum": 0.010009169940873718,
+      "ece_10_equal_width": 0.0008176234811544946,
+      "coverage_at_0_9": 0.9765,
+      "error_given_confidence_ge_0_9": 0.0010240655401945187,
+      "confusion_matrix": [
+        [
+          1633,
+          4,
+          1,
+          0
+        ],
+        [
+          4,
+          1321,
+          17,
+          0
+        ],
+        [
+          0,
+          0,
+          340,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          680
+        ]
+      ]
+    },
+    "test_before": {
+      "n": 4000,
+      "accuracy": 0.991,
+      "nll": 0.024023812264204025,
+      "brier_multiclass_sum": 0.013490884917047197,
+      "ece_10_equal_width": 0.006626667067408562,
+      "coverage_at_0_9": 0.952,
+      "error_given_confidence_ge_0_9": 0.0,
+      "confusion_matrix": [
+        [
+          1614,
+          4,
+          3,
+          0
+        ],
+        [
+          7,
+          1356,
+          20,
+          0
+        ],
+        [
+          0,
+          2,
+          323,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          671
+        ]
+      ]
+    },
+    "test_after": {
+      "n": 4000,
+      "accuracy": 0.991,
+      "nll": 0.02040211483836174,
+      "brier_multiclass_sum": 0.012538034611569032,
+      "ece_10_equal_width": 0.002322276026010507,
+      "coverage_at_0_9": 0.979,
+      "error_given_confidence_ge_0_9": 0.001532175689479054,
+      "confusion_matrix": [
+        [
+          1614,
+          4,
+          3,
+          0
+        ],
+        [
+          7,
+          1356,
+          20,
+          0
+        ],
+        [
+          0,
+          2,
+          323,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          671
+        ]
+      ]
+    },
+    "split_seeds": {
+      "train": 20260918,
+      "calibration": 20260919,
+      "test": 20260920
+    }
+  },
+  "study_design": "Exploratory: rule-skill selector added after pilot exposed phase deadlock",
+  "single_observation_inference_latency": {
+    "p50_ms": 0.0260515,
+    "p95_ms": 0.05180529999999999,
+    "p99_ms": 0.21150424999999998,
+    "max_ms": 2.379776
+  },
+  "simulated_timing": {
+    "mission_delay_s": 1200,
+    "robot_tick_s": 0.02,
+    "injected_slow_inference_s": 2,
+    "observation_ttl_s": 0.1
+  },
+  "aggregates": {
+    "fast_mlp_guarded": {
+      "episodes": 160,
+      "actionable": 100,
+      "completed_actionable": 48,
+      "unauthorized_contacts": 0,
+      "post_cancel_press_ticks": 0,
+      "completed_by_scenario": {
+        "nominal": 6,
+        "shifted": 8,
+        "over_tolerance": 0,
+        "ambiguous": 0,
+        "dropout": 6,
+        "cancelled": 0,
+        "already_latched": 20,
+        "mid_motion_shift": 8
+      }
+    },
+    "fast_rules_guarded": {
+      "episodes": 160,
+      "actionable": 100,
+      "completed_actionable": 100,
+      "unauthorized_contacts": 0,
+      "post_cancel_press_ticks": 0,
+      "completed_by_scenario": {
+        "nominal": 20,
+        "shifted": 20,
+        "over_tolerance": 0,
+        "ambiguous": 0,
+        "dropout": 20,
+        "cancelled": 0,
+        "already_latched": 20,
+        "mid_motion_shift": 20
+      }
+    },
+    "mlp_selects_rule_skill": {
+      "episodes": 160,
+      "actionable": 100,
+      "completed_actionable": 100,
+      "unauthorized_contacts": 0,
+      "post_cancel_press_ticks": 0,
+      "completed_by_scenario": {
+        "nominal": 20,
+        "shifted": 20,
+        "over_tolerance": 0,
+        "ambiguous": 0,
+        "dropout": 20,
+        "cancelled": 0,
+        "already_latched": 20,
+        "mid_motion_shift": 20
+      }
+    },
+    "slow_snapshot_guarded": {
+      "episodes": 160,
+      "actionable": 100,
+      "completed_actionable": 0,
+      "unauthorized_contacts": 0,
+      "post_cancel_press_ticks": 0,
+      "completed_by_scenario": {
+        "nominal": 0,
+        "shifted": 0,
+        "over_tolerance": 0,
+        "ambiguous": 0,
+        "dropout": 0,
+        "cancelled": 0,
+        "already_latched": 0,
+        "mid_motion_shift": 0
+      }
+    },
+    "stale_reference_unguarded": {
+      "episodes": 160,
+      "actionable": 100,
+      "completed_actionable": 60,
+      "unauthorized_contacts": 100,
+      "post_cancel_press_ticks": 1000,
+      "completed_by_scenario": {
+        "nominal": 20,
+        "shifted": 0,
+        "over_tolerance": 0,
+        "ambiguous": 20,
+        "dropout": 20,
+        "cancelled": 20,
+        "already_latched": 20,
+        "mid_motion_shift": 0
+      }
+    }
+  },
+  "source_sha256": {
+    "core.py": "1a54b6a221883debd87217ceb068ec6be1e31206c321c6859e21a01154deec5a",
+    "experiment.py": "01150c27d4d02e2ad82800188f382416b4735ec5215dc905aa9358ebbe9e1345",
+    "slow_client.py": "365e47675de7c9104ec8b01feadbfa19450554a835c50ff11c84ac49de443bdb",
+    "test_core.py": "bc5add69fc7d86f7365fc9b0606ceea21a07e1388a4f5ae07d285be7bf976190",
+    "test_io.py": "a988cdb8728c929889efd5bf8268d21d3881a43913fccf3fe7bc9fa876fc5694",
+    "text_head.py": "33d60d78437065733c5702bd19af70c93609a0e2be883d13339cee99dbe66752"
+  },
+  "limitations": [
+    "No rigid-body dynamics, force, friction, camera or servo model",
+    "Perfect synthetic entity identity except explicit ambiguity",
+    "Rule-generated IID snapshots; not demonstrations or open-world reasoning",
+    "Slow latency is injected; does not measure any LLM",
+    "Temperature scaling is not RLCD and is not a safety guarantee",
+    "MLP vs rules comparison tests substitution, not necessity of ML",
+    "Results are not tests of existing M3a services or physical hardware"
+  ]
+}

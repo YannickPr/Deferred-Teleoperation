@@ -1,0 +1,52 @@
+test_alignment (test_core.GuardTests.test_alignment) ... ok
+test_ambiguous_target (test_core.GuardTests.test_ambiguous_target) ... ok
+test_bad_probabilities (test_core.GuardTests.test_bad_probabilities) ... ok
+test_calibration (test_core.GuardTests.test_calibration) ... ok
+test_cancel (test_core.GuardTests.test_cancel) ... ok
+test_confidence_not_permission (test_core.GuardTests.test_confidence_not_permission) ... ok
+test_contract_expiry (test_core.GuardTests.test_contract_expiry) ... ok
+test_contract_operation (test_core.GuardTests.test_contract_operation) ... ok
+test_contract_revision (test_core.GuardTests.test_contract_revision) ... ok
+test_displacement_limit (test_core.GuardTests.test_displacement_limit) ... ok
+test_estop (test_core.GuardTests.test_estop) ... ok
+test_frame (test_core.GuardTests.test_frame) ... ok
+test_future_observation (test_core.GuardTests.test_future_observation) ... ok
+test_future_proposal (test_core.GuardTests.test_future_proposal) ... ok
+test_future_sequence (test_core.GuardTests.test_future_sequence) ... ok
+test_hover (test_core.GuardTests.test_hover) ... ok
+test_inference_timestamp_cannot_refresh_snapshot (test_core.GuardTests.test_inference_timestamp_cannot_refresh_snapshot) ... ok
+test_latched_never_repress (test_core.GuardTests.test_latched_never_repress) ... ok
+test_low_confidence (test_core.GuardTests.test_low_confidence) ... ok
+test_malformed_boolean (test_core.GuardTests.test_malformed_boolean) ... ok
+test_nan_clock_and_pose (test_core.GuardTests.test_nan_clock_and_pose) ... ok
+test_nominal_press (test_core.GuardTests.test_nominal_press) ... ok
+test_not_admitted (test_core.GuardTests.test_not_admitted) ... ok
+test_occlusion (test_core.GuardTests.test_occlusion) ... ok
+test_other_epoch (test_core.GuardTests.test_other_epoch) ... ok
+test_other_target (test_core.GuardTests.test_other_target) ... ok
+test_pose_changed_during_inference (test_core.GuardTests.test_pose_changed_during_inference) ... ok
+test_random_model_cannot_bypass_known_forbidden_states (test_core.GuardTests.test_random_model_cannot_bypass_known_forbidden_states) ... ok
+test_robot_reboot (test_core.GuardTests.test_robot_reboot) ... ok
+test_spent_budget (test_core.GuardTests.test_spent_budget) ... ok
+test_stale_observation (test_core.GuardTests.test_stale_observation) ... ok
+test_stale_proposal (test_core.GuardTests.test_stale_proposal) ... ok
+test_verify_does_not_consume_new_effect (test_core.GuardTests.test_verify_does_not_consume_new_effect) ... ok
+test_verify_requires_independent_evidence (test_core.GuardTests.test_verify_requires_independent_evidence) ... ok
+test_zero_limit (test_core.GuardTests.test_zero_limit) ... ok
+test_accept_exact_plan (test_core.PlanTests.test_accept_exact_plan) ... ok
+test_cancellation_overrides_late_plan (test_core.PlanTests.test_cancellation_overrides_late_plan) ... ok
+test_no_model_coordinates (test_core.PlanTests.test_no_model_coordinates) ... ok
+test_no_retarget_or_revision (test_core.PlanTests.test_no_retarget_or_revision) ... ok
+test_reject_stale_request (test_core.PlanTests.test_reject_stale_request) ... ok
+test_disjoint_sessions (test_io.IOTests.test_disjoint_sessions) ... ok
+test_fault_does_not_escape_to_control_loop (test_io.IOTests.test_fault_does_not_escape_to_control_loop) ... ok
+test_json_collisions_and_constants (test_io.IOTests.test_json_collisions_and_constants) ... ok
+test_no_label_or_id_leakage (test_io.IOTests.test_no_label_or_id_leakage) ... ok
+test_reject_nonfinite_features (test_io.IOTests.test_reject_nonfinite_features) ... ok
+test_remote_endpoint_rejected (test_io.IOTests.test_remote_endpoint_rejected) ... ok
+test_single_outstanding_and_nonblocking_poll (test_io.IOTests.test_single_outstanding_and_nonblocking_poll) ... ok
+
+----------------------------------------------------------------------
+Ran 47 tests in 0.039s
+
+OK
