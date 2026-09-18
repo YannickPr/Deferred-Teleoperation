@@ -1,0 +1,7 @@
+# Simulation ranges, not a tested CUDA lock. Prefer a separate environment.
+numpy>=2,<3
+torch>=2.7,<3
+# Optional text_head.py recipe: prepared, NOT executed in this environment.
+# Install and lock compatible versions on the target machine after smoke tests:
+# transformers>=4.51,<5
+# peft>=0.16,<1

@@ -1,0 +1,43 @@
+{
+  "date": "2026-09-18",
+  "base_commit": "26783d9cae483dd119179135accdb48829fc4fc6",
+  "executed": {
+    "standalone_unittest": {
+      "passed": 47,
+      "failed": 0,
+      "command": "python -m unittest discover -s . -p 'test_*.py' -v"
+    },
+    "py_compile": "passed",
+    "cpu_training_seeds": [
+      20260918,
+      20260928
+    ],
+    "closed_loop_episodes": 1600
+  },
+  "not_executed": [
+    "upstream full pytest suite",
+    "ruff",
+    "Unreal",
+    "CUDA / RTX 3090",
+    "Qwen weights / Transformers / PEFT training",
+    "live LLM endpoint",
+    "M3a service integration",
+    "SO-101 / cameras / physical effects"
+  ],
+  "source_sha256": {
+    "core.py": "1a54b6a221883debd87217ceb068ec6be1e31206c321c6859e21a01154deec5a",
+    "experiment.py": "01150c27d4d02e2ad82800188f382416b4735ec5215dc905aa9358ebbe9e1345",
+    "slow_client.py": "365e47675de7c9104ec8b01feadbfa19450554a835c50ff11c84ac49de443bdb",
+    "test_core.py": "bc5add69fc7d86f7365fc9b0606ceea21a07e1388a4f5ae07d285be7bf976190",
+    "test_io.py": "a988cdb8728c929889efd5bf8268d21d3881a43913fccf3fe7bc9fa876fc5694",
+    "text_head.py": "33d60d78437065733c5702bd19af70c93609a0e2be883d13339cee99dbe66752"
+  },
+  "evidence_sha256": {
+    "confirmation-episodes.jsonl.gz": "13d089b693345875b58f48ec2d0f7d82257e5f2b10988e3114d485aae7852330",
+    "confirmation.json": "9c83e2ffba1f1b223f0d377af7cbb276c9606c077234f49638c77d5bcf7630f7",
+    "report-episodes.jsonl.gz": "14c49195751e974d0b4908ea546027dc78c67b131dfde7634beb9f1dcc37641b",
+    "report.json": "e6c4cbea653cef1acf3e6a319c659304875cda18852f0c024e7ecbd832dbe6db",
+    "unit-tests.txt": "6643ed57e2ebd1602921a686238e0ba97812db8e225c56c88bded128a77f0f9d"
+  },
+  "physical_hardware_used": false
+}
